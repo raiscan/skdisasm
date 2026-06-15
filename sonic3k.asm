@@ -62267,7 +62267,7 @@ loc_2D86E:
 		bne.s	loc_2D88A
 		jsr	(AllocateObject).l
 		bne.s	loc_2D88A
-		move.l	#Hyudoro,(a1)	; If new level is Sandopolis 2, then load the ghosts
+		move.l	#Obj_SOZGhosts,(a1)	; If new level is Sandopolis 2, then load the ghosts
 
 loc_2D88A:
 		cmpi.b	#$16,(Current_zone).w
@@ -130057,41 +130057,41 @@ Obj_MHZ1CutsceneButton:
 		jsr	(SetUp_ObjAttributes).l
 		lea	ChildObjDat_665B6(pc),a2
 		jsr	(CreateChild6_Simple).l
-		move.l	#loc_62F0A,(a0)
+		move.l	#MHZ1CutsceneButton_Main,(a0)
 		tst.b	(Last_star_post_hit).w
-		bne.s	loc_62E56
+		bne.s	MHZ1CutsceneButton_Draw
 		cmpi.b	#2,(Player_1+character_id).w
-		beq.s	loc_62E56
-		move.l	#loc_62E5C,(a0)
+		beq.s	MHZ1CutsceneButton_Draw
+		move.l	#MHZ1CutsceneButton_WaitForKnucklesEvent,(a0)
 
-loc_62E56:
+MHZ1CutsceneButton_Draw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_62E5C:
+MHZ1CutsceneButton_WaitForKnucklesEvent:
 		cmpi.b	#$A,(_unkFAB8).w
-		bhs.s	loc_62E6A
+		bhs.s	MHZ1CutsceneButton_LoadKnucklesPeer
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_62E6A:
-		move.l	#loc_62E92,(a0)
+MHZ1CutsceneButton_LoadKnucklesPeer:
+		move.l	#MHZ1CutsceneButton_CheckKnucklesPress,(a0)
 		lea	(ArtKosM_MHZKnuxPeer).l,a1
 		move.w	#tiles_to_bytes(ArtTile_MHZKnuxPeer),d2
 		jsr	(Queue_Kos_Module).l
 		lea	ChildObjDat_665AA(pc),a2
 		jsr	(CreateChild6_Simple).l
-		bne.s	loc_62E92
+		bne.s	MHZ1CutsceneButton_CheckKnucklesPress
 		move.b	#$1C,subtype(a1)
 
-loc_62E92:
+MHZ1CutsceneButton_CheckKnucklesPress:
 		move.w	(_unkFAA4).w,d0
-		beq.s	loc_62ECA
+		beq.s	MHZ1CutsceneButton_DrawAfterCheck
 		movea.w	d0,a1
 		lea	word_65C48(pc),a2
 		jsr	(Check_InMyRange).l
-		beq.s	loc_62ECA
-		move.l	#loc_62ED0,(a0)
+		beq.s	MHZ1CutsceneButton_DrawAfterCheck
+		move.l	#MHZ1CutsceneButton_Depress,(a0)
 		move.w	#1,$2E(a0)
 		move.b	#1,mapping_frame(a0)
 		bset	#1,$38(a0)
@@ -130099,164 +130099,164 @@ loc_62E92:
 		moveq	#signextendB(sfx_Switch),d0
 		jsr	(Play_SFX).l
 
-loc_62ECA:
+MHZ1CutsceneButton_DrawAfterCheck:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_62ED0:
+MHZ1CutsceneButton_Depress:
 		bclr	#1,$38(a0)
 		subq.w	#1,$2E(a0)
-		bpl.s	loc_62EF6
+		bpl.s	MHZ1CutsceneButton_DepressDraw
 		move.l	#Wait_Draw,(a0)
 		move.w	#$5F,$2E(a0)
-		move.l	#loc_62EFC,$34(a0)
+		move.l	#MHZ1CutsceneButton_ReleaseAfterDelay,$34(a0)
 		move.b	#0,mapping_frame(a0)
 
-loc_62EF6:
+MHZ1CutsceneButton_DepressDraw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_62EFC:
+MHZ1CutsceneButton_ReleaseAfterDelay:
 		move.b	#$C,(_unkFAB8).w
-		move.l	#loc_62F0A,(a0)
+		move.l	#MHZ1CutsceneButton_Main,(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_62F0A:
+MHZ1CutsceneButton_Main:
 		bsr.w	sub_65DEC
 		move.b	status(a0),d1
 		andi.b	#standing_mask,d1
-		beq.s	loc_62F46
-		move.l	#loc_62F4C,(a0)
+		beq.s	MHZ1CutsceneButton_CheckDelete
+		move.l	#MHZ1CutsceneButton_WaitRelease,(a0)
 		move.b	#1,mapping_frame(a0)
 		moveq	#signextendB(sfx_Switch),d0
 		jsr	(Play_SFX).l
 		btst	#2,$38(a0)
-		bne.s	loc_62F46
+		bne.s	MHZ1CutsceneButton_CheckDelete
 		bset	#1,$38(a0)
 		not.b	(_unkFAA9).w
 		moveq	#signextendB(sfx_Switch),d0
 		jsr	(Play_SFX).l
 
-loc_62F46:
+MHZ1CutsceneButton_CheckDelete:
 		jmp	(Sprite_CheckDelete).l
 ; ---------------------------------------------------------------------------
 
-loc_62F4C:
+MHZ1CutsceneButton_WaitRelease:
 		bclr	#1,$38(a0)
 		bsr.w	sub_65DEC
 		move.b	status(a0),d0
 		andi.b	#standing_mask,d0
-		bne.s	loc_62F6C
-		move.l	#loc_62F0A,(a0)
+		bne.s	MHZ1CutsceneButton_CheckDeletePressed
+		move.l	#MHZ1CutsceneButton_Main,(a0)
 		move.b	#0,mapping_frame(a0)
 
-loc_62F6C:
+MHZ1CutsceneButton_CheckDeletePressed:
 		jmp	(Sprite_CheckDelete).l
 ; ---------------------------------------------------------------------------
 
-loc_62F72:
+MHZ1CutsceneButton_KnuxPeer:
 		lea	ObjDat3_6643E(pc),a1
 		jsr	(SetUp_ObjAttributes).l
-		move.l	#loc_62FA2,(a0)
+		move.l	#MHZ1CutsceneButton_KnuxPeer_Move,(a0)
 		move.w	#$374,x_pos(a0)
 		move.w	#$66C,y_pos(a0)
 		move.w	#$200,x_vel(a0)
 		move.w	#7,$2E(a0)
-		move.l	#loc_62FB4,$34(a0)
+		move.l	#MHZ1CutsceneButton_KnuxPeer_Turn,$34(a0)
 
-loc_62FA2:
+MHZ1CutsceneButton_KnuxPeer_Move:
 		jsr	(MoveSprite2).l
 		jsr	(Obj_Wait).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_62FB4:
-		move.l	#loc_62FCA,(a0)
-		move.l	#loc_62FDA,$34(a0)
+MHZ1CutsceneButton_KnuxPeer_Turn:
+		move.l	#MHZ1CutsceneButton_KnuxPeer_AnimateTurn,(a0)
+		move.l	#MHZ1CutsceneButton_KnuxPeer_Exit,$34(a0)
 		bset	#7,art_tile(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_62FCA:
+MHZ1CutsceneButton_KnuxPeer_AnimateTurn:
 		lea	byte_666E1(pc),a1
 		jsr	(Animate_RawNoSSTMultiDelay).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_62FDA:
-		move.l	#loc_62FA2,(a0)
+MHZ1CutsceneButton_KnuxPeer_Exit:
+		move.l	#MHZ1CutsceneButton_KnuxPeer_Move,(a0)
 		move.w	#-$400,x_vel(a0)
 		move.w	#$F,$2E(a0)
-		move.l	#loc_62FFC,$34(a0)
+		move.l	#MHZ1CutsceneButton_KnuxPeer_Delete,$34(a0)
 		bclr	#7,art_tile(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_62FFC:
+MHZ1CutsceneButton_KnuxPeer_Delete:
 		movea.w	parent3(a0),a1
 		bset	#3,$38(a1)
 		jmp	(Go_Delete_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_6300C:
+MHZ1CutsceneButton_Door:
 		lea	ObjDat3_66462(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		movea.w	parent3(a0),a1
 		move.w	a0,$44(a1)
-		move.l	#loc_6303C,(a0)
+		move.l	#MHZ1CutsceneButton_Door_Wait,(a0)
 		move.w	#$390,x_pos(a0)
 		move.w	#$620,y_pos(a0)
 		tst.b	(_unkFAA9).w
-		beq.s	loc_6303C
+		beq.s	MHZ1CutsceneButton_Door_Wait
 		addi.w	#$40,y_pos(a0)
 
-loc_6303C:
+MHZ1CutsceneButton_Door_Wait:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		bne.s	loc_63078
+		bne.s	MHZ1CutsceneButton_Door_Move
 		jsr	(sub_65E4C).l
 		lea	(Player_1).w,a1
 		jsr	(Find_OtherObject).l
 		tst.b	(_unkFAA9).w
-		beq.s	loc_6306E
+		beq.s	MHZ1CutsceneButton_Door_Draw
 		tst.w	d0
-		bne.s	loc_6306E
+		bne.s	MHZ1CutsceneButton_Door_Draw
 		cmpi.w	#$40,d2
-		bhs.s	loc_6306E
+		bhs.s	MHZ1CutsceneButton_Door_Draw
 		cmpi.w	#$60,d3
-		blo.s	loc_63074
+		blo.s	MHZ1CutsceneButton_Door_ClearFlag
 
-loc_6306E:
+MHZ1CutsceneButton_Door_Draw:
 		jmp	(Child_Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_63074:
+MHZ1CutsceneButton_Door_ClearFlag:
 		clr.b	(_unkFAA9).w
 
-loc_63078:
-		move.l	#loc_630A6,(a0)
+MHZ1CutsceneButton_Door_Move:
+		move.l	#MHZ1CutsceneButton_Door_Moving,(a0)
 		movea.w	parent3(a0),a1
 		bset	#2,$38(a1)
 		move.w	#$100,d0
 		tst.b	(_unkFAA9).w
-		bne.s	loc_63094
+		bne.s	MHZ1CutsceneButton_Door_SetVelocity
 		neg.w	d0
 
-loc_63094:
+MHZ1CutsceneButton_Door_SetVelocity:
 		move.w	d0,y_vel(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_630BE,$34(a0)
+		move.l	#MHZ1CutsceneButton_Door_Reset,$34(a0)
 
-loc_630A6:
+MHZ1CutsceneButton_Door_Moving:
 		jsr	(MoveSprite2).l
 		jsr	(sub_65E4C).l
 		jsr	(Obj_Wait).l
 		jmp	(Child_Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_630BE:
-		move.l	#loc_6303C,(a0)
+MHZ1CutsceneButton_Door_Reset:
+		move.l	#MHZ1CutsceneButton_Door_Wait,(a0)
 		movea.w	parent3(a0),a1
 		bclr	#2,$38(a1)
 		rts
@@ -135010,10 +135010,10 @@ ChildObjDat_665AA:
 		dc.l Obj_CutsceneKnuckles
 ChildObjDat_665B0:
 		dc.w 1-1
-		dc.l loc_62F72
+		dc.l MHZ1CutsceneButton_KnuxPeer
 ChildObjDat_665B6:
 		dc.w 1-1
-		dc.l loc_6300C
+		dc.l MHZ1CutsceneButton_Door
 ChildObjDat_665BC:
 		dc.w 1-1
 		dc.l loc_632CA
@@ -195448,7 +195448,7 @@ Map_Rockn:
 
 ; original label: gost08
 ; Obj_SOZGhosts:
-Hyudoro:
+Obj_SOZGhosts:
 		move.l	#Hyudoro_ctr,(a0)
 		move.w	#$120,x_pos(a0)
 		move.w	#$A0,y_pos(a0)
@@ -195753,7 +195753,7 @@ Hyudoro_body_fout0:
 ; ---------------------------------------------------------------------------
 
 ; Obj_SOZGhostCapsuleLoadArt:
-set_SOZ_capsule_Hyudoro_cg:
+Obj_SOZGhostCapsuleLoadArt:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		movea.l	.col_tbl(pc,d0.w),a1
@@ -195808,12 +195808,12 @@ set_soz_enemy_cg:
 
 ; original label: obox08
 ; Obj_SOZGhostCapsule:
-SOZ_capsule:
-		lea	SOZ_capsule_init_tbl(pc),a1
+Obj_SOZGhostCapsule:
+		lea	SOZGhostCapsule_InitTbl(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		move.l	#loc_89C14,(a0)
 		move.b	#3,subtype(a0)
-		lea	SOZ_capsule_switch_set_tbl(pc),a2
+		lea	SOZGhostCapsuleSwitch_SetTbl(pc),a2
 		jsr	(CreateChild1_Normal).l
 		tst.b	(Last_star_post_hit).w
 		bne.s	._100
@@ -195832,7 +195832,7 @@ return:
 ; ---------------------------------------------------------------------------
 
 ; loc_8F438:
-SOZ_capsule_switch:
+SOZGhostCapsule_Switch:
 		lea	(word_86B3E).l,a1
 		jsr	(SetUp_ObjAttributes3).l
 		move.l	#loc_8672A,(a0)
@@ -195847,7 +195847,7 @@ SOZ_capsule_switch:
 ; ---------------------------------------------------------------------------
 
 ; loc_8F45E:
-SOZ_capsule_Hyudoro:
+SOZGhostCapsule_Hyudoro:
 		moveq	#0,d0
 		move.b	routine(a0),d0
 		move.w	.act_tbl(pc,d0.w),d1
@@ -195866,13 +195866,13 @@ SOZ_capsule_Hyudoro:
 
 ; off_8F488:
 .act_tbl:
-		dc.w SOZ_capsule_Hyudoro_init-.act_tbl
-		dc.w SOZ_capsule_Hyudoro_move0-.act_tbl
-		dc.w SOZ_capsule_Hyudoro_move1-.act_tbl
+		dc.w SOZGhostCapsule_Hyudoro_init-.act_tbl
+		dc.w SOZGhostCapsule_Hyudoro_move0-.act_tbl
+		dc.w SOZGhostCapsule_Hyudoro_move1-.act_tbl
 ; ---------------------------------------------------------------------------
 
 ; loc_8F48E:
-SOZ_capsule_Hyudoro_init:
+SOZGhostCapsule_Hyudoro_init:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		add.w	d0,d0
@@ -195888,7 +195888,7 @@ SOZ_capsule_Hyudoro_init:
 
 ; loc_8F4B6:
 ._100:
-		lea	SOZ_capsule_Hyudoro_init_tbl(pc),a1
+		lea	SOZGhostCapsuleHyudoro_InitTbl(pc),a1
 		jmp	(SetUp_ObjAttributes).l
 ; ---------------------------------------------------------------------------
 
@@ -195903,12 +195903,12 @@ SOZ_capsule_Hyudoro_init:
 ; ---------------------------------------------------------------------------
 
 ; loc_8F4D8:
-SOZ_capsule_Hyudoro_move0:
+SOZGhostCapsule_Hyudoro_move0:
 		lea	Hyudoro_pg00(pc),a1
 		jsr	(Animate_RawNoSST).l
 
 ; loc_8F4E2:
-SOZ_capsule_Hyudoro_move1:
+SOZGhostCapsule_Hyudoro_move1:
 		move.w	$40(a0),d0
 		add.w	d0,y_vel(a0)
 		jmp	(MoveSprite2).l
@@ -195950,7 +195950,7 @@ set_Hyudoro:
 		move.w	(a1)+,(Saved_X_pos).w
 		move.w	(a1)+,(Saved_Y_pos).w
 		jsr	(Save_Level_Data).l
-		lea	SOZ_capsule_Hyudoro_set_tbl(pc),a2
+		lea	SOZGhostCapsuleHyudoro_SetTbl(pc),a2
 		jmp	(CreateChild1_Normal).l
 
 ; =============== S U B R O U T I N E =======================================
@@ -196071,39 +196071,39 @@ Hyudoro_init_tbl:
 		dc.b  $10, $14,   0,   0
 
 ; ObjDat_SOZGhostCapsule:
-SOZ_capsule_init_tbl:
+SOZGhostCapsule_InitTbl:
 		dc.l Map_EggCapsule
 		dc.w make_art_tile(ArtTile_SOZGhostCapsule,0,1)
 		dc.w   $180
 		dc.b  $30, $20,   0,   0
 
 ; ObjDat3_8F63A:
-SOZ_capsule_Hyudoro_init_tbl:
+SOZGhostCapsuleHyudoro_InitTbl:
 		dc.l Map_SOZGhosts
 		dc.w make_art_tile(ArtTile_SOZGhosts,1,1)
 		dc.w   $200
 		dc.b  $30, $20,   0,   0
 
 ; ChildObjDat_8F646:
-SOZ_capsule_switch_set_tbl:
+SOZGhostCapsuleSwitch_SetTbl:
 		dc.w 1-1
-		dc.l SOZ_capsule_switch
+		dc.l SOZGhostCapsule_Switch
 		dc.b    0,-$24
 
 ; ChildObjDat_8F64E:
-SOZ_capsule_Hyudoro_set_tbl:
+SOZGhostCapsuleHyudoro_SetTbl:
 		dc.w 6-1
-		dc.l SOZ_capsule_Hyudoro
+		dc.l SOZGhostCapsule_Hyudoro
 		dc.b   -8,  -4
-		dc.l SOZ_capsule_Hyudoro
+		dc.l SOZGhostCapsule_Hyudoro
 		dc.b    8,  -4
-		dc.l SOZ_capsule_Hyudoro
+		dc.l SOZGhostCapsule_Hyudoro
 		dc.b  $10,  -4
-		dc.l SOZ_capsule_Hyudoro
+		dc.l SOZGhostCapsule_Hyudoro
 		dc.b -$10,  -4
-		dc.l SOZ_capsule_Hyudoro
+		dc.l SOZGhostCapsule_Hyudoro
 		dc.b  $18,  -4
-		dc.l SOZ_capsule_Hyudoro
+		dc.l SOZGhostCapsule_Hyudoro
 		dc.b -$18,  -4
 
 ; ChildObjDat_8F674:
