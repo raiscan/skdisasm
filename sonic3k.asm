@@ -58303,7 +58303,7 @@ locret_2A230:
 ; End of function LBZTubeElevator_CheckPlayer
 
 ; ---------------------------------------------------------------------------
-word_2A232:
+AIZDisappearingFloor_FrameMasks:
 		dc.w     1
 		dc.w     3
 		dc.w     7
@@ -58328,12 +58328,12 @@ Obj_AIZDisappearingFloor:
 		andi.w	#$F,d0
 		move.w	d0,d2
 		add.w	d0,d0
-		move.w	word_2A232(pc,d0.w),$32(a0)
+		move.w	AIZDisappearingFloor_FrameMasks(pc,d0.w),$32(a0)
 		subq.w	#3,d2
-		bcc.s	loc_2A26C
+		bcc.s	AIZDisappearingFloor_CalcDelay
 		moveq	#0,d2
 
-loc_2A26C:
+AIZDisappearingFloor_CalcDelay:
 		lsr.w	#4,d1
 		andi.w	#$F,d1
 		lsl.w	d2,d1
@@ -58348,41 +58348,41 @@ loc_2A26C:
 		move.w	(Level_frame_counter).w,d0
 		add.w	$34(a0),d0
 		and.w	$32(a0),d0
-		beq.s	loc_2A2D0
+		beq.s	AIZDisappearingFloor_SetMain
 		subi.w	#$C8,d0
-		bcc.s	loc_2A2D0
+		bcc.s	AIZDisappearingFloor_SetMain
 		neg.w	d0
 		move.b	d0,anim_frame_timer(a0)
 		move.b	#0,anim_frame(a0)
 		move.w	#(2<<8)|2,anim(a0)	; and prev_anim
 		move.b	#5,mapping_frame(a0)
 
-loc_2A2D0:
-		move.l	#loc_2A2D6,(a0)
+AIZDisappearingFloor_SetMain:
+		move.l	#AIZDisappearingFloor_Main,(a0)
 
-loc_2A2D6:
+AIZDisappearingFloor_Main:
 		move.w	(Level_frame_counter).w,d0
 		add.w	$34(a0),d0
 		and.w	$32(a0),d0
-		bne.w	loc_2A300
+		bne.w	AIZDisappearingFloor_Animate
 		move.w	#(1<<8)|0,anim(a0)	; and prev_anim
 		move.b	#0,$36(a0)
 		tst.b	render_flags(a0)
-		bpl.s	loc_2A300
+		bpl.s	AIZDisappearingFloor_Animate
 		moveq	#signextendB(sfx_WaterfallSplash),d0
 		jsr	(Play_SFX).l
 
-loc_2A300:
+AIZDisappearingFloor_Animate:
 		lea	(Ani_AIZDisappearingFloor).l,a1
 		jsr	(Animate_SpriteIrregularDelay).l
 		cmpi.b	#5,mapping_frame(a0)
-		bne.s	loc_2A366
+		bne.s	AIZDisappearingFloor_CheckDelete
 		tst.b	$36(a0)
-		bne.s	loc_2A366
+		bne.s	AIZDisappearingFloor_CheckDelete
 		move.b	#1,$36(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2A366
-		move.l	#loc_2A36C,(a1)
+		bne.w	AIZDisappearingFloor_CheckDelete
+		move.l	#AIZDisappearingFloor_SolidChild,(a1)
 		move.w	x_pos(a0),x_pos(a1)
 		move.w	y_pos(a0),y_pos(a1)
 		move.l	#Map_AIZDisappearingFloor2,mappings(a1)
@@ -58393,24 +58393,24 @@ loc_2A300:
 		move.w	#$200,priority(a1)
 		move.w	a0,$3C(a1)
 
-loc_2A366:
+AIZDisappearingFloor_CheckDelete:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_2A36C:
+AIZDisappearingFloor_SolidChild:
 		movea.w	$3C(a0),a1
 		cmpi.b	#3,mapping_frame(a1)
-		bne.s	loc_2A37E
+		bne.s	AIZDisappearingFloor_SolidChildAnimate
 		move.w	#$7FF0,x_pos(a0)
 
-loc_2A37E:
+AIZDisappearingFloor_SolidChildAnimate:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_2A394
+		bpl.s	AIZDisappearingFloor_SolidChildSolid
 		move.b	#3,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		andi.b	#3,mapping_frame(a0)
 
-loc_2A394:
+AIZDisappearingFloor_SolidChildSolid:
 		move.w	#$2B,d1
 		move.w	#$18,d2
 		move.w	#$19,d3
@@ -58882,10 +58882,10 @@ Obj_AIZFlippingBridge:
 		move.b	#4,render_flags(a0)
 		move.w	#$200,priority(a0)
 		move.w	y_pos(a0),$30(a0)
-		move.l	#word_2AAF2,$32(a0)
+		move.l	#AIZFlippingBridge_ArcHeights,$32(a0)
 		move.b	subtype(a0),d0
 		bpl.s	loc_2A98E
-		move.l	#word_2AB72,$32(a0)
+		move.l	#AIZFlippingBridge_ShallowArcHeights,$32(a0)
 
 loc_2A98E:
 		move.b	d0,d1
@@ -58904,8 +58904,8 @@ loc_2A98E:
 loc_2A9B6:
 		move.b	d1,$36(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2AA50
-		move.l	#loc_2AA78,(a1)
+		bne.w	AIZFlippingBridge_SetMain
+		move.l	#AIZFlippingBridge_DisplayChild,(a1)
 		move.l	#Map_AIZFlippingBridge,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZMisc2,2,0),art_tile(a1)
 		move.b	#4,render_flags(a1)
@@ -58943,36 +58943,36 @@ loc_2AA36:
 		dbf	d6,loc_2AA36
 		move.w	a1,$3C(a0)
 
-loc_2AA50:
-		move.l	#loc_2AA56,(a0)
+AIZFlippingBridge_SetMain:
+		move.l	#AIZFlippingBridge_Main,(a0)
 
-loc_2AA56:
+AIZFlippingBridge_Main:
 		movea.w	$3C(a0),a3
-		bsr.w	sub_2AA7E
+		bsr.w	AIZFlippingBridge_UpdateSegments
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		movea.l	$32(a0),a2
 		move.w	x_pos(a0),d4
-		jsr	(sub_2ABF2).l
+		jsr	(AIZFlippingBridge_CheckPlayers).l
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_2AA78:
+AIZFlippingBridge_DisplayChild:
 		jmp	(Sprite_OnScreen_Test).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2AA7E:
+AIZFlippingBridge_UpdateSegments:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	locret_2AAC8
+		bpl.s	AIZFlippingBridge_Return
 		move.b	$25(a0),anim_frame_timer(a0)
 		lea	sub2_mapframe(a3),a2
 		move.w	mainspr_childsprites(a3),d6
 		subq.w	#1,d6
 		move.b	$37(a0),d2
 		move.b	$36(a0),d1
-		bmi.s	loc_2AACA
+		bmi.s	AIZFlippingBridge_UpdateSegmentsReverse
 
 loc_2AA9E:
 		add.b	d1,(a2)
@@ -58984,41 +58984,41 @@ loc_2AAA8:
 		addq.w	#next_subspr,a2
 		dbf	d6,loc_2AA9E
 		tst.b	render_flags(a3)
-		bpl.s	locret_2AAC8
+		bpl.s	AIZFlippingBridge_Return
 		move.b	(Level_frame_counter+1).w,d0
 		addq.b	#3,d0
 		andi.b	#7,d0
-		bne.s	locret_2AAC8
+		bne.s	AIZFlippingBridge_Return
 		moveq	#signextendB(sfx_GlideLand),d0
 		jsr	(Play_SFX).l
 
-locret_2AAC8:
+AIZFlippingBridge_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_2AACA:
+AIZFlippingBridge_UpdateSegmentsReverse:
 		add.b	d1,(a2)
 		bcs.s	loc_2AAD0
 		move.b	d2,(a2)
 
 loc_2AAD0:
 		addq.w	#next_subspr,a2
-		dbf	d6,loc_2AACA
+		dbf	d6,AIZFlippingBridge_UpdateSegmentsReverse
 		tst.b	render_flags(a3)
-		bpl.s	locret_2AAF0
+		bpl.s	AIZFlippingBridge_ReverseReturn
 		move.b	(Level_frame_counter+1).w,d0
 		addq.b	#3,d0
 		andi.b	#7,d0
-		bne.s	locret_2AAF0
+		bne.s	AIZFlippingBridge_ReverseReturn
 		moveq	#signextendB(sfx_GlideLand),d0
 		jsr	(Play_SFX).l
 
-locret_2AAF0:
+AIZFlippingBridge_ReverseReturn:
 		rts
-; End of function sub_2AA7E
+; End of function AIZFlippingBridge_UpdateSegments
 
 ; ---------------------------------------------------------------------------
-word_2AAF2:
+AIZFlippingBridge_ArcHeights:
 		dc.b -$1C,-$1C,-$1C,-$1C
 		dc.b -$1C,-$1C,-$1C,-$1C
 		dc.b -$1C,-$1C,-$1C,-$1C
@@ -59051,7 +59051,7 @@ word_2AAF2:
 		dc.b  $1C, $1C, $1C, $1C
 		dc.b  $1C, $1C, $1C, $1C
 		dc.b  $1C, $1C, $1C, $1C
-word_2AB72:
+AIZFlippingBridge_ShallowArcHeights:
 		dc.b  -$C, -$C, -$C, -$C
 		dc.b  -$C, -$C, -$C, -$C
 		dc.b  -$C, -$C, -$C, -$C
@@ -59089,21 +59089,21 @@ word_2AB72:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2ABF2:
+AIZFlippingBridge_CheckPlayers:
 		lea	(Player_1).w,a1
 		moveq	#p1_standing_bit,d6
 		movem.l	d1-d4,-(sp)
-		bsr.s	sub_2AC08
+		bsr.s	AIZFlippingBridge_CheckPlayer
 		movem.l	(sp)+,d1-d4
 		lea	(Player_2).w,a1
 		addq.b	#p2_standing_bit-p1_standing_bit,d6
-; End of function sub_2ABF2
+; End of function AIZFlippingBridge_CheckPlayers
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2AC08:
+AIZFlippingBridge_CheckPlayer:
 		btst	d6,status(a0)
 		beq.s	loc_2AC5E
 		move.w	d1,d2
@@ -59191,7 +59191,7 @@ loc_2AC82:
 
 locret_2ACDA:
 		rts
-; End of function sub_2AC08
+; End of function AIZFlippingBridge_CheckPlayer
 
 ; ---------------------------------------------------------------------------
 
