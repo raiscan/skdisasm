@@ -59197,7 +59197,7 @@ locret_2ACDA:
 
 Obj_AIZCollapsingLogBridge:
 		move.b	subtype(a0),d0
-		bmi.w	loc_2ADA8
+		bmi.w	AIZCollapsingLogBridge_InitFire
 		move.b	d0,$36(a0)
 		addi.b	#$30,d0
 		move.b	d0,$35(a0)
@@ -59209,8 +59209,8 @@ Obj_AIZCollapsingLogBridge:
 		move.b	#4,render_flags(a0)	; oddly, this is not an ori like the child sprites, however it doesn't matter in normal gameplay as this object only faces one direction
 		move.w	#$200,priority(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2AD9E
-		move.l	#loc_2AEB4,(a1)
+		bne.w	AIZCollapsingLogBridge_SetLogMain
+		move.l	#AIZCollapsingLogBridge_DisplayChild,(a1)
 		move.l	#Map_AIZCollapsingLogBridge,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZMisc2,2,0),art_tile(a1)
 		ori.b	#4,render_flags(a1)
@@ -59229,21 +59229,21 @@ Obj_AIZCollapsingLogBridge:
 		subq.w	#1,d6
 		move.w	#1,4(a2)
 
-loc_2AD86:
+AIZCollapsingLogBridge_InitLogSegments:
 		move.w	d3,(a2)+
 		move.w	d2,(a2)+
 		addq.w	#2,a2
 		addi.w	#$1E,d3
-		dbf	d6,loc_2AD86
+		dbf	d6,AIZCollapsingLogBridge_InitLogSegments
 		move.w	#2,-2(a2)
 		move.w	a1,$3C(a0)
 
-loc_2AD9E:
-		move.l	#loc_2AE70,(a0)
-		bra.w	loc_2AE70
+AIZCollapsingLogBridge_SetLogMain:
+		move.l	#AIZCollapsingLogBridge_LogMain,(a0)
+		bra.w	AIZCollapsingLogBridge_LogMain
 ; ---------------------------------------------------------------------------
 
-loc_2ADA8:
+AIZCollapsingLogBridge_InitFire:
 		andi.b	#$7F,d0
 		move.b	d0,$36(a0)
 		addi.b	#$30,d0
@@ -59256,8 +59256,8 @@ loc_2ADA8:
 		move.b	#4,render_flags(a0)	; oddly, this is not an ori like the child sprites, however it doesn't matter in normal gameplay as this object only faces one direction
 		move.w	#$200,priority(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2AE66
-		move.l	#loc_2AEB4,(a1)
+		bne.w	AIZCollapsingLogBridge_SetFireMain
+		move.l	#AIZCollapsingLogBridge_DisplayChild,(a1)
 		move.l	#Map_AIZDrawBridgeFire,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZMisc2,2,1),art_tile(a1)
 		ori.b	#4,render_flags(a1)
@@ -59276,32 +59276,32 @@ loc_2ADA8:
 		subq.w	#1,d6
 		move.w	#1,4(a2)
 
-loc_2AE4E:
+AIZCollapsingLogBridge_InitFireSegments:
 		move.w	d3,(a2)+
 		move.w	d2,(a2)+
 		addq.w	#2,a2
 		addi.w	#$20,d3
-		dbf	d6,loc_2AE4E
+		dbf	d6,AIZCollapsingLogBridge_InitFireSegments
 		move.w	#2,-2(a2)
 		move.w	a1,$3C(a0)
 
-loc_2AE66:
-		move.l	#loc_2AEE2,(a0)
-		bra.w	loc_2AEE2
+AIZCollapsingLogBridge_SetFireMain:
+		move.l	#AIZCollapsingLogBridge_FireMain,(a0)
+		bra.w	AIZCollapsingLogBridge_FireMain
 ; ---------------------------------------------------------------------------
 
-loc_2AE70:
+AIZCollapsingLogBridge_LogMain:
 		move.b	status(a0),d0
 		andi.b	#standing_mask,d0
-		beq.s	loc_2AE98
+		beq.s	AIZCollapsingLogBridge_LogSolid
 		move.b	$35(a0),$34(a0)
 		move.b	$36(a0),d2
 		move.b	$37(a0),d3
-		move.l	#loc_2AF70,(a0)
-		move.l	#loc_2AEBA,d4
-		bsr.w	sub_2AFFE
+		move.l	#AIZCollapsingLogBridge_CollapseMain,(a0)
+		move.l	#AIZCollapsingLogBridge_LogPiece,d4
+		bsr.w	AIZCollapsingLogBridge_SpawnPieces
 
-loc_2AE98:
+AIZCollapsingLogBridge_LogSolid:
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		moveq	#0,d3
@@ -59311,39 +59311,39 @@ loc_2AE98:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_2AEB4:
+AIZCollapsingLogBridge_DisplayChild:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_2AEBA:
+AIZCollapsingLogBridge_LogPiece:
 		tst.b	$34(a0)
-		beq.s	loc_2AECA
+		beq.s	AIZCollapsingLogBridge_LogPieceFall
 		subq.b	#1,$34(a0)
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2AECA:
+AIZCollapsingLogBridge_LogPieceFall:
 		jsr	(MoveSprite).l
 		tst.b	render_flags(a0)
-		bpl.s	loc_2AEDC
+		bpl.s	AIZCollapsingLogBridge_DeletePiece
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2AEDC:
+AIZCollapsingLogBridge_DeletePiece:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2AEE2:
+AIZCollapsingLogBridge_FireMain:
 		tst.b	(_unkFAA2).w
-		beq.s	loc_2AF06
+		beq.s	AIZCollapsingLogBridge_FireSolid
 		move.b	$35(a0),$34(a0)
 		move.b	$36(a0),d2
 		move.b	$37(a0),d3
-		move.l	#loc_2AF70,(a0)
-		move.l	#loc_2AF22,d4
-		bsr.w	sub_2AFFE
+		move.l	#AIZCollapsingLogBridge_CollapseMain,(a0)
+		move.l	#AIZCollapsingLogBridge_FirePiece,d4
+		bsr.w	AIZCollapsingLogBridge_SpawnPieces
 
-loc_2AF06:
+AIZCollapsingLogBridge_FireSolid:
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		moveq	#0,d3
@@ -59353,70 +59353,70 @@ loc_2AF06:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_2AF22:
+AIZCollapsingLogBridge_FirePiece:
 		tst.b	$34(a0)
-		beq.s	loc_2AF3A
+		beq.s	AIZCollapsingLogBridge_FirePieceAnimate
 		subq.b	#1,$34(a0)
-		bne.s	loc_2AF34
+		bne.s	AIZCollapsingLogBridge_FirePieceDraw
 		move.b	#3,mapping_frame(a0)
 
-loc_2AF34:
+AIZCollapsingLogBridge_FirePieceDraw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2AF3A:
+AIZCollapsingLogBridge_FirePieceAnimate:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_2AF58
+		bpl.s	AIZCollapsingLogBridge_FirePieceMove
 		move.b	#3,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		cmpi.b	#8,mapping_frame(a0)
-		blo.s	loc_2AF58
+		blo.s	AIZCollapsingLogBridge_FirePieceMove
 		move.b	#3,mapping_frame(a0)
 
-loc_2AF58:
+AIZCollapsingLogBridge_FirePieceMove:
 		jsr	(MoveSprite).l
 		tst.b	render_flags(a0)
-		bpl.s	loc_2AF6A
+		bpl.s	AIZCollapsingLogBridge_DeleteFirePiece
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2AF6A:
+AIZCollapsingLogBridge_DeleteFirePiece:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2AF70:
+AIZCollapsingLogBridge_CollapseMain:
 		subq.b	#1,$34(a0)
-		bne.s	loc_2AF7C
+		bne.s	AIZCollapsingLogBridge_CheckRiders
 		move.l	#loc_2B452,(a0)
 
-loc_2AF7C:
+AIZCollapsingLogBridge_CheckRiders:
 		move.b	$34(a0),d3
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		lea	(Player_1).w,a1
 		moveq	#p1_standing_bit,d6
-		bsr.s	sub_2AF9C
+		bsr.s	AIZCollapsingLogBridge_CheckPlayer
 		lea	(Player_2).w,a1
 		moveq	#p2_standing_bit,d6
-		bsr.s	sub_2AF9C
+		bsr.s	AIZCollapsingLogBridge_CheckPlayer
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2AF9C:
+AIZCollapsingLogBridge_CheckPlayer:
 		btst	d6,status(a0)
-		beq.s	locret_2AFFC
+		beq.s	AIZCollapsingLogBridge_CheckPlayerReturn
 		move.w	d1,d2
 		add.w	d2,d2
 		btst	#Status_InAir,status(a1)
-		bne.s	loc_2AFE0
+		bne.s	AIZCollapsingLogBridge_DropPlayer
 		move.w	x_pos(a1),d0
 		sub.w	x_pos(a0),d0
 		add.w	d1,d0
-		bmi.s	loc_2AFE0
+		bmi.s	AIZCollapsingLogBridge_DropPlayer
 		cmp.w	d2,d0
-		bhs.s	loc_2AFE0
+		bhs.s	AIZCollapsingLogBridge_DropPlayer
 		btst	#0,status(a0)
 		beq.s	loc_2AFCA
 		neg.w	d0
@@ -59431,38 +59431,38 @@ loc_2AFCA:
 		move.b	$35(a0),d2
 		sub.b	d0,d2
 		cmp.b	d2,d3
-		bhi.s	locret_2AFFC
+		bhi.s	AIZCollapsingLogBridge_CheckPlayerReturn
 
-loc_2AFE0:
+AIZCollapsingLogBridge_DropPlayer:
 		bclr	d6,status(a0)
 		bclr	#Status_OnObj,status(a1)
 		bclr	#Status_Push,status(a1)
 		bset	#Status_InAir,status(a1)
 		move.b	#1,prev_anim(a1)
 
-locret_2AFFC:
+AIZCollapsingLogBridge_CheckPlayerReturn:
 		rts
-; End of function sub_2AF9C
+; End of function AIZCollapsingLogBridge_CheckPlayer
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2AFFE:
+AIZCollapsingLogBridge_SpawnPieces:
 		movea.w	$3C(a0),a3
 		lea	sub2_x_pos(a3),a2
 		move.w	mainspr_childsprites(a3),d6
 		subq.w	#1,d6
 		bclr	#6,render_flags(a3)
 		movea.l	a3,a1
-		bra.s	loc_2B01E
+		bra.s	AIZCollapsingLogBridge_InitPiece
 ; ---------------------------------------------------------------------------
 
-loc_2B016:
+AIZCollapsingLogBridge_AllocateNextPiece:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	loc_2B05C
+		bne.s	AIZCollapsingLogBridge_PlayCollapseSfx
 
-loc_2B01E:
+AIZCollapsingLogBridge_InitPiece:
 		move.l	d4,(a1)
 		move.l	mappings(a3),mappings(a1)
 		move.b	render_flags(a3),render_flags(a1)
@@ -59476,14 +59476,14 @@ loc_2B01E:
 		move.b	d0,mapping_frame(a1)
 		move.b	d2,$34(a1)
 		add.b	d3,d2
-		dbf	d6,loc_2B016
+		dbf	d6,AIZCollapsingLogBridge_AllocateNextPiece
 
-loc_2B05C:
+AIZCollapsingLogBridge_PlayCollapseSfx:
 		move.w	#0,sub2_x_pos(a3)
 		move.w	#0,sub2_y_pos(a3)
 		moveq	#signextendB(sfx_Collapse),d0
 		jmp	(Play_SFX).l
-; End of function sub_2AFFE
+; End of function AIZCollapsingLogBridge_SpawnPieces
 
 ; ---------------------------------------------------------------------------
 Map_AIZCollapsingLogBridge:
@@ -59506,22 +59506,22 @@ Obj_AIZDrawBridge:
 		move.b	#-$40,$38(a0)
 		moveq	#-$10,d4
 		btst	#1,status(a0)
-		beq.s	loc_2B186
+		beq.s	AIZDrawBridge_SetHorizontalDirection
 		addi.w	#$D0,y_pos(a0)
 		move.b	#$40,$38(a0)
 		neg.w	d4
 
-loc_2B186:
+AIZDrawBridge_SetHorizontalDirection:
 		move.w	#$200,d1
 		btst	#0,status(a0)
-		beq.s	loc_2B194
+		beq.s	AIZDrawBridge_CreateSegments
 		neg.w	d1
 
-loc_2B194:
+AIZDrawBridge_CreateSegments:
 		move.w	d1,$34(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2B266
-		move.l	#loc_2B380,(a1)
+		bne.w	AIZDrawBridge_SetMain
+		move.l	#AIZDrawBridge_DisplaySegments,(a1)
 		move.l	mappings(a0),mappings(a1)
 		move.w	art_tile(a0),art_tile(a1)
 		move.w	priority(a0),priority(a1)
@@ -59536,18 +59536,18 @@ loc_2B194:
 		subq.w	#1,d1
 		lea	sub2_x_pos(a1),a2
 
-loc_2B1E6:
+AIZDrawBridge_InitUpperSegments:
 		add.w	d4,d3
 		move.w	d2,(a2)+
 		move.w	d3,(a2)+
 		move.w	#1,(a2)+
-		dbf	d1,loc_2B1E6
+		dbf	d1,AIZDrawBridge_InitUpperSegments
 		move.w	$30(a1),x_pos(a1)
 		move.w	$32(a1),y_pos(a1)
 		move.w	a1,$3C(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	loc_2B266
-		move.l	#loc_2B380,(a1)
+		bne.s	AIZDrawBridge_SetMain
+		move.l	#AIZDrawBridge_DisplaySegments,(a1)
 		move.l	mappings(a0),mappings(a1)
 		move.w	art_tile(a0),art_tile(a1)
 		move.w	priority(a0),priority(a1)
@@ -59560,131 +59560,131 @@ loc_2B1E6:
 		subq.w	#1,d1
 		lea	sub2_x_pos(a1),a2
 
-loc_2B248:
+AIZDrawBridge_InitLowerSegments:
 		add.w	d4,d3
 		move.w	d2,(a2)+
 		move.w	d3,(a2)+
 		move.w	#1,(a2)+
-		dbf	d1,loc_2B248
+		dbf	d1,AIZDrawBridge_InitLowerSegments
 		move.w	sub2_x_pos(a1),x_pos(a1)
 		move.w	sub2_y_pos(a1),y_pos(a1)
 		move.w	a1,$3E(a0)
 
-loc_2B266:
-		move.l	#loc_2B26C,(a0)
+AIZDrawBridge_SetMain:
+		move.l	#AIZDrawBridge_Main,(a0)
 
-loc_2B26C:
+AIZDrawBridge_Main:
 		tst.b	(_unkFAA3).w
-		beq.s	loc_2B2B0
+		beq.s	AIZDrawBridge_Update
 		tst.b	$36(a0)
-		bne.s	loc_2B2B0
+		bne.s	AIZDrawBridge_Update
 		move.b	#1,$36(a0)
 		moveq	#signextendB(sfx_FlipBridge),d0
 		jsr	(Play_SFX).l
 		move.w	#$68,d1
 		btst	#0,status(a0)
-		beq.s	loc_2B294
+		beq.s	AIZDrawBridge_SetSolidPosition
 		neg.w	d1
 
-loc_2B294:
+AIZDrawBridge_SetSolidPosition:
 		move.w	$30(a0),x_pos(a0)
 		move.w	$32(a0),y_pos(a0)
 		add.w	d1,x_pos(a0)
 		move.b	#$60,width_pixels(a0)
 		move.b	#8,height_pixels(a0)
 
-loc_2B2B0:
+AIZDrawBridge_Update:
 		tst.b	$36(a0)
-		beq.s	loc_2B2E2
+		beq.s	AIZDrawBridge_UpdateSegmentsAndSolid
 		tst.b	$38(a0)
-		beq.s	loc_2B2C4
+		beq.s	AIZDrawBridge_FinishOpening
 		cmpi.b	#$80,$38(a0)
-		bne.s	loc_2B2DA
+		bne.s	AIZDrawBridge_UpdateAngle
 
-loc_2B2C4:
+AIZDrawBridge_FinishOpening:
 		move.b	#0,$36(a0)
 		moveq	#signextendB(sfx_FlipBridge),d0
 		jsr	(Play_SFX).l
-		move.l	#loc_2B2E8,(a0)
-		bra.s	loc_2B2E2
+		move.l	#AIZDrawBridge_WaitCollapseTrigger,(a0)
+		bra.s	AIZDrawBridge_UpdateSegmentsAndSolid
 ; ---------------------------------------------------------------------------
 
-loc_2B2DA:
+AIZDrawBridge_UpdateAngle:
 		move.w	$34(a0),d0
 		add.w	d0,$38(a0)
 
-loc_2B2E2:
-		bsr.w	sub_2B386
-		bra.s	loc_2B304
+AIZDrawBridge_UpdateSegmentsAndSolid:
+		bsr.w	AIZDrawBridge_UpdateSegments
+		bra.s	AIZDrawBridge_Solid
 ; ---------------------------------------------------------------------------
 
-loc_2B2E8:
+AIZDrawBridge_WaitCollapseTrigger:
 		tst.b	(_unkFAA9).w
-		beq.s	loc_2B304
+		beq.s	AIZDrawBridge_Solid
 		move.l	#loc_2B452,(a0)
 		move.b	#$E,$34(a0)
-		move.l	#loc_2B42A,d4
-		bra.w	loc_2B498
+		move.l	#AIZDrawBridge_FallingPiece,d4
+		bra.w	AIZDrawBridge_SpawnPieces
 ; ---------------------------------------------------------------------------
 
-loc_2B304:
+AIZDrawBridge_Solid:
 		move.w	#$13,d1
 		move.w	#$60,d2
 		move.w	#$61,d3
 		move.b	$38(a0),d0
-		beq.s	loc_2B322
+		beq.s	AIZDrawBridge_NarrowSolid
 		cmpi.b	#$40,d0
-		beq.s	loc_2B32E
+		beq.s	AIZDrawBridge_CheckSolid
 		cmpi.b	#-$40,d0
-		beq.s	loc_2B32E
+		beq.s	AIZDrawBridge_CheckSolid
 
-loc_2B322:
+AIZDrawBridge_NarrowSolid:
 		move.w	#$6B,d1
 		move.w	#8,d2
 		move.w	#8,d3
 
-loc_2B32E:
+AIZDrawBridge_CheckSolid:
 		move.w	x_pos(a0),d4
 		jsr	(SolidObjectFull2).l
 		move.w	$30(a0),d0
 		andi.w	#$FF80,d0
 		sub.w	(Camera_X_pos_coarse_back).w,d0
 		cmpi.w	#$280,d0
-		bhi.w	loc_2B352
+		bhi.w	AIZDrawBridge_DeleteOffscreen
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B352:
+AIZDrawBridge_DeleteOffscreen:
 		move.w	$3C(a0),d0
-		beq.s	loc_2B360
+		beq.s	AIZDrawBridge_CheckLowerSegments
 		movea.w	d0,a1
 		jsr	(Delete_Referenced_Sprite).l
 
-loc_2B360:
+AIZDrawBridge_CheckLowerSegments:
 		move.w	$3E(a0),d0
-		beq.s	loc_2B36E
+		beq.s	AIZDrawBridge_ClearRespawn
 		movea.w	d0,a1
 		jsr	(Delete_Referenced_Sprite).l
 
-loc_2B36E:
+AIZDrawBridge_ClearRespawn:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_2B37A
+		beq.s	AIZDrawBridge_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_2B37A:
+AIZDrawBridge_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B380:
+AIZDrawBridge_DisplaySegments:
 		jmp	(Draw_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2B386:
+AIZDrawBridge_UpdateSegments:
 		tst.b	$36(a0)
-		beq.w	locret_2B428
+		beq.w	AIZDrawBridge_UpdateSegmentsReturn
 		moveq	#0,d0
 		moveq	#0,d1
 		move.b	$38(a0),d0
@@ -59695,7 +59695,7 @@ sub_2B386:
 		movea.w	$3C(a0),a1
 		move.w	mainspr_childsprites(a1),d6
 		subq.w	#1,d6
-		bcs.s	locret_2B428
+		bcs.s	AIZDrawBridge_UpdateSegmentsReturn
 		swap	d0
 		swap	d1
 		asr.l	#4,d0
@@ -59704,7 +59704,7 @@ sub_2B386:
 		move.l	d1,d5
 		lea	sub2_x_pos(a1),a2
 
-loc_2B3C2:
+AIZDrawBridge_UpdateUpperSegments:
 		movem.l	d4-d5,-(sp)
 		swap	d4
 		swap	d5
@@ -59716,17 +59716,17 @@ loc_2B3C2:
 		add.l	d0,d4
 		add.l	d1,d5
 		addq.w	#2,a2
-		dbf	d6,loc_2B3C2
+		dbf	d6,AIZDrawBridge_UpdateUpperSegments
 		move.w	$30(a1),x_pos(a1)
 		move.w	$32(a1),y_pos(a1)
 		moveq	#0,d6
 		movea.w	$3E(a0),a1
 		move.w	mainspr_childsprites(a1),d6
 		subq.w	#1,d6
-		bcs.s	locret_2B428
+		bcs.s	AIZDrawBridge_UpdateSegmentsReturn
 		lea	sub2_x_pos(a1),a2
 
-loc_2B3FE:
+AIZDrawBridge_UpdateLowerSegments:
 		movem.l	d4-d5,-(sp)
 		swap	d4
 		swap	d5
@@ -59738,31 +59738,31 @@ loc_2B3FE:
 		add.l	d0,d4
 		add.l	d1,d5
 		addq.w	#2,a2
-		dbf	d6,loc_2B3FE
+		dbf	d6,AIZDrawBridge_UpdateLowerSegments
 		move.w	sub2_x_pos(a1),x_pos(a1)
 		move.w	sub2_y_pos(a1),y_pos(a1)
 
-locret_2B428:
+AIZDrawBridge_UpdateSegmentsReturn:
 		rts
-; End of function sub_2B386
+; End of function AIZDrawBridge_UpdateSegments
 
 ; ---------------------------------------------------------------------------
 
-loc_2B42A:
+AIZDrawBridge_FallingPiece:
 		tst.b	$34(a0)
-		beq.s	loc_2B43A
+		beq.s	AIZDrawBridge_FallingPieceMove
 		subq.b	#1,$34(a0)
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B43A:
+AIZDrawBridge_FallingPieceMove:
 		jsr	(MoveSprite).l
 		tst.b	render_flags(a0)
-		bpl.s	loc_2B44C
+		bpl.s	AIZDrawBridge_DeletePiece
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B44C:
+AIZDrawBridge_DeletePiece:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
@@ -59791,37 +59791,37 @@ loc_2B492:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B498:
+AIZDrawBridge_SpawnPieces:
 		move.w	$3C(a0),d0
-		beq.s	loc_2B4A2
+		beq.s	AIZDrawBridge_CheckLowerPieceGroup
 		movea.w	d0,a3
-		bsr.s	loc_2B4AE
+		bsr.s	AIZDrawBridge_SpawnPieceGroup
 
-loc_2B4A2:
+AIZDrawBridge_CheckLowerPieceGroup:
 		move.w	$3E(a0),d0
-		beq.s	locret_2B4AC
+		beq.s	AIZDrawBridge_SpawnPiecesReturn
 		movea.w	d0,a3
-		bsr.s	loc_2B4AE
+		bsr.s	AIZDrawBridge_SpawnPieceGroup
 
-locret_2B4AC:
+AIZDrawBridge_SpawnPiecesReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_2B4AE:
-		lea	(byte_2B548).l,a4
+AIZDrawBridge_SpawnPieceGroup:
+		lea	(AIZDrawBridge_PieceTimers).l,a4
 		lea	sub2_x_pos(a3),a2
 		move.w	mainspr_childsprites(a3),d6
 		subq.w	#1,d6
 		bclr	#6,render_flags(a3)
 		movea.l	a3,a1
-		bra.s	loc_2B4D0
+		bra.s	AIZDrawBridge_InitPiece
 ; ---------------------------------------------------------------------------
 
-loc_2B4C8:
+AIZDrawBridge_AllocateNextPiece:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	loc_2B534
+		bne.s	AIZDrawBridge_PlayCollapseSfx
 
-loc_2B4D0:
+AIZDrawBridge_InitPiece:
 		move.l	d4,(a1)
 		move.l	mappings(a3),mappings(a1)
 		move.b	render_flags(a3),render_flags(a1)
@@ -59837,20 +59837,20 @@ loc_2B4D0:
 		move.b	(a4)+,$34(a1)
 		movea.l	a1,a5
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	loc_2B534
+		bne.s	AIZDrawBridge_PlayCollapseSfx
 		move.l	#loc_1E6EC,(a1)
 		move.w	x_pos(a5),x_pos(a1)
 		move.w	y_pos(a5),y_pos(a1)
 		move.b	-1(a4),anim_frame_timer(a1)
-		dbf	d6,loc_2B4C8
+		dbf	d6,AIZDrawBridge_AllocateNextPiece
 
-loc_2B534:
+AIZDrawBridge_PlayCollapseSfx:
 		move.w	#0,sub2_x_pos(a3)
 		move.w	#0,sub2_y_pos(a3)
 		moveq	#signextendB(sfx_BridgeCollapse),d0
 		jmp	(Play_SFX).l
 ; ---------------------------------------------------------------------------
-byte_2B548:
+AIZDrawBridge_PieceTimers:
 		dc.b    8
 		dc.b  $10
 		dc.b   $C
@@ -59870,7 +59870,7 @@ byte_2B548:
 		even
 Map_AIZDrawBridge:
 		include "Levels/AIZ/Misc Object Data/Map - Drawbridge.asm"
-word_2B566:
+AIZFallingLog_FrameMasks:
 		dc.w      1
 		dc.w      3
 		dc.w      7
@@ -59891,71 +59891,71 @@ word_2B566:
 
 Obj_AIZFallingLog:
 		cmpi.w	#$26B0,x_pos(a0)
-		beq.s	loc_2B596
+		beq.s	AIZFallingLog_CheckDeletedArea
 		cmpi.w	#$2700,x_pos(a0)
-		bne.s	loc_2B5A2
+		bne.s	AIZFallingLog_Init
 
-loc_2B596:
+AIZFallingLog_CheckDeletedArea:
 		tst.b	(Level_trigger_array).w
-		beq.s	loc_2B5A2
+		beq.s	AIZFallingLog_Init
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B5A2:
+AIZFallingLog_Init:
 		move.b	subtype(a0),d0
 		move.b	d0,d1
 		andi.w	#$F,d0
 		move.w	d0,d2
 		add.w	d0,d0
-		move.w	word_2B566(pc,d0.w),$32(a0)
+		move.w	AIZFallingLog_FrameMasks(pc,d0.w),$32(a0)
 		subq.w	#3,d2
-		bcc.s	loc_2B5BC
+		bcc.s	AIZFallingLog_CalcDelay
 		moveq	#0,d2
 
-loc_2B5BC:
+AIZFallingLog_CalcDelay:
 		lsr.w	#4,d1
 		andi.w	#$F,d1
 		lsl.w	d2,d1
 		move.w	d1,$34(a0)
 		move.b	#4,render_flags(a0)
-		move.l	#loc_2B5D4,(a0)
+		move.l	#AIZFallingLog_Main,(a0)
 
-loc_2B5D4:
+AIZFallingLog_Main:
 		move.w	(Level_frame_counter).w,d0
 		add.w	$34(a0),d0
 		and.w	$32(a0),d0
-		bne.w	loc_2B69A
+		bne.w	AIZFallingLog_CheckDelete
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2B69A
-		move.l	#loc_2B6A0,(a1)
+		bne.w	AIZFallingLog_CheckDelete
+		move.l	#AIZFallingLog_Log,(a1)
 		move.w	x_pos(a0),x_pos(a1)
 		move.w	y_pos(a0),y_pos(a1)
 		move.l	#Map_AIZFallingLog2,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZMisc2,2,0),art_tile(a1)
 		tst.b	(Current_act).w
-		bne.s	loc_2B622
+		bne.s	AIZFallingLog_SetLogSize
 		move.l	#Map_AIZFallingLog,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZFallingLog,2,0),art_tile(a1)
 
-loc_2B622:
+AIZFallingLog_SetLogSize:
 		move.b	#$18,width_pixels(a1)
 		move.b	#8,height_pixels(a1)
 		move.b	#4,render_flags(a1)
 		move.w	#$280,priority(a1)
 		movea.l	a1,a2
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2B69A
-		move.l	#loc_2B72C,(a1)
+		bne.w	AIZFallingLog_CheckDelete
+		move.l	#AIZFallingLog_Splash,(a1)
 		move.w	x_pos(a0),x_pos(a1)
 		move.w	y_pos(a0),y_pos(a1)
 		move.l	#Map_AIZFallingLogSplash2,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZMisc2,3,0),art_tile(a1)
 		tst.b	(Current_act).w
-		bne.s	loc_2B67A
+		bne.s	AIZFallingLog_SetSplashSize
 		move.l	#Map_AIZFallingLogSplash,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZFallingLog,2,0),art_tile(a1)
 
-loc_2B67A:
+AIZFallingLog_SetSplashSize:
 		move.b	#$20,width_pixels(a1)
 		move.b	#$10,height_pixels(a1)
 		move.b	#4,render_flags(a1)
@@ -59963,34 +59963,34 @@ loc_2B67A:
 		move.w	a2,$3C(a1)
 		move.w	a1,$3C(a2)
 
-loc_2B69A:
+AIZFallingLog_CheckDelete:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_2B6A0:
+AIZFallingLog_Log:
 		addq.w	#1,y_pos(a0)
 		move.w	y_pos(a0),d0
 		cmp.w	(Water_level).w,d0
-		blo.s	loc_2B6BA
-		move.l	#loc_2B6BC,(a0)
+		blo.s	AIZFallingLog_LogSolid
+		move.l	#AIZFallingLog_LogInWater,(a0)
 		move.b	#60-1,anim_frame_timer(a0)
 
-loc_2B6BA:
-		bra.s	loc_2B6D8
+AIZFallingLog_LogSolid:
+		bra.s	AIZFallingLog_LogSolidAndDraw
 ; ---------------------------------------------------------------------------
 
-loc_2B6BC:
+AIZFallingLog_LogInWater:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_2B6C8
+		bpl.s	AIZFallingLog_LogToggleVisibility
 		move.w	#$7FF0,x_pos(a0)
 
-loc_2B6C8:
+AIZFallingLog_LogToggleVisibility:
 		move.b	anim_frame_timer(a0),d0
 		andi.b	#3,d0
-		bne.s	loc_2B6D8
+		bne.s	AIZFallingLog_LogSolidAndDraw
 		bchg	#0,$36(a0)
 
-loc_2B6D8:
+AIZFallingLog_LogSolidAndDraw:
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		moveq	#8,d3
@@ -60000,43 +60000,43 @@ loc_2B6D8:
 		andi.w	#$FF80,d0
 		sub.w	(Camera_X_pos_coarse_back).w,d0
 		cmpi.w	#$280,d0
-		bhi.w	loc_2B70C
+		bhi.w	AIZFallingLog_DeleteOffscreen
 		tst.b	$36(a0)
-		bne.s	locret_2B70A
+		bne.s	AIZFallingLog_LogReturn
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-locret_2B70A:
+AIZFallingLog_LogReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_2B70C:
+AIZFallingLog_DeleteOffscreen:
 		move.w	$3C(a0),d0
-		beq.s	loc_2B71A
+		beq.s	AIZFallingLog_ClearRespawn
 		movea.w	d0,a1
 		jsr	(Delete_Referenced_Sprite).l
 
-loc_2B71A:
+AIZFallingLog_ClearRespawn:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_2B726
+		beq.s	AIZFallingLog_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_2B726:
+AIZFallingLog_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B72C:
+AIZFallingLog_Splash:
 		movea.w	$3C(a0),a1
 		move.w	x_pos(a1),x_pos(a0)
 		move.w	y_pos(a1),y_pos(a0)
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_2B752
+		bpl.s	AIZFallingLog_SplashDraw
 		move.b	#3,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		andi.b	#3,mapping_frame(a0)
 
-loc_2B752:
+AIZFallingLog_SplashDraw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
@@ -60050,92 +60050,92 @@ Obj_AIZSpikedLog:
 		move.w	y_pos(a0),$30(a0)
 		move.b	(Water_entered_counter).w,$36(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2B7AE
-		move.l	#loc_2B8EE,(a1)
+		bne.w	AIZSpikedLog_SetMain
+		move.l	#AIZSpikedLog_HurtChild,(a1)
 		move.b	#4,render_flags(a1)
 		move.b	#$9C,collision_flags(a1)
 		move.w	a0,$3C(a1)
 		move.w	a1,$3C(a0)
 
-loc_2B7AE:
-		move.l	#loc_2B7B4,(a0)
+AIZSpikedLog_SetMain:
+		move.l	#AIZSpikedLog_Main,(a0)
 
-loc_2B7B4:
+AIZSpikedLog_Main:
 		tst.b	$34(a0)
-		bmi.s	loc_2B7E8
+		bmi.s	AIZSpikedLog_StartSpin
 		move.b	$36(a0),d0
 		cmp.b	(Water_entered_counter).w,d0
-		beq.s	loc_2B7D2
+		beq.s	AIZSpikedLog_CheckRide
 		move.b	(Water_entered_counter).w,$36(a0)
 		move.b	#-$7F,$34(a0)
-		bra.s	loc_2B7E8
+		bra.s	AIZSpikedLog_StartSpin
 ; ---------------------------------------------------------------------------
 
-loc_2B7D2:
+AIZSpikedLog_CheckRide:
 		move.b	status(a0),d0
 		andi.b	#standing_mask,d0
-		bne.s	loc_2B7E8
+		bne.s	AIZSpikedLog_StartSpin
 		tst.b	$32(a0)
-		beq.s	loc_2B81A
+		beq.s	AIZSpikedLog_UpdatePosition
 		subq.b	#4,$32(a0)
-		bra.s	loc_2B81A
+		bra.s	AIZSpikedLog_UpdatePosition
 ; ---------------------------------------------------------------------------
 
-loc_2B7E8:
+AIZSpikedLog_StartSpin:
 		tst.b	$34(a0)
-		bne.s	loc_2B806
+		bne.s	AIZSpikedLog_RaiseBob
 		move.b	anim_frame(a0),$35(a0)
 		move.b	#0,anim_frame(a0)
 		move.b	#0,anim_frame_timer(a0)
 		move.b	#1,$34(a0)
 
-loc_2B806:
+AIZSpikedLog_RaiseBob:
 		cmpi.b	#$40,$32(a0)
-		beq.s	loc_2B814
+		beq.s	AIZSpikedLog_EndBob
 		addq.b	#4,$32(a0)
-		bra.s	loc_2B81A
+		bra.s	AIZSpikedLog_UpdatePosition
 ; ---------------------------------------------------------------------------
 
-loc_2B814:
+AIZSpikedLog_EndBob:
 		andi.b	#$7F,$34(a0)
 
-loc_2B81A:
+AIZSpikedLog_UpdatePosition:
 		move.b	$32(a0),d0
 		jsr	(GetSineCosine).l
 		asr.w	#5,d0
 		add.w	$30(a0),d0
 		move.w	d0,y_pos(a0)
 		tst.b	$34(a0)
-		beq.s	loc_2B864
+		beq.s	AIZSpikedLog_IdleAnim
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_2B896
+		bpl.s	AIZSpikedLog_SolidAndDraw
 		move.b	#3,anim_frame_timer(a0)
 		subq.b	#1,mapping_frame(a0)
 		andi.b	#$F,mapping_frame(a0)
 		addq.b	#1,anim_frame(a0)
 		cmpi.b	#$10,anim_frame(a0)
-		blo.s	loc_2B896
+		blo.s	AIZSpikedLog_SolidAndDraw
 		move.b	$35(a0),anim_frame(a0)
 		move.b	#0,$34(a0)
-		bra.s	loc_2B896
+		bra.s	AIZSpikedLog_SolidAndDraw
 ; ---------------------------------------------------------------------------
 
-loc_2B864:
+AIZSpikedLog_IdleAnim:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_2B896
+		bpl.s	AIZSpikedLog_SolidAndDraw
 		move.b	#$17,anim_frame_timer(a0)
 		moveq	#0,d0
 		move.b	anim_frame(a0),d0
 		addq.b	#1,anim_frame(a0)
-		move.b	byte_2B88E(pc,d0.w),mapping_frame(a0)
-		move.b	byte_2B88E+1(pc,d0.w),d0
-		bpl.s	loc_2B88C
+		move.b	AIZSpikedLog_IdleFrames(pc,d0.w),mapping_frame(a0)
+		move.b	AIZSpikedLog_IdleFrames+1(pc,d0.w),d0
+		bpl.s	AIZSpikedLog_IdleAnimDone
 		move.b	#0,anim_frame(a0)
 
-loc_2B88C:
-		bra.s	loc_2B896
+AIZSpikedLog_IdleAnimDone:
+		bra.s	AIZSpikedLog_SolidAndDraw
 ; ---------------------------------------------------------------------------
-byte_2B88E:
+AIZSpikedLog_IdleFrames:
 		dc.b    7
 		dc.b    8
 		dc.b    9
@@ -60146,7 +60146,7 @@ byte_2B88E:
 		even
 ; ---------------------------------------------------------------------------
 
-loc_2B896:
+AIZSpikedLog_SolidAndDraw:
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		addi.w	#$B,d1
@@ -60160,43 +60160,43 @@ loc_2B896:
 		andi.w	#$FF80,d0
 		sub.w	(Camera_X_pos_coarse_back).w,d0
 		cmpi.w	#$280,d0
-		bhi.w	loc_2B8CE
+		bhi.w	AIZSpikedLog_DeleteOffscreen
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B8CE:
+AIZSpikedLog_DeleteOffscreen:
 		move.w	$3C(a0),d0
-		beq.s	loc_2B8DC
+		beq.s	AIZSpikedLog_ClearRespawn
 		movea.w	d0,a1
 		jsr	(Delete_Referenced_Sprite).l
 
-loc_2B8DC:
+AIZSpikedLog_ClearRespawn:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_2B8E8
+		beq.s	AIZSpikedLog_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_2B8E8:
+AIZSpikedLog_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2B8EE:
+AIZSpikedLog_HurtChild:
 		movea.w	$3C(a0),a1
 		move.w	x_pos(a1),x_pos(a0)
 		move.w	y_pos(a1),y_pos(a0)
 		moveq	#0,d0
 		move.b	mapping_frame(a1),d0
-		move.b	byte_2B918(pc,d0.w),d0
-		beq.s	locret_2B916
+		move.b	AIZSpikedLog_HurtOffsets(pc,d0.w),d0
+		beq.s	AIZSpikedLog_HurtChildReturn
 		ext.w	d0
 		add.w	d0,y_pos(a0)
 		jmp	(Add_SpriteToCollisionResponseList).l
 ; ---------------------------------------------------------------------------
 
-locret_2B916:
+AIZSpikedLog_HurtChildReturn:
 		rts
 ; ---------------------------------------------------------------------------
-byte_2B918:
+AIZSpikedLog_HurtOffsets:
 		dc.b  -$C, -$C,   0,   0,   0,   0,   0,  $C,  $C,  $C,   0,   0,   0,   0,   0, -$C
 		even
 ; ---------------------------------------------------------------------------
@@ -60444,7 +60444,7 @@ Obj_AIZForegroundPlant:
 		move.w	d0,d1
 		add.w	d0,d0
 		add.w	d1,d0
-		lea	word_2C242(pc,d0.w),a1
+		lea	AIZForegroundPlant_FrameData(pc,d0.w),a1
 		move.w	(a1)+,art_tile(a0)
 		move.w	(a1)+,priority(a0)
 		move.b	(a1)+,width_pixels(a0)
@@ -60452,31 +60452,31 @@ Obj_AIZForegroundPlant:
 		move.b	subtype(a0),d0
 		lsr.w	#2,d0
 		andi.w	#$3C,d0
-		move.l	off_2C24E(pc,d0.w),(a0)
+		move.l	AIZForegroundPlant_Index(pc,d0.w),(a0)
 		rts
 ; ---------------------------------------------------------------------------
-word_2C242:
+AIZForegroundPlant_FrameData:
 		dc.w make_art_tile(ArtTile_AIZMisc1,2,1)
 		dc.w      0
 		dc.b  $20, $30
 		dc.w make_art_tile(ArtTile_AIZMisc1,2,1)
 		dc.w      0
 		dc.b  $20, $3C
-off_2C24E:
-		dc.l loc_2C26A
-		dc.l loc_2C270
-		dc.l loc_2C2A6
-		dc.l loc_2C2DC
-		dc.l loc_2C312
-		dc.l loc_2C348
-		dc.l loc_2C37A
+AIZForegroundPlant_Index:
+		dc.l AIZForegroundPlant_Static
+		dc.l AIZForegroundPlant_Parallax16
+		dc.l AIZForegroundPlant_Parallax8
+		dc.l AIZForegroundPlant_Parallax4
+		dc.l AIZForegroundPlant_Parallax2
+		dc.l AIZForegroundPlant_Parallax1
+		dc.l AIZForegroundPlant_ParallaxDouble
 ; ---------------------------------------------------------------------------
 
-loc_2C26A:
+AIZForegroundPlant_Static:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_2C270:
+AIZForegroundPlant_Parallax16:
 		move.w	$30(a0),d1
 		move.w	d1,d2
 		subi.w	#320/2,d1
@@ -60495,7 +60495,7 @@ loc_2C270:
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_2C2A6:
+AIZForegroundPlant_Parallax8:
 		move.w	$30(a0),d1
 		move.w	d1,d2
 		subi.w	#320/2,d1
@@ -60514,7 +60514,7 @@ loc_2C2A6:
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_2C2DC:
+AIZForegroundPlant_Parallax4:
 		move.w	$30(a0),d1
 		move.w	d1,d2
 		subi.w	#320/2,d1
@@ -60533,7 +60533,7 @@ loc_2C2DC:
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_2C312:
+AIZForegroundPlant_Parallax2:
 		move.w	$30(a0),d1
 		move.w	d1,d2
 		subi.w	#320/2,d1
@@ -60552,7 +60552,7 @@ loc_2C312:
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_2C348:
+AIZForegroundPlant_Parallax1:
 		move.w	$30(a0),d1
 		move.w	d1,d2
 		subi.w	#320/2,d1
@@ -60569,7 +60569,7 @@ loc_2C348:
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_2C37A:
+AIZForegroundPlant_ParallaxDouble:
 		move.w	$30(a0),d1
 		move.w	d1,d2
 		subi.w	#320/2,d1
