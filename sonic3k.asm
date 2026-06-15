@@ -64755,8 +64755,8 @@ Obj_HCZWaterRush:
 		move.b	#$20,height_pixels(a0)
 		move.b	#2,mapping_frame(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_2FE28
-		move.l	#loc_2FEB2,(a1)
+		bne.w	HCZWaterRush_InitMain
+		move.l	#HCZWaterRushBlock_WaitTrigger,(a1)
 		move.w	x_pos(a0),x_pos(a1)
 		move.w	y_pos(a0),y_pos(a1)
 		subi.w	#$30,x_pos(a1)
@@ -64769,62 +64769,62 @@ Obj_HCZWaterRush:
 		move.b	#1,mapping_frame(a1)
 		move.w	a1,$3C(a0)
 
-loc_2FE28:
+HCZWaterRush_InitMain:
 		move.b	#3,(_unkF7C7).w
-		move.l	#loc_2FE34,(a0)
+		move.l	#HCZWaterRush_WaitTrigger,(a0)
 
-loc_2FE34:
+HCZWaterRush_WaitTrigger:
 		tst.b	(Level_trigger_array).w
-		beq.s	loc_2FE58
+		beq.s	HCZWaterRush_DrawWaiting
 		move.b	#3,mapping_frame(a0)
 		move.b	#1,anim_frame_timer(a0)
-		move.l	#loc_2FE5E,(a0)
+		move.l	#HCZWaterRush_Rush,(a0)
 		move.b	#0,(_unkF7C7).w
 		move.b	#1,(Palette_cycle_counters+$00).w
 
-loc_2FE58:
+HCZWaterRush_DrawWaiting:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_2FE5E:
+HCZWaterRush_Rush:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_2FE9E
+		bpl.s	HCZWaterRush_CheckEnd
 		move.b	#1,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		cmpi.b	#2,mapping_frame(a0)
-		bne.s	loc_2FE98
+		bne.s	HCZWaterRush_WrapFrame
 		addi.w	#$20,x_pos(a0)
 		cmpi.w	#$580,x_pos(a0)
-		bne.s	loc_2FE98
+		bne.s	HCZWaterRush_WrapFrame
 		cmpi.w	#$5A0,y_pos(a0)
-		bne.s	loc_2FE98
+		bne.s	HCZWaterRush_WrapFrame
 		subi.w	#$20,x_pos(a0)
 		subi.w	#$20,y_pos(a0)
 
-loc_2FE98:
+HCZWaterRush_WrapFrame:
 		andi.b	#1,mapping_frame(a0)
 
-loc_2FE9E:
+HCZWaterRush_CheckEnd:
 		cmpi.w	#$980,x_pos(a0)
-		blo.s	loc_2FEAC
+		blo.s	HCZWaterRush_DrawRush
 		move.w	#$7F00,x_pos(a0)
 
-loc_2FEAC:
+HCZWaterRush_DrawRush:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_2FEB2:
+HCZWaterRushBlock_WaitTrigger:
 		tst.b	(Level_trigger_array).w
-		beq.s	loc_2FED2
-		move.l	#loc_2FEBE,(a0)
+		beq.s	HCZWaterRushBlock_Solid
+		move.l	#HCZWaterRushBlock_Rise,(a0)
 
-loc_2FEBE:
+HCZWaterRushBlock_Rise:
 		subi.w	#$10,y_pos(a0)
 		cmpi.w	#$560,y_pos(a0)
-		bne.s	loc_2FED2
+		bne.s	HCZWaterRushBlock_Solid
 		move.w	#$7F00,x_pos(a0)
 
-loc_2FED2:
+HCZWaterRushBlock_Solid:
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		addi.w	#$B,d1
@@ -64839,31 +64839,31 @@ loc_2FED2:
 
 Obj_HCZWaterWall:
 		tst.b	subtype(a0)
-		beq.s	loc_2FF04
-		move.l	#loc_30294,(a0)
+		beq.s	HCZWaterWall_Horizontal_CheckPlayerY
+		move.l	#HCZWaterWall_Vertical_WaitPlayer,(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_2FF04:
+HCZWaterWall_Horizontal_CheckPlayerY:
 		move.w	(Player_1+y_pos).w,d0
 		cmpi.w	#$500,d0
-		bhs.s	loc_2FF14
+		bhs.s	HCZWaterWall_Horizontal_QueueArt
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2FF14:
+HCZWaterWall_Horizontal_QueueArt:
 		lea	(ArtKosM_HCZGeyserHorz).l,a1
 		move.w	#tiles_to_bytes(ArtTile_HCZGeyser),d2
 		jsr	(Queue_Kos_Module).l
-		move.l	#loc_2FF2A,(a0)
+		move.l	#HCZWaterWall_Horizontal_WaitArt,(a0)
 
-loc_2FF2A:
+HCZWaterWall_Horizontal_WaitArt:
 		tst.b	(Kos_modules_left).w
-		beq.s	loc_2FF32
+		beq.s	HCZWaterWall_Horizontal_Init
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_2FF32:
+HCZWaterWall_Horizontal_Init:
 		ori.b	#4,render_flags(a0)
 		move.w	#$300,priority(a0)
 		move.l	#Map_HCZWaterWall,mappings(a0)
@@ -64876,26 +64876,26 @@ loc_2FF32:
 		move.w	x_pos(a0),(a2)+
 		move.w	y_pos(a0),(a2)+
 		move.w	#$20,$30(a0)
-		move.l	#loc_2FF7C,(a0)
+		move.l	#HCZWaterWall_Horizontal_WaitPlayer,(a0)
 
-loc_2FF7C:
+HCZWaterWall_Horizontal_WaitPlayer:
 		move.w	(Player_1+x_pos).w,d0
 		subi.w	#$60,d0
 		cmp.w	x_pos(a0),d0
-		blo.w	loc_30006
-		move.l	#loc_3003C,(a0)
+		blo.w	HCZWaterWall_Horizontal_DrawWaiting
+		move.l	#HCZWaterWall_Horizontal_Erupt,(a0)
 		moveq	#signextendB(sfx_Geyser),d0
 		jsr	(Play_SFX).l
-		lea	(byte_3000C).l,a3
+		lea	(HCZWaterWall_HorizontalDebrisData).l,a3
 		move.w	x_pos(a0),d2
 		addi.w	#$60,d2
 		move.w	y_pos(a0),d3
 		moveq	#8-1,d1
 
-loc_2FFAE:
+HCZWaterWall_Horizontal_SpawnDebrisLoop:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	loc_30006
-		move.l	#loc_3011A,(a1)
+		bne.s	HCZWaterWall_Horizontal_DrawWaiting
+		move.l	#HCZGeyserDebris_Fall,(a1)
 		move.l	#Map_HCZWaterWallDebris,mappings(a1)
 		move.w	#make_art_tile(ArtTile_HCZGeyser+$58,2,0),art_tile(a1)
 		move.b	#$84,render_flags(a1)
@@ -64913,12 +64913,12 @@ loc_2FFAE:
 		move.w	(a3)+,x_vel(a1)
 		move.w	(a3)+,y_vel(a1)
 		move.b	d1,mapping_frame(a1)
-		dbf	d1,loc_2FFAE
+		dbf	d1,HCZWaterWall_Horizontal_SpawnDebrisLoop
 
-loc_30006:
+HCZWaterWall_Horizontal_DrawWaiting:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
-byte_3000C:
+HCZWaterWall_HorizontalDebrisData:
 		dc.b    0,-$18
 		dc.w   $400,  -$80
 		dc.b    0,  -8
@@ -64937,16 +64937,16 @@ byte_3000C:
 		dc.w   $500, -$100
 ; ---------------------------------------------------------------------------
 
-loc_3003C:
+HCZWaterWall_Horizontal_Erupt:
 		tst.w	$30(a0)
-		beq.s	loc_3004A
+		beq.s	HCZWaterWall_Horizontal_SpawnSpray
 		subq.w	#1,$30(a0)
 		addq.w	#8,x_pos(a0)
 
-loc_3004A:
+HCZWaterWall_Horizontal_SpawnSpray:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_300C8
-		move.l	#loc_301DE,(a1)
+		bne.w	HCZWaterWall_Horizontal_UpdateChildSprites
+		move.l	#HCZGeyserSpray_Fall,(a1)
 		move.l	mappings(a0),mappings(a1)
 		move.b	#$84,render_flags(a1)
 		move.w	x_pos(a0),x_pos(a1)
@@ -64962,10 +64962,10 @@ loc_3004A:
 		move.w	#make_art_tile(ArtTile_HCZGeyser+$30,2,0),art_tile(a1)
 		lsr.w	#4,d1
 		andi.w	#3,d1
-		bne.s	loc_300A6
+		bne.s	HCZWaterWall_Horizontal_SetSprayAnim
 		move.w	#make_art_tile(ArtTile_Bubbles,0,0),art_tile(a1)
 
-loc_300A6:
+HCZWaterWall_Horizontal_SetSprayAnim:
 		move.b	d1,anim(a1)
 		move.w	#$380,priority(a1)
 		move.b	#$18,width_pixels(a1)
@@ -64973,57 +64973,57 @@ loc_300A6:
 		move.w	#$400,x_vel(a1)
 		move.w	#0,y_vel(a1)
 
-loc_300C8:
+HCZWaterWall_Horizontal_UpdateChildSprites:
 		lea	sub2_x_pos(a0),a2
 		move.w	x_pos(a0),(a2)+
 		move.w	y_pos(a0),(a2)+
 		tst.b	render_flags(a0)
-		bmi.s	loc_30100
+		bmi.s	HCZWaterWall_Horizontal_DrawActive
 		clr.b	(Palette_cycle_counters+$00).w
 		move.w	#signextendB(cmd_MutePSG),d0
 		jsr	(Play_SFX).l
 		move.w	#signextendB(cmd_StopSFX),d0
 		jsr	(Play_SFX).l
 		move.w	#150,$30(a0)
-		move.l	#loc_30106,(a0)
+		move.l	#HCZGeyser_CleanupDelay,(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_30100:
+HCZWaterWall_Horizontal_DrawActive:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_30106:
+HCZGeyser_CleanupDelay:
 		subq.w	#1,$30(a0)
-		bmi.s	loc_3010E
+		bmi.s	HCZGeyser_ReloadEnemyArtAndDelete
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3010E:
+HCZGeyser_ReloadEnemyArtAndDelete:
 		jsr	(LoadEnemyArt).l
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_3011A:
+HCZGeyserDebris_Fall:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_30130
+		bpl.s	HCZGeyserDebris_MoveAndSplashCheck
 		move.b	#2,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		andi.b	#7,mapping_frame(a0)
 
-loc_30130:
+HCZGeyserDebris_MoveAndSplashCheck:
 		jsr	(MoveSprite2).l
 		addi.w	#$38,y_vel(a0)
 		move.w	(Water_level).w,d0
 		cmp.w	y_pos(a0),d0
-		bhs.s	loc_301A2
+		bhs.s	HCZGeyserDebris_Draw
 		move.w	#0,y_vel(a0)
 		asr	x_vel(a0)
 		asr	x_vel(a0)
-		move.l	#loc_301A8,(a0)
+		move.l	#HCZGeyserDebris_WaterDrag,(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_301A2
-		move.l	#loc_3023E,(a1)
+		bne.w	HCZGeyserDebris_Draw
+		move.l	#HCZGeyserSplash_Animate,(a1)
 		move.l	#Map_HCZWaterWall,mappings(a1)
 		move.w	#make_art_tile(ArtTile_HCZGeyser+$30,1,0),art_tile(a1)
 		move.b	#$84,render_flags(a1)
@@ -65034,104 +65034,104 @@ loc_30130:
 		move.b	#$18,height_pixels(a1)
 		move.b	#8,anim(a1)
 
-loc_301A2:
+HCZGeyserDebris_Draw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_301A8:
+HCZGeyserDebris_WaterDrag:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_301BE
+		bpl.s	HCZGeyserDebris_MoveInWater
 		move.b	#9,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		andi.b	#7,mapping_frame(a0)
 
-loc_301BE:
+HCZGeyserDebris_MoveInWater:
 		jsr	(MoveSprite2).l
 		addi.w	#8,y_vel(a0)
 		tst.b	render_flags(a0)
-		bpl.w	loc_301D8
+		bpl.w	HCZGeyser_Delete
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_301D8:
+HCZGeyser_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_301DE:
+HCZGeyserSpray_Fall:
 		jsr	(MoveSprite2).l
 		addi.w	#$28,y_vel(a0)
 		move.w	(Water_level).w,d0
 		cmp.w	y_pos(a0),d0
-		bhs.s	loc_30202
+		bhs.s	HCZGeyserSpray_Animate
 		move.w	d0,y_pos(a0)
-		move.l	#loc_3021C,(a0)
+		move.l	#HCZGeyserSpray_OnWater,(a0)
 		addq.b	#4,anim(a0)
 
-loc_30202:
+HCZGeyserSpray_Animate:
 		tst.b	render_flags(a0)
-		bpl.w	loc_301D8
+		bpl.w	HCZGeyser_Delete
 		lea	(Ani_HCZWaterWall).l,a1
 		jsr	(Animate_Sprite).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_3021C:
+HCZGeyserSpray_OnWater:
 		tst.b	render_flags(a0)
-		bpl.w	loc_301D8
+		bpl.w	HCZGeyser_Delete
 		lea	(Ani_HCZWaterWall).l,a1
 		jsr	(Animate_Sprite).l
 		tst.b	routine(a0)
-		bne.w	loc_301D8
+		bne.w	HCZGeyser_Delete
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_3023E:
+HCZGeyserSplash_Animate:
 		tst.b	render_flags(a0)
-		bpl.w	loc_301D8
+		bpl.w	HCZGeyser_Delete
 		lea	(Ani_HCZWaterWall).l,a1
 		jsr	(Animate_SpriteIrregularDelay).l
 		tst.b	routine(a0)
-		bne.w	loc_301D8
+		bne.w	HCZGeyser_Delete
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 Ani_HCZWaterWall:
 		include "Levels/HCZ/Misc Object Data/Anim - Water Wall.asm"
 ; ---------------------------------------------------------------------------
 
-loc_30294:
+HCZWaterWall_Vertical_WaitPlayer:
 		move.w	(Player_1+x_pos).w,d0
 		addi.w	#$30,d0
 		sub.w	x_pos(a0),d0
 		cmpi.w	#$60,d0
-		bhs.s	loc_302B8
+		bhs.s	HCZWaterWall_Vertical_DeleteIfFar
 		move.w	(Player_1+y_pos).w,d0
 		addi.w	#$40,d0
 		sub.w	y_pos(a0),d0
 		cmpi.w	#$10,d0
-		blo.s	loc_302BE
+		blo.s	HCZWaterWall_Vertical_QueueArt
 
-loc_302B8:
+HCZWaterWall_Vertical_DeleteIfFar:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_302BE:
+HCZWaterWall_Vertical_QueueArt:
 		lea	(ArtKosM_HCZGeyserVert).l,a1
 		move.w	#tiles_to_bytes(ArtTile_HCZGeyser),d2
 		jsr	(Queue_Kos_Module).l
 		move.b	#1,mapping_frame(a0)
 		move.b	#$81,(Player_1+object_control).w
 		move.b	#$81,(Player_2+object_control).w
-		move.l	#loc_302E6,(a0)
+		move.l	#HCZWaterWall_Vertical_WaitArt,(a0)
 
-loc_302E6:
+HCZWaterWall_Vertical_WaitArt:
 		tst.b	(Kos_modules_left).w
-		beq.s	loc_302FA
+		beq.s	HCZWaterWall_Vertical_InitRise
 		subi.w	#8,(Player_1+y_pos).w
 		subi.w	#8,(Player_2+y_pos).w
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_302FA:
+HCZWaterWall_Vertical_InitRise:
 		ori.b	#4,render_flags(a0)
 		move.w	#$300,priority(a0)
 		move.l	#Map_HCZWaterWall,mappings(a0)
@@ -65141,35 +65141,35 @@ loc_302FA:
 		move.w	#$60,$30(a0)
 		move.b	#$1C,(Player_1+anim).w
 		move.b	#$1C,(Player_2+anim).w
-		move.l	#loc_30338,(a0)
+		move.l	#HCZWaterWall_Vertical_Rise,(a0)
 
-loc_30338:
+HCZWaterWall_Vertical_Rise:
 		tst.w	$30(a0)
-		beq.s	loc_30346
+		beq.s	HCZWaterWall_Vertical_CarryPlayers
 		subq.w	#1,$30(a0)
 		subq.w	#8,y_pos(a0)
 
-loc_30346:
+HCZWaterWall_Vertical_CarryPlayers:
 		subi.w	#8,(Player_1+y_pos).w
 		subi.w	#8,(Player_2+y_pos).w
 		cmpi.w	#$28,$30(a0)
-		bhi.w	locret_303E8
+		bhi.w	HCZWaterWall_Vertical_Return
 		move.b	#$1A,(Player_1+anim).w
 		move.b	#$1A,(Player_2+anim).w
-		move.l	#loc_3041A,(a0)
+		move.l	#HCZWaterWall_Vertical_Erupt,(a0)
 		moveq	#signextendB(sfx_Geyser),d0
 		jsr	(Play_SFX).l
 		move.b	#1,(Palette_cycle_counters+$00).w
-		lea	(byte_303EA).l,a3
+		lea	(HCZGeyser_VerticalDebrisData).l,a3
 		move.w	x_pos(a0),d2
 		move.w	y_pos(a0),d3
 		subi.w	#$80,d3
 		moveq	#8-1,d1
 
-loc_30390:
+HCZWaterWall_Vertical_SpawnDebrisLoop:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	locret_303E8
-		move.l	#loc_3011A,(a1)
+		bne.s	HCZWaterWall_Vertical_Return
+		move.l	#HCZGeyserDebris_Fall,(a1)
 		move.l	#Map_HCZWaterWallDebris,mappings(a1)
 		move.w	#make_art_tile(ArtTile_HCZGeyser+$58,2,0),art_tile(a1)
 		move.b	#$84,render_flags(a1)
@@ -65187,12 +65187,12 @@ loc_30390:
 		move.w	(a3)+,x_vel(a1)
 		move.w	(a3)+,y_vel(a1)
 		move.b	d1,mapping_frame(a1)
-		dbf	d1,loc_30390
+		dbf	d1,HCZWaterWall_Vertical_SpawnDebrisLoop
 
-locret_303E8:
+HCZWaterWall_Vertical_Return:
 		rts
 ; ---------------------------------------------------------------------------
-byte_303EA:
+HCZGeyser_VerticalDebrisData:
 		dc.b -$18,   0
 		dc.w  -$200, -$B00
 		dc.b   -8,   0
@@ -65211,13 +65211,13 @@ byte_303EA:
 		dc.w   $200, -$800
 ; ---------------------------------------------------------------------------
 
-loc_3041A:
+HCZWaterWall_Vertical_Erupt:
 		tst.w	$30(a0)
-		beq.s	loc_30470
+		beq.s	HCZWaterWall_Vertical_MoveAndSpray
 		move.w	#-$A00,y_vel(a0)
 		subq.w	#1,$30(a0)
-		bne.s	loc_30470
-		move.l	#loc_3052A,(a0)
+		bne.s	HCZWaterWall_Vertical_MoveAndSpray
+		move.l	#HCZWaterWall_Vertical_Fall,(a0)
 		lea	(Player_1).w,a1
 		move.b	#0,object_control(a1)
 		move.w	#0,x_vel(a1)
@@ -65230,17 +65230,17 @@ loc_3041A:
 		move.b	#0,jumping(a1)
 		move.w	#-$800,y_vel(a0)
 
-loc_30470:
+HCZWaterWall_Vertical_MoveAndSpray:
 		subi.w	#$A,(Player_1+y_pos).w
 		subi.w	#$A,(Player_2+y_pos).w
 		jsr	(MoveSprite2).l
 		addi.w	#$48,y_vel(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_304D4
+		bne.w	HCZWaterWall_Vertical_DrawActive
 		jsr	(Random_Number).l
 		move.w	d0,d1
 		move.w	d0,d2
-		bsr.s	sub_304DA
+		bsr.s	HCZWaterWall_SpawnVerticalSpray
 		addi.w	#$10,x_pos(a1)
 		andi.w	#$F,d1
 		lsl.w	#6,d1
@@ -65248,21 +65248,21 @@ loc_30470:
 		move.w	#-$700,y_vel(a1)
 		move.w	d0,d2
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_304D4
-		bsr.s	sub_304DA
+		bne.w	HCZWaterWall_Vertical_DrawActive
+		bsr.s	HCZWaterWall_SpawnVerticalSpray
 		subi.w	#$10,x_pos(a1)
 		neg.w	d1
 		move.w	d1,x_vel(a1)
 		move.w	#-$700,y_vel(a1)
 
-loc_304D4:
+HCZWaterWall_Vertical_DrawActive:
 		jmp	(Sprite_OnScreen_Test).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_304DA:
-		move.l	#loc_301DE,(a1)
+HCZWaterWall_SpawnVerticalSpray:
+		move.l	#HCZGeyserSpray_Fall,(a1)
 		move.l	mappings(a0),mappings(a1)
 		move.b	#$84,render_flags(a1)
 		move.w	x_pos(a0),x_pos(a1)
@@ -65274,19 +65274,19 @@ sub_304DA:
 		move.w	#make_art_tile(ArtTile_HCZGeyser+$30,2,0),art_tile(a1)
 		lsr.w	#4,d2
 		andi.w	#3,d2
-		bne.s	loc_30524
+		bne.s	HCZWaterWall_SpawnVerticalSpray_SetAnim
 		move.w	#make_art_tile(ArtTile_Bubbles,0,0),art_tile(a1)
 
-loc_30524:
+HCZWaterWall_SpawnVerticalSpray_SetAnim:
 		move.b	d2,anim(a1)
 		rts
-; End of function sub_304DA
+; End of function HCZWaterWall_SpawnVerticalSpray
 
 ; ---------------------------------------------------------------------------
 
-loc_3052A:
+HCZWaterWall_Vertical_Fall:
 		tst.b	render_flags(a0)
-		bmi.s	loc_3056E
+		bmi.s	HCZWaterWall_Vertical_FallMove
 		move.w	#signextendB(cmd_StopSFX),d0
 		jsr	(Play_SFX).l
 		move.w	#signextendB(cmd_MutePSG),d0
@@ -65295,17 +65295,17 @@ loc_3052A:
 		jsr	(Play_SFX).l
 		move.b	#0,(Palette_cycle_counters+$00).w
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_30560
+		beq.s	HCZWaterWall_Vertical_StartCleanup
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_30560:
+HCZWaterWall_Vertical_StartCleanup:
 		move.w	#$1E,$30(a0)
-		move.l	#loc_30106,(a0)
+		move.l	#HCZGeyser_CleanupDelay,(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3056E:
+HCZWaterWall_Vertical_FallMove:
 		jsr	(MoveSprite2).l
 		addi.w	#$48,y_vel(a0)
 		jmp	(Sprite_OnScreen_Test).l
@@ -142115,7 +142115,7 @@ loc_6BCAC:
 ; ---------------------------------------------------------------------------
 
 loc_6BCB2:
-		lea	(byte_303EA).l,a3
+		lea	(HCZGeyser_VerticalDebrisData).l,a3
 		move.w	x_pos(a0),d2
 		move.w	y_pos(a0),d3
 		subi.w	#$80,d3
@@ -142124,7 +142124,7 @@ loc_6BCB2:
 loc_6BCC6:
 		jsr	(AllocateObjectAfterCurrent).l
 		bne.s	locret_6BD1E
-		move.l	#loc_3011A,(a1)
+		move.l	#HCZGeyserDebris_Fall,(a1)
 		move.l	#Map_HCZWaterWallDebris,mappings(a1)
 		move.w	#make_art_tile(ArtTile_HCZCutsceneGeyser+$58,2,0),art_tile(a1)
 		move.b	#$84,render_flags(a1)
