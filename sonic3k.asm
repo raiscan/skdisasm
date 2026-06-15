@@ -137993,20 +137993,20 @@ Pal_AIZMiniboss:
 		binclude "Levels/AIZ/Palettes/Miniboss.bin"
 		even
 ; ---------------------------------------------------------------------------
-AIZBossSonicDat:
+AIZEndBoss_SonicArenaData:
 		dc.w  $4880, $48E0,  $15A
-AIZBossKnuxDat:
+AIZEndBoss_KnucklesArenaData:
 		dc.w  $4100, $4160,  $5DA
 ; ---------------------------------------------------------------------------
 
 Obj_AIZEndBoss:
 		move.l	#Obj_AIZEndBossWait,(a0)
-		lea	AIZBossSonicDat(pc),a1
+		lea	AIZEndBoss_SonicArenaData(pc),a1
 		cmpi.b	#2,(Player_1+character_id).w
-		bne.s	loc_691BE
-		lea	AIZBossKnuxDat(pc),a1
+		bne.s	AIZEndBoss_LoadArenaData
+		lea	AIZEndBoss_KnucklesArenaData(pc),a1
 
-loc_691BE:
+AIZEndBoss_LoadArenaData:
 		lea	(_unkFA82).w,a2
 		move.w	(a1)+,(a2)+
 		move.w	(a1)+,(a2)+
@@ -138015,11 +138015,11 @@ loc_691BE:
 Obj_AIZEndBossWait:
 		move.w	(_unkFA82).w,d0
 		cmp.w	(Camera_X_pos).w,d0
-		bls.s	loc_691D4			; Only branch if Sonic has reached the boss area
+		bls.s	AIZEndBoss_StartArenaLock			; Only branch if the player has reached the boss area
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_691D4:
+AIZEndBoss_StartArenaLock:
 		move.w	d0,(Camera_min_X_pos).w
 		move.w	d0,(Camera_max_X_pos).w
 		move.l	#Obj_Wait,(a0)			; Set up object to wait $78 frames
@@ -138050,21 +138050,21 @@ Obj_AIZEndBossMusic:
 Obj_AIZEndBossMain:
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	AIZ_EndBossIndex(pc,d0.w),d1
-		jsr	AIZ_EndBossIndex(pc,d1.w)
+		move.w	AIZEndBoss_Index(pc,d0.w),d1
+		jsr	AIZEndBoss_Index(pc,d1.w)
 		btst	#6,$38(a0)
-		bne.w	locret_69366			; Only draw and touch when boss has revealed itself
+		bne.w	AIZEndBoss_Return			; Only draw and touch when boss has revealed itself
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
-AIZ_EndBossIndex:
-		dc.w Obj_AIZEndBossInit-AIZ_EndBossIndex
-		dc.w loc_692E2-AIZ_EndBossIndex
-		dc.w loc_6932C-AIZ_EndBossIndex
-		dc.w loc_69368-AIZ_EndBossIndex
-		dc.w loc_693F0-AIZ_EndBossIndex
-		dc.w loc_692E2-AIZ_EndBossIndex
-		dc.w loc_69456-AIZ_EndBossIndex
-		dc.w loc_6946A-AIZ_EndBossIndex
+AIZEndBoss_Index:
+		dc.w Obj_AIZEndBossInit-AIZEndBoss_Index
+		dc.w AIZEndBoss_Emerge-AIZEndBoss_Index
+		dc.w AIZEndBoss_Revealed-AIZEndBoss_Index
+		dc.w AIZEndBoss_Hover-AIZEndBoss_Index
+		dc.w AIZEndBoss_AttackWait-AIZEndBoss_Index
+		dc.w AIZEndBoss_Emerge-AIZEndBoss_Index
+		dc.w AIZEndBoss_ScrollCamera-AIZEndBoss_Index
+		dc.w AIZEndBoss_MoveWait-AIZEndBoss_Index
 ; ---------------------------------------------------------------------------
 
 Obj_AIZEndBossInit:
@@ -138074,196 +138074,196 @@ Obj_AIZEndBossInit:
 		bset	#0,render_flags(a0)
 		lea	(Child1_MakeRoboShip).l,a2
 		jsr	(CreateChild1_Normal).l
-		bne.s	loc_69296
+		bne.s	AIZEndBoss_SpawnArms
 		move.b	#8,subtype(a1)
 
-loc_69296:
-		lea	ChildObjDat_69D18(pc),a2
+AIZEndBoss_SpawnArms:
+		lea	ChildObjDat_AIZEndBossArms(pc),a2
 		jsr	(CreateChild1_Normal).l
 
-loc_692A0:
+AIZEndBoss_StartEmerge:
 		move.b	#2,routine(a0)
 		moveq	#signextendB(sfx_WaterfallSplash),d0
 		jsr	(Play_SFX).l
 		ori.b	#$48,$38(a0)
-		move.l	#loc_69302,$34(a0)
+		move.l	#AIZEndBoss_Reveal,$34(a0)
 		clr.b	collision_flags(a0)
-		bsr.w	sub_69C94
+		bsr.w	AIZEndBoss_ResetHitFlash
 		bclr	#0,render_flags(a0)
 		cmpi.w	#8,angle(a0)
-		bhs.s	loc_692D8
+		bhs.s	AIZEndBoss_SpawnWaterfall
 		bset	#0,render_flags(a0)
 
-loc_692D8:
-		lea	ChildObjDat_69D2E(pc),a2
+AIZEndBoss_SpawnWaterfall:
+		lea	ChildObjDat_AIZEndBossWaterfall(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_692E2:
-		lea	byte_69D98(pc),a1
+AIZEndBoss_Emerge:
+		lea	AniRaw_AIZEndBoss_Emerge(pc),a1
 		jsr	(Animate_RawNoSSTMultiDelay).l
 		bclr	#6,$38(a0)
 		cmpi.b	#$2B,mapping_frame(a0)
-		bne.s	locret_69300
+		bne.s	AIZEndBoss_EmergeReturn
 		bset	#6,$38(a0)
 
-locret_69300:
+AIZEndBoss_EmergeReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69302:
+AIZEndBoss_Reveal:
 		move.b	#4,routine(a0)
 		bclr	#6,$38(a0)
 		bset	#7,art_tile(a0)
 		move.b	#$16,collision_flags(a0)
-		move.l	#loc_6933A,$34(a0)
-		lea	ChildObjDat_69D36(pc),a2
+		move.l	#AIZEndBoss_StartHover,$34(a0)
+		lea	ChildObjDat_AIZEndBossFlameColumn(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_6932C:
-		lea	byte_69DB3(pc),a1
+AIZEndBoss_Revealed:
+		lea	AniRaw_AIZEndBoss_Revealed(pc),a1
 		jsr	(Animate_RawNoSSTMultiDelay).l
-		bra.w	sub_69BE2
+		bra.w	AIZEndBoss_CheckHitOrDefeat
 ; ---------------------------------------------------------------------------
 
-loc_6933A:
+AIZEndBoss_StartHover:
 		move.b	#6,routine(a0)
 		move.w	#$1F,$2E(a0)
-		move.l	#loc_6937E,$34(a0)
+		move.l	#AIZEndBoss_EndHover,$34(a0)
 		move.w	#$C0,d0
 		move.w	d0,$3E(a0)
 		move.w	d0,y_vel(a0)
 		move.w	#$10,$40(a0)
 		bclr	#0,$38(a0)
 
-locret_69366:
+AIZEndBoss_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69368:
+AIZEndBoss_Hover:
 		jsr	(Swing_UpAndDown).l
 		jsr	(MoveSprite2).l
 		jsr	(Obj_Wait).l
-		bra.w	sub_69BE2
+		bra.w	AIZEndBoss_CheckHitOrDefeat
 ; ---------------------------------------------------------------------------
 
-loc_6937E:
+AIZEndBoss_EndHover:
 		bset	#1,$38(a0)
 		btst	#7,$38(a0)
-		bne.s	loc_693A2
+		bne.s	AIZEndBoss_SetPostDefeatDelay
 		move.w	#4,angle(a0)
 		move.w	#$2F,$2E(a0)
-		move.l	#loc_693DC,$34(a0)
+		move.l	#AIZEndBoss_StartFireSignal,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_693A2:
+AIZEndBoss_SetPostDefeatDelay:
 		move.w	#$BF,d0
 		cmpi.b	#2,(Player_1+character_id).w
-		bne.s	loc_693B2
+		bne.s	AIZEndBoss_SetPostDefeatTimer
 		move.w	#$FF,d0
 
-loc_693B2:
+AIZEndBoss_SetPostDefeatTimer:
 		move.w	d0,$2E(a0)
-		move.l	#loc_693C0,$34(a0)
+		move.l	#AIZEndBoss_StartAttackWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_693C0:
+AIZEndBoss_StartAttackWait:
 		move.b	#8,routine(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_693FA,$34(a0)
+		move.l	#AIZEndBoss_StartSubmerge,$34(a0)
 		andi.b	#$F5,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_693DC:
+AIZEndBoss_StartFireSignal:
 		st	(_unkFAA2).w
 		move.w	#$8F,$2E(a0)
-		move.l	#loc_693C0,$34(a0)
+		move.l	#AIZEndBoss_StartAttackWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_693F0:
-		bsr.w	sub_69BE2
+AIZEndBoss_AttackWait:
+		bsr.w	AIZEndBoss_CheckHitOrDefeat
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_693FA:
+AIZEndBoss_StartSubmerge:
 		move.b	#$A,routine(a0)
 		moveq	#signextendB(sfx_WaterfallSplash),d0
 		jsr	(Play_SFX).l
-		move.l	#loc_6942A,$34(a0)
+		move.l	#AIZEndBoss_FinishSubmerge,$34(a0)
 		clr.b	collision_flags(a0)
-		bsr.w	sub_69C94
-		lea	ChildObjDat_69D2E(pc),a2
+		bsr.w	AIZEndBoss_ResetHitFlash
+		lea	ChildObjDat_AIZEndBossWaterfall(pc),a2
 		jsr	(CreateChild1_Normal).l
 		move.b	#2,subtype(a1)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6942A:
+AIZEndBoss_FinishSubmerge:
 		move.b	#$C,routine(a0)
 		bset	#7,$38(a0)
-		beq.s	loc_6943E
+		beq.s	AIZEndBoss_StartMoveWaitCallback
 		move.b	#$E,routine(a0)
 
-loc_6943E:
-		move.l	#loc_69476,$34(a0)
+AIZEndBoss_StartMoveWaitCallback:
+		move.l	#AIZEndBoss_RestartEmerge,$34(a0)
 		bclr	#7,art_tile(a0)
 		move.b	#0,mapping_frame(a0)
-		bra.w	loc_69A66
+		bra.w	AIZEndBoss_SetRandomMoveTarget
 ; ---------------------------------------------------------------------------
 
-loc_69456:
+AIZEndBoss_ScrollCamera:
 		move.w	(Camera_min_X_pos).w,d0
 		addq.w	#2,d0
 		cmp.w	(_unkFA84).w,d0
-		bhi.s	loc_69466
+		bhi.s	AIZEndBoss_ExpandCameraMax
 		move.w	d0,(Camera_min_X_pos).w
 
-loc_69466:
+AIZEndBoss_ExpandCameraMax:
 		addq.w	#2,(Camera_max_X_pos).w
 
-loc_6946A:
+AIZEndBoss_MoveWait:
 		jsr	(MoveSprite2).l
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_69476:
+AIZEndBoss_RestartEmerge:
 		clr.w	x_vel(a0)
 		clr.w	y_vel(a0)
-		bra.w	loc_692A0
+		bra.w	AIZEndBoss_StartEmerge
 ; ---------------------------------------------------------------------------
 
-loc_69482:
-		move.l	#loc_694A4,$34(a0)
+AIZEndBoss_StartDefeat:
+		move.l	#AIZEndBoss_StartCapsuleSequence,$34(a0)
 		st	(_unkFAA3).w
 		move.l	#Obj_Wait,(a0)
 		bset	#4,$38(a0)
-		lea	ChildObjDat_69D66(pc),a2
+		lea	ChildObjDat_AIZEndBossDebris(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_694A4:
-		move.l	#loc_694D4,(a0)
+AIZEndBoss_StartCapsuleSequence:
+		move.l	#AIZEndBoss_StartPostDefeatCutscene,(a0)
 
-loc_694AA:
+Boss_LoadEggCapsuleAndAnimals:
 		st	(_unkFAA8).w
 		clr.b	(Boss_flag).w
 		lea	(PLC_EggCapsule).l,a1
 		jsr	(Load_PLC_Raw).l
-		lea	ChildObjDat_69D8C(pc),a2
+		lea	ChildObjDat_BossEggCapsule(pc),a2
 		jsr	(CreateChild6_Simple).l
 		bset	#1,render_flags(a1)
 		jmp	(PLCLoad_AnimalsAndExplosion).l
 ; ---------------------------------------------------------------------------
 
-loc_694D4:
+AIZEndBoss_StartPostDefeatCutscene:
 		tst.b	(_unkFAA8).w
-		bne.w	locret_69366
-		move.l	#loc_69526,(a0)
+		bne.w	AIZEndBoss_Return
+		move.l	#AIZEndBoss_WalkPlayerRight,(a0)
 		jsr	(Restore_PlayerControl).l
 		lea	(Player_2).w,a1
 		jsr	(Restore_PlayerControl2).l
@@ -138271,10 +138271,10 @@ loc_694D4:
 		st	(Ctrl_1_locked).w
 		clr.w	(Ctrl_1_logical).w
 		jsr	(AllocateObject).l
-		bne.s	loc_6950E
+		bne.s	AIZEndBoss_SetPostDefeatCamera
 		move.l	#loc_863C0,(a1)
 
-loc_6950E:
+AIZEndBoss_SetPostDefeatCamera:
 		move.w	(_unkFA84).w,d0
 		addi.w	#$158,d0
 		move.w	d0,(Camera_stored_max_X_pos).w
@@ -138282,72 +138282,72 @@ loc_6950E:
 		jmp	(CreateChild6_Simple).l
 ; ---------------------------------------------------------------------------
 
-loc_69526:
+AIZEndBoss_WalkPlayerRight:
 		move.b	#5,(Flying_picking_Sonic_timer).w
 		lea	(Player_1).w,a1
 		move.w	(_unkFA84).w,d0
 		addi.w	#$1F8,d0
 		cmp.w	x_pos(a1),d0
-		bls.s	loc_69546
+		bls.s	AIZEndBoss_StopPlayer
 		move.w	#(button_right_mask<<8)|button_right_mask,(Ctrl_1_logical).w
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69546:
+AIZEndBoss_StopPlayer:
 		jsr	(Stop_Object).l
 		cmpi.b	#2,(Player_1+character_id).w
-		beq.s	loc_6957A
-		move.l	#loc_69588,(a0)
+		beq.s	AIZEndBoss_KnucklesJump
+		move.l	#AIZEndBoss_WaitForCutsceneKnuckles,(a0)
 		jsr	(AllocateObject).l
-		bne.s	loc_6956E
+		bne.s	AIZEndBoss_LoadExplosionPlc
 		move.l	#Obj_CutsceneKnuckles,(a1)
 		move.b	#4,subtype(a1)
 
-loc_6956E:
+AIZEndBoss_LoadExplosionPlc:
 		lea	(PLC_Explosion).l,a1
 		jmp	(Load_PLC_Raw).l
 ; ---------------------------------------------------------------------------
 
-loc_6957A:
-		move.l	#loc_695CE,(a0)
+AIZEndBoss_KnucklesJump:
+		move.l	#AIZEndBoss_KnucklesFallSetup,(a0)
 		move.w	#(button_C_mask<<8)|button_C_mask,(Ctrl_1_logical).w
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69588:
+AIZEndBoss_WaitForCutsceneKnuckles:
 		move.b	#5,(Flying_picking_Sonic_timer).w
 		tst.b	(Ctrl_1_locked).w
-		beq.s	loc_695A0
+		beq.s	AIZEndBoss_StartLevelTransitionCheck
 		move.w	#(button_up_mask<<8)|button_up_mask,(Ctrl_1_logical).w
 		clr.w	(Ctrl_2_logical).w
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_695A0:
-		move.l	#loc_695A8,(a0)
+AIZEndBoss_StartLevelTransitionCheck:
+		move.l	#AIZEndBoss_LevelTransitionCheck,(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_695A8:
+AIZEndBoss_LevelTransitionCheck:
 		move.b	#5,(Flying_picking_Sonic_timer).w
 
-loc_695AE:
+AIZEndBoss_CheckLevelTransitionY:
 		move.w	(_unkFA86).w,d0
 		addi.w	#$1E6,d0
 		cmp.w	(Player_1+y_pos).w,d0
-		bhi.w	locret_69366
+		bhi.w	AIZEndBoss_Return
 		move.w	#$100,d0
 		jsr	(StartNewLevel).l
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_695CE:
+AIZEndBoss_KnucklesFallSetup:
 		move.w	#button_C_mask<<8,(Ctrl_1_logical).w
 		lea	(Player_1).w,a1
 		bset	#7,art_tile(a1)
 		tst.w	y_vel(a1)
-		bmi.w	locret_69366
-		move.l	#loc_69616,(a0)
+		bmi.w	AIZEndBoss_Return
+		move.l	#AIZEndBoss_KnucklesFall,(a0)
 		move.b	#$83,object_control(a1)
 		move.b	#$CB,mapping_frame(a1)
 		jsr	(Player_Load_PLC).l
@@ -138358,117 +138358,117 @@ loc_695CE:
 		jmp	(CreateChild6_Simple).l
 ; ---------------------------------------------------------------------------
 
-loc_69616:
+AIZEndBoss_KnucklesFall:
 		lea	(Player_1).w,a1
 		jsr	(MoveSprite_NormGravity).l
-		bra.s	loc_695AE
+		bra.s	AIZEndBoss_CheckLevelTransitionY
 ; ---------------------------------------------------------------------------
 
-loc_69622:
+AIZEndBossArm:
 		jsr	(Refresh_ChildPositionAdjusted).l
 		bsr.w	Child_SyncDraw
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_6964E(pc,d0.w),d1
-		jsr	off_6964E(pc,d1.w)
+		move.w	AIZEndBossArm_Index(pc,d0.w),d1
+		jsr	AIZEndBossArm_Index(pc,d1.w)
 		btst	#6,$38(a0)
-		bne.w	locret_69366
-		bsr.w	sub_69CA4
+		bne.w	AIZEndBoss_Return
+		bsr.w	AIZEndBossChild_CheckParentDefeated
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
-off_6964E:
-		dc.w loc_6965A-off_6964E
-		dc.w loc_69682-off_6964E
-		dc.w loc_696B4-off_6964E
-		dc.w loc_696CA-off_6964E
-		dc.w loc_696E2-off_6964E
-		dc.w loc_69704-off_6964E
+AIZEndBossArm_Index:
+		dc.w AIZEndBossArm_Init-AIZEndBossArm_Index
+		dc.w AIZEndBossArm_WaitEmerge-AIZEndBossArm_Index
+		dc.w AIZEndBossArm_Wait-AIZEndBossArm_Index
+		dc.w AIZEndBossArm_RevealAnim-AIZEndBossArm_Index
+		dc.w AIZEndBossArm_WaitFireSignal-AIZEndBossArm_Index
+		dc.w AIZEndBossArm_WaitFireClear-AIZEndBossArm_Index
 ; ---------------------------------------------------------------------------
 
-loc_6965A:
-		lea	word_69CE0(pc),a1
+AIZEndBossArm_Init:
+		lea	ObjDat_AIZEndBossArm(pc),a1
 		jsr	(SetUp_ObjAttributes3).l
 		moveq	#0,d0
 		tst.b	subtype(a0)
-		beq.s	loc_69678
+		beq.s	AIZEndBossArm_SpawnPropeller
 		move.b	#$2A,mapping_frame(a0)
 		move.w	#$280,priority(a0)
 
-loc_69678:
-		lea	ChildObjDat_69D26(pc),a2
+AIZEndBossArm_SpawnPropeller:
+		lea	ChildObjDat_AIZEndBossPropeller(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_69682:
+AIZEndBossArm_WaitEmerge:
 		movea.w	parent3(a0),a1
 		btst	#3,$38(a1)
-		bne.s	loc_69690
+		bne.s	AIZEndBossArm_StartEmerge
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69690:
+AIZEndBossArm_StartEmerge:
 		tst.b	subtype(a0)
-		bne.s	loc_696AC
+		bne.s	AIZEndBossArm_SetReady
 		move.b	#4,routine(a0)
 		move.w	#4,$2E(a0)
-		move.l	#loc_696BA,$34(a0)
+		move.l	#AIZEndBossArm_StartRevealAnim,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_696AC:
+AIZEndBossArm_SetReady:
 		move.b	#8,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_696B4:
+AIZEndBossArm_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_696BA:
+AIZEndBossArm_StartRevealAnim:
 		move.b	#6,routine(a0)
-		move.l	#loc_696DA,$34(a0)
+		move.l	#AIZEndBossArm_SetIdle,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_696CA:
+AIZEndBossArm_RevealAnim:
 		bclr	#6,$38(a0)
-		lea	byte_69DBE(pc),a1
+		lea	AniRaw_AIZEndBossArm_Reveal(pc),a1
 		jmp	(Animate_RawNoSSTMultiDelay).l
 ; ---------------------------------------------------------------------------
 
-loc_696DA:
+AIZEndBossArm_SetIdle:
 		move.b	#8,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_696E2:
+AIZEndBossArm_WaitFireSignal:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		bne.s	loc_696F0
+		bne.s	AIZEndBossArm_StartFireSignal
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_696F0:
+AIZEndBossArm_StartFireSignal:
 		move.b	#$A,routine(a0)
 		bset	#1,$38(a0)
 		move.w	angle(a1),angle(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69704:
+AIZEndBossArm_WaitFireClear:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		beq.s	loc_69712
+		beq.s	AIZEndBossArm_ClearFireSignal
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69712:
+AIZEndBossArm_ClearFireSignal:
 		move.b	#2,routine(a0)
 		bclr	#1,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69720:
+AIZEndBossChild_BreakOff:
 		move.l	#Obj_FlickerMove,(a0)
 		move.b	#1,mapping_frame(a0)
 		clr.b	collision_flags(a0)
@@ -138476,269 +138476,269 @@ loc_69720:
 		jmp	(Set_IndexedVelocity).l
 ; ---------------------------------------------------------------------------
 
-loc_69738:
+AIZEndBossPropeller:
 		bsr.w	Child_SyncDraw
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_69760(pc,d0.w),d1
-		jsr	off_69760(pc,d1.w)
+		move.w	AIZEndBossPropeller_Index(pc,d0.w),d1
+		jsr	AIZEndBossPropeller_Index(pc,d1.w)
 		jsr	(Refresh_ChildPositionAdjusted).l
 		btst	#6,$38(a0)
-		bne.w	locret_69366
+		bne.w	AIZEndBoss_Return
 		jmp	(Child_Draw_Sprite).l
 ; ---------------------------------------------------------------------------
-off_69760:
-		dc.w loc_69768-off_69760
-		dc.w loc_69774-off_69760
-		dc.w loc_697BA-off_69760
-		dc.w loc_6981E-off_69760
+AIZEndBossPropeller_Index:
+		dc.w AIZEndBossPropeller_Init-AIZEndBossPropeller_Index
+		dc.w AIZEndBossPropeller_WaitFireSignal-AIZEndBossPropeller_Index
+		dc.w AIZEndBossPropeller_FireSignal-AIZEndBossPropeller_Index
+		dc.w AIZEndBossPropeller_Wait-AIZEndBossPropeller_Index
 ; ---------------------------------------------------------------------------
 
-loc_69768:
-		lea	word_69CE6(pc),a1
+AIZEndBossPropeller_Init:
+		lea	ObjDat_AIZEndBossPropeller(pc),a1
 		jsr	(SetUp_ObjAttributes3).l
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69774:
+AIZEndBossPropeller_WaitFireSignal:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		bne.s	loc_69782
+		bne.s	AIZEndBossPropeller_StartFireSignal
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69782:
+AIZEndBossPropeller_StartFireSignal:
 		move.b	#4,routine(a0)
 		move.b	#1,anim_frame(a0)
 		bset	#1,$38(a0)
 		move.b	#1,$3A(a0)
-		move.l	#loc_697D8,$34(a0)
+		move.l	#AIZEndBossPropeller_FireDone,$34(a0)
 		move.w	angle(a1),angle(a0)
 		clr.w	$2E(a0)
 		tst.b	subtype(a1)
-		beq.s	locret_697B8
+		beq.s	AIZEndBossPropeller_Return
 		move.w	#$4F,$2E(a0)
 
-locret_697B8:
+AIZEndBossPropeller_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_697BA:
+AIZEndBossPropeller_FireSignal:
 		subq.w	#1,$2E(a0)
-		bpl.s	locret_697D6
+		bpl.s	AIZEndBossPropeller_FireReturn
 		move.w	#3,$2E(a0)
-		bsr.w	sub_69AD8
+		bsr.w	AIZEndBossPropeller_UpdateFrame
 		subq.b	#1,anim_frame(a0)
-		bpl.s	locret_697D6
+		bpl.s	AIZEndBossPropeller_FireReturn
 		movea.l	$34(a0),a1
 		jsr	(a1)
 
-locret_697D6:
+AIZEndBossPropeller_FireReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_697D8:
+AIZEndBossPropeller_FireDone:
 		move.b	#6,routine(a0)
 		cmpi.b	#2,(Player_1+character_id).w
-		beq.s	loc_69802
+		beq.s	AIZEndBossPropeller_KnucklesFireLoop
 
-loc_697E6:
+AIZEndBossPropeller_ClearParentSignal:
 		movea.w	parent3(a0),a1
 		bclr	#1,$38(a1)
 		move.w	#$5F,$2E(a0)
-		move.l	#loc_69824,$34(a0)
-		bra.w	loc_69B5E
+		move.l	#AIZEndBossPropeller_StartReset,$34(a0)
+		bra.w	AIZEndBossPropeller_SpawnFlame
 ; ---------------------------------------------------------------------------
 
-loc_69802:
+AIZEndBossPropeller_KnucklesFireLoop:
 		subq.b	#1,$3A(a0)
-		bmi.s	loc_697E6
+		bmi.s	AIZEndBossPropeller_ClearParentSignal
 		move.w	#$2F,$2E(a0)
-		bra.w	loc_69B5E
+		bra.w	AIZEndBossPropeller_SpawnFlame
 ; ---------------------------------------------------------------------------
 
-loc_69812:
+AIZEndBossPropeller_Reset:
 		move.b	#2,routine(a0)
 		clr.b	$39(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6981E:
+AIZEndBossPropeller_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_69824:
+AIZEndBossPropeller_StartReset:
 		move.b	#4,routine(a0)
 		move.b	#1,anim_frame(a0)
 		bclr	#1,$38(a0)
 		clr.w	$2E(a0)
-		move.l	#loc_69812,$34(a0)
+		move.l	#AIZEndBossPropeller_Reset,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69844:
-		lea	word_69CEC(pc),a1
+AIZEndBossFlame_Init:
+		lea	ObjDat_AIZEndBossFlame(pc),a1
 		jsr	(SetUp_ObjAttributes3).l
-		move.l	#loc_6989E,(a0)
+		move.l	#AIZEndBossFlame_Main,(a0)
 		bset	#4,shield_reaction(a0)
-		move.l	#loc_698BC,$34(a0)
+		move.l	#AIZEndBossFlame_SpawnBomb,$34(a0)
 		movea.w	parent3(a0),a1
 		movea.w	parent3(a1),a2
 		movea.w	parent3(a2),a2
 		move.w	a2,$44(a0)
 		move.w	angle(a1),d0
 		move.w	d0,angle(a0)
-		move.l	off_6988E(pc,d0.w),$30(a0)
+		move.l	AIZEndBossFlame_AnimByAngle(pc,d0.w),$30(a0)
 		cmpi.w	#8,d0
-		bhs.s	locret_6988C
+		bhs.s	AIZEndBossFlame_Return
 		bset	#0,render_flags(a0)
 
-locret_6988C:
+AIZEndBossFlame_Return:
 		rts
 ; ---------------------------------------------------------------------------
-off_6988E:
-		dc.l byte_69DC9
-		dc.l byte_69DF3
-		dc.l byte_69DF3
-		dc.l byte_69DC9
+AIZEndBossFlame_AnimByAngle:
+		dc.l AniRaw_AIZEndBossFlame_Diagonal
+		dc.l AniRaw_AIZEndBossFlame_Vertical
+		dc.l AniRaw_AIZEndBossFlame_Vertical
+		dc.l AniRaw_AIZEndBossFlame_Diagonal
 ; ---------------------------------------------------------------------------
 
-loc_6989E:
+AIZEndBossFlame_Main:
 		movea.w	$44(a0),a1
 		btst	#7,status(a1)
-		bne.s	loc_698C6
+		bne.s	AIZEndBossFlame_Delete
 		jsr	(Refresh_ChildPosition).l
 		jsr	(Animate_Raw).l
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_698BC:
-		lea	ChildObjDat_69D56(pc),a2
+AIZEndBossFlame_SpawnBomb:
+		lea	ChildObjDat_AIZEndBossBomb(pc),a2
 		jsr	(CreateChild1_Normal).l
 
-loc_698C6:
+AIZEndBossFlame_Delete:
 		bset	#6,$38(a0)
 		jmp	(Go_Delete_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_698D2:
-		lea	word_69CF2(pc),a1
+AIZEndBossBomb_Init:
+		lea	ObjDat_AIZEndBossBomb(pc),a1
 		jsr	(SetUp_ObjAttributes3).l
 		bset	#4,shield_reaction(a0)
 		moveq	#signextendB(sfx_Projectile),d0
 		jsr	(Play_SFX).l
 		move.b	#$C,y_radius(a0)
 		move.w	#$9F,$2E(a0)
-		move.l	#loc_69908,(a0)
-		move.l	#loc_69946,$34(a0)
-		bra.w	loc_69B7A
+		move.l	#AIZEndBossBomb_Main,(a0)
+		move.l	#AIZEndBossBomb_StartFall,$34(a0)
+		bra.w	AIZEndBossBomb_SetAngleData
 ; ---------------------------------------------------------------------------
 
-loc_69908:
+AIZEndBossBomb_Main:
 		tst.w	x_vel(a0)
-		beq.s	loc_69914
+		beq.s	AIZEndBossBomb_Move
 		jsr	(ObjHitFloor_DoRoutine).l
 
-loc_69914:
+AIZEndBossBomb_Move:
 		jsr	(Animate_Raw).l
 		jsr	(MoveSprite2).l
 		subq.w	#1,$2E(a0)
-		bmi.s	loc_69940
+		bmi.s	AIZEndBossBomb_Delete
 		move.b	(V_int_run_count+3).w,d0
 		andi.b	#3,d0
-		bne.s	loc_6993A
-		lea	ChildObjDat_69D5E(pc),a2
+		bne.s	AIZEndBossBomb_DrawTouch
+		lea	ChildObjDat_AIZEndBossSmoke(pc),a2
 		jsr	(CreateChild1_Normal).l
 
-loc_6993A:
+AIZEndBossBomb_DrawTouch:
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_69940:
+AIZEndBossBomb_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_69946:
-		move.l	#loc_69914,(a0)
-		move.l	#byte_69E29,$30(a0)
+AIZEndBossBomb_StartFall:
+		move.l	#AIZEndBossBomb_Move,(a0)
+		move.l	#AniRaw_AIZEndBossBomb_Fall,$30(a0)
 		clr.w	y_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6995A:
-		lea	word_69CF8(pc),a1
+AIZEndBossSmoke_Init:
+		lea	ObjDat_AIZEndBossSmoke(pc),a1
 		jsr	(SetUp_ObjAttributes3).l
-		move.l	#loc_6998A,(a0)
+		move.l	#AIZEndBossSmoke_Animate,(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
-		move.l	#byte_69E2F,$30(a0)
+		move.l	#AniRaw_AIZEndBossSmoke_Moving,$30(a0)
 		tst.w	x_vel(a0)
-		bne.s	locret_69988
-		move.l	#byte_69E38,$30(a0)
+		bne.s	AIZEndBossSmoke_Return
+		move.l	#AniRaw_AIZEndBossSmoke_Static,$30(a0)
 
-locret_69988:
+AIZEndBossSmoke_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6998A:
+AIZEndBossSmoke_Animate:
 		jsr	(Animate_RawMultiDelay).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_69996:
-		lea	ObjDat_AIZEndBoss2(pc),a1
+AIZEndBossFlameColumn_Init:
+		lea	ObjDat_AIZEndBossFlameColumn(pc),a1
 		jsr	(SetUp_ObjAttributes).l
-		move.l	#loc_699B0,(a0)
+		move.l	#AIZEndBossFlameColumn_Animate,(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_699B0:
-		lea	byte_69E41(pc),a1
+AIZEndBossFlameColumn_Animate:
+		lea	AniRaw_AIZEndBossFlameColumn(pc),a1
 		jsr	(Animate_RawNoSSTMultiDelay).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_699C0:
-		lea	word_69CFE(pc),a1
+AIZEndBossWaterfall_Init:
+		lea	ObjDat_AIZEndBossWaterfall(pc),a1
 		jsr	(SetUp_ObjAttributes2).l
-		move.l	#loc_699EA,(a0)
+		move.l	#AIZEndBossWaterfall_Animate,(a0)
 		tst.b	subtype(a0)
-		bne.s	loc_699E0
+		bne.s	AIZEndBossWaterfall_SetDropCallback
 		move.l	#Go_Delete_Sprite,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_699E0:
-		move.l	#loc_69A04,$34(a0)
+AIZEndBossWaterfall_SetDropCallback:
+		move.l	#AIZEndBossWaterfall_StartDrop,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_699EA:
-		lea	byte_69E4A(pc),a1
+AIZEndBossWaterfall_Animate:
+		lea	AniRaw_AIZEndBossWaterfall(pc),a1
 		jsr	(Animate_RawNoSSTMultiDelayFlipX).l
 		cmpi.b	#$2B,mapping_frame(a0)
-		beq.w	locret_69366
+		beq.w	AIZEndBoss_Return
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_69A04:
-		move.l	#loc_69A1A,(a0)
+AIZEndBossWaterfall_StartDrop:
+		move.l	#AIZEndBossWaterfall_Drop,(a0)
 		move.w	#$800,y_vel(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69A1A:
+AIZEndBossWaterfall_Drop:
 		jsr	(MoveSprite2).l
-		lea	byte_69E65(pc),a1
+		lea	AniRaw_AIZEndBossWaterfallDrop(pc),a1
 		jsr	(Animate_RawNoSSTMultiDelayFlipX).l
 		cmpi.b	#$2B,mapping_frame(a0)
-		beq.w	locret_69366
+		beq.w	AIZEndBoss_Return
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_69A3A:
-		lea	word_69D12(pc),a1
+AIZEndBossDebris_Init:
+		lea	ObjDat_AIZEndBossDebris(pc),a1
 		jsr	(SetUp_ObjAttributes3).l
 		move.l	#Obj_FlickerMove,(a0)
 		move.b	subtype(a0),d0
@@ -138750,14 +138750,14 @@ loc_69A3A:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_69A66:
+AIZEndBoss_SetRandomMoveTarget:
 		jsr	(Random_Number).l
 		andi.w	#$C,d0
 		move.w	angle(a0),d1
 		move.w	d0,angle(a0)
 		cmp.w	d1,d0
-		beq.s	loc_69A66
-		lea	word_69AC8(pc,d0.w),a1
+		beq.s	AIZEndBoss_SetRandomMoveTarget
+		lea	AIZEndBoss_MoveTargets(pc,d0.w),a1
 		moveq	#0,d2
 		move.w	(_unkFA84).w,d2
 		add.w	(a1)+,d2
@@ -138776,16 +138776,16 @@ loc_69A66:
 		move.w	d3,y_vel(a0)
 		move.w	#$7F,$2E(a0)
 		tst.w	d2
-		beq.s	locret_69AC6
+		beq.s	AIZEndBoss_SetRandomMoveTarget_Return
 		bclr	#0,render_flags(a0)
 		tst.w	d2
-		bmi.s	locret_69AC6
+		bmi.s	AIZEndBoss_SetRandomMoveTarget_Return
 		bset	#0,render_flags(a0)
 
-locret_69AC6:
+AIZEndBoss_SetRandomMoveTarget_Return:
 		rts
 ; ---------------------------------------------------------------------------
-word_69AC8:
+AIZEndBoss_MoveTargets:
 		dc.w   $058,   $76
 		dc.w   $0A0,   $46
 		dc.w   $160,   $46
@@ -138794,30 +138794,30 @@ word_69AC8:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_69AD8:
+AIZEndBossPropeller_UpdateFrame:
 		move.w	angle(a0),d0
 		moveq	#0,d1
 		eori.w	#$C,d0
-		beq.s	loc_69AEE
+		beq.s	AIZEndBossPropeller_SelectFrameTable
 		cmpi.w	#$C,d0
-		beq.s	loc_69AEE
+		beq.s	AIZEndBossPropeller_SelectFrameTable
 		addi.w	#$10,d1
 
-loc_69AEE:
+AIZEndBossPropeller_SelectFrameTable:
 		moveq	#0,d2
 		move.b	$39(a0),d2
 		add.w	d2,d1
-		lea	byte_69B0E(pc,d1.w),a1
+		lea	AIZEndBossPropeller_FrameOffsets(pc,d1.w),a1
 		move.b	(a1)+,child_dx(a0)
 		move.b	(a1)+,child_dy(a0)
 		move.b	(a1)+,mapping_frame(a0)
 		addq.b	#4,d2
 		move.b	d2,$39(a0)
 		rts
-; End of function sub_69AD8
+; End of function AIZEndBossPropeller_UpdateFrame
 
 ; ---------------------------------------------------------------------------
-byte_69B0E:
+AIZEndBossPropeller_FrameOffsets:
 		dc.b -$18,   8,   5
 		even
 		dc.b -$18,   8,   5
@@ -138841,68 +138841,68 @@ byte_69B0E:
 Child_SyncDraw:
 		movea.w	parent3(a0),a1
 		btst	#6,$38(a1)
-		bne.s	loc_69B56
+		bne.s	Child_SyncDraw_SetHidden
 		bclr	#6,$38(a0)
 		bset	#7,art_tile(a0)
 		btst	#7,art_tile(a1)
-		bne.s	locret_69B54
+		bne.s	Child_SyncDraw_Return
 		bclr	#7,art_tile(a0)
 
-locret_69B54:
+Child_SyncDraw_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69B56:
+Child_SyncDraw_SetHidden:
 		bset	#6,$38(a0)
 		rts
 ; End of function Child_SyncDraw
 
 ; ---------------------------------------------------------------------------
 
-loc_69B5E:
+AIZEndBossPropeller_SpawnFlame:
 		move.w	angle(a0),d0
 		lsr.w	#1,d0
-		move.w	off_69B72(pc,d0.w),d0
-		lea	off_69B72(pc,d0.w),a2
+		move.w	AIZEndBossPropeller_FlameChildDataIndex(pc,d0.w),d0
+		lea	AIZEndBossPropeller_FlameChildDataIndex(pc,d0.w),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
-off_69B72:
-		dc.w ChildObjDat_69D3E-off_69B72
-		dc.w ChildObjDat_69D46-off_69B72
-		dc.w ChildObjDat_69D46-off_69B72
-		dc.w ChildObjDat_69D4E-off_69B72
+AIZEndBossPropeller_FlameChildDataIndex:
+		dc.w ChildObjDat_AIZEndBossFlameOffset0-AIZEndBossPropeller_FlameChildDataIndex
+		dc.w ChildObjDat_AIZEndBossFlameOffset4-AIZEndBossPropeller_FlameChildDataIndex
+		dc.w ChildObjDat_AIZEndBossFlameOffset4-AIZEndBossPropeller_FlameChildDataIndex
+		dc.w ChildObjDat_AIZEndBossFlameOffset12-AIZEndBossPropeller_FlameChildDataIndex
 ; ---------------------------------------------------------------------------
 
-loc_69B7A:
+AIZEndBossBomb_SetAngleData:
 		movea.w	parent3(a0),a1
 		move.w	angle(a1),d0
 		cmpi.w	#8,d0
-		bhs.s	loc_69B8E
+		bhs.s	AIZEndBossBomb_ApplyAngleData
 		bset	#0,render_flags(a0)
 
-loc_69B8E:
-		move.l	off_69BB2(pc,d0.w),$30(a0)
-		lea	word_69BC2(pc,d0.w),a1
+AIZEndBossBomb_ApplyAngleData:
+		move.l	AIZEndBossBomb_AnimByAngle(pc,d0.w),$30(a0)
+		lea	AIZEndBossBomb_PositionOffsets(pc,d0.w),a1
 		move.w	(a1)+,d1
 		add.w	d1,x_pos(a0)
 		move.w	(a1)+,d1
 		add.w	d1,y_pos(a0)
-		lea	word_69BD2(pc,d0.w),a1
+		lea	AIZEndBossBomb_Velocities(pc,d0.w),a1
 		move.w	(a1)+,x_vel(a0)
 		move.w	(a1)+,y_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
-off_69BB2:
-		dc.l byte_69E1D
-		dc.l byte_69E23
-		dc.l byte_69E23
-		dc.l byte_69E1D
-word_69BC2:
+AIZEndBossBomb_AnimByAngle:
+		dc.l AniRaw_AIZEndBossBomb_Diagonal
+		dc.l AniRaw_AIZEndBossBomb_Vertical
+		dc.l AniRaw_AIZEndBossBomb_Vertical
+		dc.l AniRaw_AIZEndBossBomb_Diagonal
+AIZEndBossBomb_PositionOffsets:
 		dc.w    $14,   $14
 		dc.w      0,   $18
 		dc.w      0,   $18
 		dc.w   -$14,   $14
-word_69BD2:
+AIZEndBossBomb_Velocities:
 		dc.w   $300,  $300
 		dc.w      0,  $400
 		dc.w      0,  $400
@@ -138911,94 +138911,94 @@ word_69BD2:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_69BE2:
+AIZEndBoss_CheckHitOrDefeat:
 		tst.b	collision_flags(a0)
-		bne.s	locret_69C34
+		bne.s	AIZEndBoss_CheckHitReturn
 		tst.b	collision_property(a0)
-		beq.s	loc_69C36
+		beq.s	AIZEndBoss_StartDefeatCallback
 		tst.b	$20(a0)
-		bne.s	loc_69C02
+		bne.s	AIZEndBoss_StartHitFlash
 		move.b	#$20,$20(a0)
 		moveq	#signextendB(sfx_BossHit),d0
 		jsr	(Play_SFX).l
 
-loc_69C02:
+AIZEndBoss_StartHitFlash:
 		bset	#6,status(a0)
 		moveq	#0,d0
 		btst	#0,$20(a0)
-		bne.s	loc_69C16
+		bne.s	AIZEndBoss_UpdateHitFlash
 		addi.w	#2*7,d0
 
-loc_69C16:
-		bsr.w	sub_69C5C
+AIZEndBoss_UpdateHitFlash:
+		bsr.w	AIZEndBoss_CopyHitFlashPalette
 		subq.b	#1,$20(a0)
-		bne.s	locret_69C34
+		bne.s	AIZEndBoss_CheckHitReturn
 		bclr	#6,status(a0)
 		cmpi.b	#0,mapping_frame(a0)
-		bne.s	locret_69C34
+		bne.s	AIZEndBoss_CheckHitReturn
 		move.b	$25(a0),collision_flags(a0)
 
-locret_69C34:
+AIZEndBoss_CheckHitReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69C36:
+AIZEndBoss_StartDefeatCallback:
 		move.l	#Wait_FadeToLevelMusic,(a0)
 		bclr	#6,$38(a0)
 		bset	#7,art_tile(a0)
 		move.b	#0,mapping_frame(a0)
-		move.l	#loc_69482,$34(a0)
+		move.l	#AIZEndBoss_StartDefeat,$34(a0)
 		jmp	(BossDefeated_StopTimer).l
-; End of function sub_69BE2
+; End of function AIZEndBoss_CheckHitOrDefeat
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_69C5C:
-		lea	word_69C6A(pc),a1
-		lea	word_69C78(pc,d0.w),a2
+AIZEndBoss_CopyHitFlashPalette:
+		lea	AIZEndBoss_HitFlashPaletteTargets(pc),a1
+		lea	AIZEndBoss_HitFlashPaletteValues(pc,d0.w),a2
 		jmp	(CopyWordData_7).l
-; End of function sub_69C5C
+; End of function AIZEndBoss_CopyHitFlashPalette
 
 ; ---------------------------------------------------------------------------
-word_69C6A:
+AIZEndBoss_HitFlashPaletteTargets:
 		dc.w Normal_palette_line_2+$08, Normal_palette_line_2+$0E, Normal_palette_line_2+$12, Normal_palette_line_2+$14
 		dc.w Normal_palette_line_2+$16, Normal_palette_line_2+$1A, Normal_palette_line_2+$1C
-word_69C78:
+AIZEndBoss_HitFlashPaletteValues:
 		dc.w   $222,     8,   $4C,     6,   $20,  $A24,  $622
 		dc.w   $AAA,  $AAA,  $AAA,  $CCC,  $EEE,  $666,  $888
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_69C94:
+AIZEndBoss_ResetHitFlash:
 		moveq	#0,d0
-		bsr.s	sub_69C5C
+		bsr.s	AIZEndBoss_CopyHitFlashPalette
 		bclr	#6,status(a0)
 		clr.b	$20(a0)
 		rts
-; End of function sub_69C94
+; End of function AIZEndBoss_ResetHitFlash
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_69CA4:
+AIZEndBossChild_CheckParentDefeated:
 		movea.w	parent3(a0),a1
 		btst	#7,status(a1)
-		bne.s	loc_69CB2
+		bne.s	AIZEndBossChild_StartDefeatBreakOff
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69CB2:
+AIZEndBossChild_StartDefeatBreakOff:
 		move.l	#Wait_Draw,(a0)
 		bset	#7,status(a0)
 		move.b	#1,mapping_frame(a0)
 		move.w	#$1F,$2E(a0)
-		move.l	#loc_69720,$34(a0)
+		move.l	#AIZEndBossChild_BreakOff,$34(a0)
 		rts
-; End of function sub_69CA4
+; End of function AIZEndBossChild_CheckParentDefeated
 
 ; ---------------------------------------------------------------------------
 ObjDat_AIZEndBoss:
@@ -139006,92 +139006,92 @@ ObjDat_AIZEndBoss:
 		dc.w make_art_tile(ArtTile_AIZEndBoss,1,1)	; VRAM
 		dc.w   $280			; Priority
 		dc.b  $28, $20,   0, $10	; Width, Height, Frame, Collision
-word_69CE0:
+ObjDat_AIZEndBossArm:
 		dc.w   $200
 		dc.b  $24, $14,   1,   0
-word_69CE6:
+ObjDat_AIZEndBossPropeller:
 		dc.w   $180
 		dc.b   $C,  $C,   4,   0
-word_69CEC:
+ObjDat_AIZEndBossFlame:
 		dc.w   $100
 		dc.b    8,   4,  $B, $97
-word_69CF2:
+ObjDat_AIZEndBossBomb:
 		dc.w   $100
 		dc.b  $14, $18,  $F, $9A
-word_69CF8:
+ObjDat_AIZEndBossSmoke:
 		dc.w   $100
 		dc.b    8,   8, $18,   0
-word_69CFE:
+ObjDat_AIZEndBossWaterfall:
 		dc.w make_art_tile(ArtTile_AIZEndBoss,0,1)
 		dc.w   $100
 		dc.b  $30, $30, $24,   0
-ObjDat_AIZEndBoss2:
+ObjDat_AIZEndBossFlameColumn:
 		dc.l Map_AIZEndBoss
 		dc.w make_art_tile(ArtTile_AIZEndBoss,0,1)
 		dc.w   $100
 		dc.b  $18, $10, $21,   0
-word_69D12:
+ObjDat_AIZEndBossDebris:
 		dc.w   $180
 		dc.b  $10, $10,   0,   0
-ChildObjDat_69D18:
+ChildObjDat_AIZEndBossArms:
 		dc.w 2-1
-		dc.l loc_69622
+		dc.l AIZEndBossArm
 		dc.b  $14,  -4
-		dc.l loc_69622
+		dc.l AIZEndBossArm
 		dc.b -$14,  -4
-ChildObjDat_69D26:
+ChildObjDat_AIZEndBossPropeller:
 		dc.w 1-1
-		dc.l loc_69738
+		dc.l AIZEndBossPropeller
 		dc.b -$1C,   0
-ChildObjDat_69D2E:
+ChildObjDat_AIZEndBossWaterfall:
 		dc.w 1-1
-		dc.l loc_699C0
+		dc.l AIZEndBossWaterfall_Init
 		dc.b    0,   0
-ChildObjDat_69D36:
+ChildObjDat_AIZEndBossFlameColumn:
 		dc.w 1-1
-		dc.l loc_69996
+		dc.l AIZEndBossFlameColumn_Init
 		dc.b    0,-$30
-ChildObjDat_69D3E:
+ChildObjDat_AIZEndBossFlameOffset0:
 		dc.w 1-1
-		dc.l loc_69844
+		dc.l AIZEndBossFlame_Init
 		dc.b    3,   5
-ChildObjDat_69D46:
+ChildObjDat_AIZEndBossFlameOffset4:
 		dc.w 1-1
-		dc.l loc_69844
+		dc.l AIZEndBossFlame_Init
 		dc.b    0,   7
-ChildObjDat_69D4E:
+ChildObjDat_AIZEndBossFlameOffset12:
 		dc.w 1-1
-		dc.l loc_69844
+		dc.l AIZEndBossFlame_Init
 		dc.b   -3,   5
-ChildObjDat_69D56:
+ChildObjDat_AIZEndBossBomb:
 		dc.w 1-1
-		dc.l loc_698D2
+		dc.l AIZEndBossBomb_Init
 		dc.b    0,   0
-ChildObjDat_69D5E:
+ChildObjDat_AIZEndBossSmoke:
 		dc.w 1-1
-		dc.l loc_6995A
+		dc.l AIZEndBossSmoke_Init
 		dc.b    0,   0
-ChildObjDat_69D66:
+ChildObjDat_AIZEndBossDebris:
 		dc.w 6-1
-		dc.l loc_69A3A
+		dc.l AIZEndBossDebris_Init
 		dc.b -$10,-$10
-		dc.l loc_69A3A
+		dc.l AIZEndBossDebris_Init
 		dc.b  $10,-$10
-		dc.l loc_69A3A
+		dc.l AIZEndBossDebris_Init
 		dc.b -$10,   8
-		dc.l loc_69A3A
+		dc.l AIZEndBossDebris_Init
 		dc.b  $10,   8
-		dc.l loc_69A3A
+		dc.l AIZEndBossDebris_Init
 		dc.b  -$C, $18
-		dc.l loc_69A3A
+		dc.l AIZEndBossDebris_Init
 		dc.b   $C, $18
-ChildObjDat_69D8C:
+ChildObjDat_BossEggCapsule:
 		dc.w 1-1
 		dc.l Obj_EggCapsule
 ChildObjDat_69D92:	; used in S3, unused in S&K
 		dc.w 1-1
 		dc.l Obj_CutsceneKnuckles
-byte_69D98:
+AniRaw_AIZEndBoss_Emerge:
 		dc.b  $2B,   0
 		dc.b  $2B,   0
 		dc.b  $2B,   0
@@ -139106,21 +139106,21 @@ byte_69D98:
 		dc.b  $2B,   0
 		dc.b    0,   0
 		dc.b  $F4
-byte_69DB3:
+AniRaw_AIZEndBoss_Revealed:
 		dc.b  $1B,   0
 		dc.b  $1B,   4
 		dc.b  $1C,   5
 		dc.b  $1D,   6
 		dc.b    0,   0
 		dc.b  $F4
-byte_69DBE:
+AniRaw_AIZEndBossArm_Reveal:
 		dc.b  $1E,   0
 		dc.b  $1E,   4
 		dc.b  $1F,   5
 		dc.b  $20,   6
 		dc.b    1,   0
 		dc.b  $F4
-byte_69DC9:
+AniRaw_AIZEndBossFlame_Diagonal:
 		dc.b    0
 		dc.b    7, $2B
 		dc.b    7, $2B
@@ -139143,7 +139143,7 @@ byte_69DC9:
 		dc.b   $A, $2B
 		dc.b   $A, $2B
 		dc.b  $F4
-byte_69DF3:
+AniRaw_AIZEndBossFlame_Vertical:
 		dc.b    0
 		dc.b   $B, $2B
 		dc.b   $B, $2B
@@ -139166,31 +139166,31 @@ byte_69DF3:
 		dc.b   $E, $2B
 		dc.b   $E, $2B
 		dc.b  $F4
-byte_69E1D:
+AniRaw_AIZEndBossBomb_Diagonal:
 		dc.b    1, $26, $27, $28, $29, $FC
-byte_69E23:
+AniRaw_AIZEndBossBomb_Vertical:
 		dc.b    1, $16, $17, $2F, $30, $FC
-byte_69E29:
+AniRaw_AIZEndBossBomb_Fall:
 		dc.b    1, $10, $11, $2D, $2E, $FC
-byte_69E2F:
+AniRaw_AIZEndBossSmoke_Moving:
 		dc.b  $12,   0
 		dc.b  $12,   9
 		dc.b  $13,   2
 		dc.b  $14,   2
 		dc.b  $F4
-byte_69E38:
+AniRaw_AIZEndBossSmoke_Static:
 		dc.b  $18,   0
 		dc.b  $18,   9
 		dc.b  $19,   2
 		dc.b  $1A,   2
 		dc.b  $F4
-byte_69E41:
+AniRaw_AIZEndBossFlameColumn:
 		dc.b  $21,   0
 		dc.b  $21,   4
 		dc.b  $22,   5
 		dc.b  $23,   6
 		dc.b  $F4
-byte_69E4A:
+AniRaw_AIZEndBossWaterfall:
 		dc.b  $2B|$00,   0
 		dc.b  $24|$00,   0
 		dc.b  $24|$40,   0
@@ -139205,7 +139205,7 @@ byte_69E4A:
 		dc.b  $2C|$40,   0
 		dc.b  $2B|$40,   0
 		dc.b  $F4
-byte_69E65:
+AniRaw_AIZEndBossWaterfallDrop:
 		dc.b  $2B|$00,   0
 		dc.b  $24|$00,   0
 		dc.b  $24|$40,   0
@@ -142696,7 +142696,7 @@ loc_6C2BE:
 
 loc_6C2E2:
 		move.l	#loc_6C2EE,(a0)
-		jmp	(loc_694AA).l
+		jmp	(Boss_LoadEggCapsuleAndAnimals).l
 ; ---------------------------------------------------------------------------
 
 loc_6C2EE:
@@ -154675,7 +154675,7 @@ loc_74710:
 		move.w	(Camera_X_pos).w,d2
 		addi.w	#$40,d2
 		move.w	d2,x_pos(a0)
-		jmp	(loc_694AA).l
+		jmp	(Boss_LoadEggCapsuleAndAnimals).l
 ; ---------------------------------------------------------------------------
 
 loc_7473A:
