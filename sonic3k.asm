@@ -182259,13 +182259,13 @@ Map_FBZExitHall:
 		include "Levels/FBZ/Misc Object Data/Map - Exit Hall.asm"
 ; ---------------------------------------------------------------------------
 
-loc_86D4A:
+S3KBadnikProjectile_Init:
 		movea.l	$3E(a0),a1
 		jsr	SetUp_ObjAttributes(pc)
-		move.l	#loc_86D5E,(a0)
+		move.l	#S3KBadnikProjectile_Main,(a0)
 		bset	#3,shield_reaction(a0)
 
-loc_86D5E:
+S3KBadnikProjectile_Main:
 		movea.l	$34(a0),a1
 		jsr	(a1)
 		jmp	(Sprite_CheckDeleteTouchXY).l
@@ -182280,61 +182280,61 @@ Obj_Bloominator:
 		jmp	(Sprite_CheckDeleteTouch).l
 ; ---------------------------------------------------------------------------
 Bloominator_Index:
-		dc.w loc_86D8A-Bloominator_Index
-		dc.w loc_86DA2-Bloominator_Index
-		dc.w loc_86DC6-Bloominator_Index
+		dc.w Bloominator_Init-Bloominator_Index
+		dc.w Bloominator_Wait-Bloominator_Index
+		dc.w Bloominator_Attack-Bloominator_Index
 ; ---------------------------------------------------------------------------
 
-loc_86D8A:
+Bloominator_Init:
 		lea	ObjDat_Bloominator(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.w	#$1F,$2E(a0)
-		move.l	#loc_86DAE,$34(a0)
+		move.l	#Bloominator_StartAttack,$34(a0)
 
-locret_86DA0:
+Bloominator_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86DA2:
+Bloominator_Wait:
 		tst.b	render_flags(a0)
-		bpl.w	locret_86DA0
+		bpl.w	Bloominator_Return
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_86DAE:
+Bloominator_StartAttack:
 		move.b	#4,routine(a0)
-		move.l	#byte_86E42,$30(a0)
-		move.l	#loc_86DFC,$34(a0)
+		move.l	#AniRaw_BloominatorAttack,$30(a0)
+		move.l	#Bloominator_ResetWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86DC6:
+Bloominator_Attack:
 		jsr	Animate_RawMultiDelay(pc)
-		beq.s	locret_86DA0
+		beq.s	Bloominator_Return
 		cmpi.b	#6,d0
-		beq.s	loc_86DD8
+		beq.s	Bloominator_FireProjectile
 		cmpi.b	#$E,d0
-		bne.s	locret_86DA0
+		bne.s	Bloominator_Return
 
-loc_86DD8:
+Bloominator_FireProjectile:
 		moveq	#signextendB(sfx_Projectile),d0
 		jsr	(Play_SFX).l
-		lea	ChildObjDat_86E2A(pc),a2
+		lea	ChildObjDat_BloominatorProjectile(pc),a2
 		jsr	CreateChild2_Complex(pc)
-		bne.s	locret_86DFA
+		bne.s	Bloominator_FireReturn
 		addq.b	#1,$39(a0)
 		btst	#0,$39(a0)
-		beq.s	locret_86DFA
+		beq.s	Bloominator_FireReturn
 		neg.w	x_vel(a1)
 
-locret_86DFA:
+Bloominator_FireReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86DFC:
+Bloominator_ResetWait:
 		move.b	#2,routine(a0)
 		move.w	#2*60,$2E(a0)
-		move.l	#loc_86DAE,$34(a0)
+		move.l	#Bloominator_StartAttack,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 ObjDat_Bloominator:
@@ -182342,20 +182342,20 @@ ObjDat_Bloominator:
 		dc.w make_art_tile(ArtTile_Bloominator,1,0)
 		dc.w   $200
 		dc.b   $C, $18,   0, $23
-ObjDat3_86E1E:
+ObjDat_BloominatorProjectile:
 		dc.l Map_Bloominator
 		dc.w make_art_tile(ArtTile_Bloominator,1,0)
 		dc.w   $280
 		dc.b    8,   8,   4, $98
-ChildObjDat_86E2A:
+ChildObjDat_BloominatorProjectile:
 		dc.w 1-1
-		dc.l loc_86D4A
-		dc.l ObjDat3_86E1E
+		dc.l S3KBadnikProjectile_Init
+		dc.l ObjDat_BloominatorProjectile
 		dc.l 0
 		dc.l MoveSprite
 		dc.b    0,-$10
 		dc.w   $100, -$500
-byte_86E42:
+AniRaw_BloominatorAttack:
 		dc.b    0,   7
 		dc.b    1,   9
 		dc.b    2,   4
@@ -182380,13 +182380,13 @@ Obj_Rhinobot:
 		jmp	Sprite_CheckDeleteTouchSlotted(pc)
 ; ---------------------------------------------------------------------------
 Rhinobot_Index:
-		dc.w loc_86E7E-Rhinobot_Index
-		dc.w loc_86EC4-Rhinobot_Index
-		dc.w loc_86EEA-Rhinobot_Index
-		dc.w loc_86EEE-Rhinobot_Index
+		dc.w Rhinobot_Init-Rhinobot_Index
+		dc.w Rhinobot_Patrol-Rhinobot_Index
+		dc.w Rhinobot_Wait-Rhinobot_Index
+		dc.w Rhinobot_Dash-Rhinobot_Index
 ; ---------------------------------------------------------------------------
 
-loc_86E7E:
+Rhinobot_Init:
 		lea	ObjSlot_Rhinobot(pc),a1
 		jsr	SetUp_ObjAttributesSlotted(pc)
 		move.b	#8,x_radius(a0)
@@ -182394,271 +182394,271 @@ loc_86E7E:
 		move.w	#-$10,d0
 		move.w	#-$300,d1
 		btst	#0,render_flags(a0)
-		beq.s	loc_86EB2
+		beq.s	Rhinobot_StoreInitialSpeeds
 		neg.w	d0
 		neg.w	d1
 		bset	#3,$38(a0)
 		bset	#2,$38(a0)
 
-loc_86EB2:
+Rhinobot_StoreInitialSpeeds:
 		move.w	d0,$40(a0)
 		move.w	d1,$3E(a0)
-		move.l	#loc_86F40,$34(a0)
+		move.l	#Rhinobot_ReverseAcceleration,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86EC4:
-		lea	loc_86F92(pc),a3
-		bsr.w	sub_870A4
-		lea	loc_86F74(pc),a3
-		bsr.w	sub_870CA
+Rhinobot_Patrol:
+		lea	Rhinobot_StartChargePrep(pc),a3
+		bsr.w	Rhinobot_CheckPlayerInFront
+		lea	Rhinobot_TurnAtLedge(pc),a3
+		bsr.w	Rhinobot_CheckFloorAhead
 		move.w	$40(a0),d0
 		add.w	d0,x_vel(a0)
 		jsr	(MoveSprite2).l
-		bsr.w	sub_86FF8
-		bra.w	loc_8701C
+		bsr.w	Rhinobot_CheckSpeedCallback
+		bra.w	Rhinobot_UpdateFrameAndEffects
 ; ---------------------------------------------------------------------------
 
-loc_86EEA:
+Rhinobot_Wait:
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_86EEE:
-		lea	loc_86FE8(pc),a3
-		bsr.w	sub_870CA
+Rhinobot_Dash:
+		lea	Rhinobot_EndDash(pc),a3
+		bsr.w	Rhinobot_CheckFloorAhead
 		jmp	(MoveSprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_86EFC:
+RhinobotEffect:
 		cmpi.w	#1,(Current_zone_and_act).w
-		beq.s	loc_86F26
+		beq.s	RhinobotEffect_DeleteInAIZ2
 		jsr	Refresh_ChildPositionAdjusted(pc)
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_86F22(pc,d0.w),d1
-		jsr	off_86F22(pc,d1.w)
+		move.w	RhinobotEffect_Index(pc,d0.w),d1
+		jsr	RhinobotEffect_Index(pc,d1.w)
 		lea	DPLCPtr_AIZRhinobot(pc),a2
 		jsr	Perform_DPLC(pc)
 		jmp	Child_Remember_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
-off_86F22:
-		dc.w loc_86F2C-off_86F22
-		dc.w loc_86F3C-off_86F22
+RhinobotEffect_Index:
+		dc.w RhinobotEffect_Init-RhinobotEffect_Index
+		dc.w RhinobotEffect_Animate-RhinobotEffect_Index
 ; ---------------------------------------------------------------------------
 
-loc_86F26:
+RhinobotEffect_DeleteInAIZ2:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_86F2C:
-		lea	ObjSlot_87110(pc),a1
+RhinobotEffect_Init:
+		lea	ObjSlot_RhinobotEffect(pc),a1
 		jsr	SetUp_ObjAttributesSlotted(pc)
 		move.l	#Go_Delete_SpriteSlotted3,$34(a0)
 
-loc_86F3C:
+RhinobotEffect_Animate:
 		jmp	Animate_Raw(pc)
 ; ---------------------------------------------------------------------------
 
-loc_86F40:
+Rhinobot_ReverseAcceleration:
 		bchg	#2,$38(a0)
-		move.l	#loc_86F58,$34(a0)
+		move.l	#Rhinobot_ToggleFacing,$34(a0)
 		neg.w	$40(a0)
 		neg.w	$3E(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86F58:
+Rhinobot_ToggleFacing:
 		bchg	#3,$38(a0)
 		bchg	#0,render_flags(a0)
 		bclr	#1,$38(a0)
-		move.l	#loc_86F40,$34(a0)
+		move.l	#Rhinobot_ReverseAcceleration,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86F74:
+Rhinobot_TurnAtLedge:
 		bclr	#2,$38(a0)
 		btst	#3,$38(a0)
-		bne.s	loc_86F88
+		bne.s	Rhinobot_StopAndToggleFacing
 		bset	#2,$38(a0)
 
-loc_86F88:
+Rhinobot_StopAndToggleFacing:
 		clr.w	x_vel(a0)
 		clr.w	y_vel(a0)
-		bra.s	loc_86F58
+		bra.s	Rhinobot_ToggleFacing
 ; ---------------------------------------------------------------------------
 
-loc_86F92:
+Rhinobot_StartChargePrep:
 		move.b	#4,routine(a0)
 		move.b	#0,mapping_frame(a0)
 		move.w	#$20,$2E(a0)
-		move.l	#loc_86FCE,$34(a0)
+		move.l	#Rhinobot_StartDash,$34(a0)
 		bset	#1,$38(a0)
 		moveq	#signextendB(sfx_Blast),d0
 		jsr	(Play_SFX).l
-		lea	ChildObjDat_8712A(pc),a2
+		lea	ChildObjDat_RhinobotChargeEffect(pc),a2
 		jsr	CreateChild1_Normal(pc)
-		bne.s	locret_86FCC
-		move.l	#byte_8714A,$30(a1)
+		bne.s	Rhinobot_ChargePrepReturn
+		move.l	#AniRaw_RhinobotChargeEffect,$30(a1)
 
-locret_86FCC:
+Rhinobot_ChargePrepReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86FCE:
+Rhinobot_StartDash:
 		move.b	#6,routine(a0)
 		move.w	#$400,d0
 		btst	#3,$38(a0)
-		bne.s	loc_86FE2
+		bne.s	Rhinobot_SetDashVelocity
 		neg.w	d0
 
-loc_86FE2:
+Rhinobot_SetDashVelocity:
 		move.w	d0,x_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_86FE8:
+Rhinobot_EndDash:
 		move.b	#2,routine(a0)
 		move.b	#0,mapping_frame(a0)
-		bra.w	loc_86F74
+		bra.w	Rhinobot_TurnAtLedge
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_86FF8:
+Rhinobot_CheckSpeedCallback:
 		move.w	x_vel(a0),d0
-		beq.s	loc_87016
+		beq.s	Rhinobot_InvokeSpeedCallback
 		btst	#2,$38(a0)
-		beq.s	loc_8700E
+		beq.s	Rhinobot_CheckDecelTarget
 		cmp.w	$3E(a0),d0
-		bge.s	loc_87016
+		bge.s	Rhinobot_InvokeSpeedCallback
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8700E:
+Rhinobot_CheckDecelTarget:
 		cmp.w	$3E(a0),d0
-		ble.s	loc_87016
+		ble.s	Rhinobot_InvokeSpeedCallback
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87016:
+Rhinobot_InvokeSpeedCallback:
 		movea.l	$34(a0),a1
 		jmp	(a1)
-; End of function sub_86FF8
+; End of function Rhinobot_CheckSpeedCallback
 
 ; ---------------------------------------------------------------------------
 
-loc_8701C:
+Rhinobot_UpdateFrameAndEffects:
 		moveq	#0,d1
 		btst	#3,$38(a0)
-		beq.s	loc_87054
+		beq.s	Rhinobot_LeftFacingFrames
 		btst	#2,$38(a0)
-		beq.s	loc_8703C
+		beq.s	Rhinobot_RightBrakingFrame
 		cmpi.w	#$80,x_vel(a0)
-		bgt.s	loc_8707E
+		bgt.s	Rhinobot_SetMappingFrame
 		moveq	#1,d1
-		bra.w	loc_8707E
+		bra.w	Rhinobot_SetMappingFrame
 ; ---------------------------------------------------------------------------
 
-loc_8703C:
+Rhinobot_RightBrakingFrame:
 		moveq	#1,d1
 		cmpi.w	#$280,x_vel(a0)
-		bgt.s	loc_8707E
+		bgt.s	Rhinobot_SetMappingFrame
 		moveq	#2,d1
 		bset	#1,$38(a0)
-		beq.s	loc_87084
-		bra.w	loc_8707E
+		beq.s	Rhinobot_SpawnBrakeEffect
+		bra.w	Rhinobot_SetMappingFrame
 ; ---------------------------------------------------------------------------
 
-loc_87054:
+Rhinobot_LeftFacingFrames:
 		btst	#2,$38(a0)
-		bne.s	loc_8706A
+		bne.s	Rhinobot_LeftBrakingFrame
 		cmpi.w	#-$80,x_vel(a0)
-		ble.s	loc_8707E
+		ble.s	Rhinobot_SetMappingFrame
 		moveq	#1,d1
-		bra.w	loc_8707E
+		bra.w	Rhinobot_SetMappingFrame
 ; ---------------------------------------------------------------------------
 
-loc_8706A:
+Rhinobot_LeftBrakingFrame:
 		moveq	#1,d1
 		cmpi.w	#-$280,x_vel(a0)
-		ble.s	loc_8707E
+		ble.s	Rhinobot_SetMappingFrame
 		moveq	#2,d1
 		bset	#1,$38(a0)
-		beq.s	loc_87084
+		beq.s	Rhinobot_SpawnBrakeEffect
 
-loc_8707E:
+Rhinobot_SetMappingFrame:
 		move.b	d1,mapping_frame(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87084:
+Rhinobot_SpawnBrakeEffect:
 		move.b	d1,mapping_frame(a0)
 		moveq	#signextendB(sfx_Blast),d0
 		jsr	(Play_SFX).l
-		lea	ChildObjDat_87122(pc),a2
+		lea	ChildObjDat_RhinobotBrakeEffect(pc),a2
 		jsr	CreateChild1_Normal(pc)
-		bne.s	locret_870A2
-		move.l	#byte_8713A,$30(a1)
+		bne.s	Rhinobot_BrakeEffectReturn
+		move.l	#AniRaw_RhinobotBrakeEffect,$30(a1)
 
-locret_870A2:
+Rhinobot_BrakeEffectReturn:
 		rts
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_870A4:
+Rhinobot_CheckPlayerInFront:
 		jsr	Find_SonicTails(pc)
 		cmpi.w	#$20,d3
-		bhi.s	locret_870C2
+		bhi.s	Rhinobot_PlayerCheckReturn
 		cmpi.w	#$60,d2
-		bhi.s	locret_870C2
+		bhi.s	Rhinobot_PlayerCheckReturn
 		btst	#3,$38(a0)
-		bne.s	loc_870BE
+		bne.s	Rhinobot_PlayerCheckFacingRight
 		subq.w	#2,d0
 
-loc_870BE:
+Rhinobot_PlayerCheckFacingRight:
 		tst.w	d0
-		bne.s	loc_870C4
+		bne.s	Rhinobot_RunPlayerCallback
 
-locret_870C2:
+Rhinobot_PlayerCheckReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_870C4:
+Rhinobot_RunPlayerCallback:
 		jsr	(a3)
 		addq.w	#4,sp
 		rts
-; End of function sub_870A4
+; End of function Rhinobot_CheckPlayerInFront
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_870CA:
+Rhinobot_CheckFloorAhead:
 		moveq	#4,d0
 		btst	#3,$38(a0)
-		bne.s	loc_870D6
+		bne.s	Rhinobot_CheckFloorAheadAtX
 		neg.w	d0
 
-loc_870D6:
+Rhinobot_CheckFloorAheadAtX:
 		move.w	x_pos(a0),d3
 		add.w	d0,d3
 		move.l	a3,-(sp)
 		jsr	(ObjCheckFloorDist2).l
 		movea.l	(sp)+,a3
 		cmpi.w	#-1,d1
-		blt.s	loc_870F8
+		blt.s	Rhinobot_RunFloorCallback
 		cmpi.w	#$C,d1
-		bge.s	loc_870F8
+		bge.s	Rhinobot_RunFloorCallback
 		add.w	d1,y_pos(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_870F8:
+Rhinobot_RunFloorCallback:
 		jsr	(a3)
 		addq.w	#4,sp
 		rts
-; End of function sub_870CA
+; End of function Rhinobot_CheckFloorAhead
 
 ; ---------------------------------------------------------------------------
 ObjSlot_Rhinobot:
@@ -182668,28 +182668,28 @@ ObjSlot_Rhinobot:
 		dc.l Map_Rhinobot
 		dc.w   $280
 		dc.b  $14, $10,   0,  $B
-ObjSlot_87110:
+ObjSlot_RhinobotEffect:
 		dc.w 2-1
 		dc.w make_art_tile(ArtTile_Rhinobot-$B6,0,0)
 		dc.w      6,     2
 		dc.l Map_Rhinobot
 		dc.w   $200
 		dc.b   $C,   8,   4,   0
-ChildObjDat_87122:
+ChildObjDat_RhinobotBrakeEffect:
 		dc.w 1-1
-		dc.l loc_86EFC
+		dc.l RhinobotEffect
 		dc.b   $C,   8
-ChildObjDat_8712A:
+ChildObjDat_RhinobotChargeEffect:
 		dc.w 1-1
-		dc.l loc_86EFC
+		dc.l RhinobotEffect
 		dc.b  $10,   8
 DPLCPtr_AIZRhinobot:
 		dc.l ArtUnc_AIZRhinobot
 		dc.l DPLC_Rhinobot
-byte_8713A:
+AniRaw_RhinobotBrakeEffect:
 		dc.b    2,   4,   4,   5,   6,   7,   4,   5,   6,   7,   4,   5,   6,   7, $F4
 		even
-byte_8714A:
+AniRaw_RhinobotChargeEffect:
 		dc.b    2,   4,   4,   5,   6,   7,   4,   5,   6,   7, $F4
 		even
 ; ---------------------------------------------------------------------------
@@ -182703,12 +182703,12 @@ Obj_MonkeyDude:
 		jmp	Sprite_CheckDeleteTouch(pc)
 ; ---------------------------------------------------------------------------
 MonkeyDude_Index:
-		dc.w loc_87172-MonkeyDude_Index
-		dc.w loc_871BC-MonkeyDude_Index
-		dc.w loc_871DA-MonkeyDude_Index
+		dc.w MonkeyDude_Init-MonkeyDude_Index
+		dc.w MonkeyDude_Wait-MonkeyDude_Index
+		dc.w MonkeyDude_Active-MonkeyDude_Index
 ; ---------------------------------------------------------------------------
 
-loc_87172:
+MonkeyDude_Init:
 		lea	ObjDat_MonkeyDude(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		moveq	#0,d0
@@ -182717,75 +182717,75 @@ loc_87172:
 		move.b	d0,subtype(a0)
 		lsr.w	#1,d0
 		move.b	d0,$39(a0)
-		move.l	#byte_876B4,$30(a0)
+		move.l	#AniRaw_MonkeyDudeWait,$30(a0)
 		move.w	#60-1,$2E(a0)
-		move.l	#loc_871C2,$34(a0)
+		move.l	#MonkeyDude_StartActive,$34(a0)
 		btst	#0,render_flags(a0)
-		bne.w	loc_871B4
-		lea	ChildObjDat_87680(pc),a2
+		bne.w	MonkeyDude_CreateFlippedChildChain
+		lea	ChildObjDat_MonkeyDudeChildChain(pc),a2
 		jmp	CreateChild4_LinkListRepeated(pc)
 ; ---------------------------------------------------------------------------
 
-loc_871B4:
-		lea	ChildObjDat_87686(pc),a2
+MonkeyDude_CreateFlippedChildChain:
+		lea	ChildObjDat_MonkeyDudeFlippedChildChain(pc),a2
 		jmp	CreateChild4_LinkListRepeated(pc)
 ; ---------------------------------------------------------------------------
 
-loc_871BC:
+MonkeyDude_Wait:
 		jmp	(loc_85652).l
 ; ---------------------------------------------------------------------------
 
-loc_871C2:
+MonkeyDude_StartActive:
 		move.b	#4,routine(a0)
 		clr.b	anim_frame(a0)
 		clr.b	anim_frame_timer(a0)
-		move.l	#byte_876B8,$30(a0)
+		move.l	#AniRaw_MonkeyDudeActive,$30(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_871DA:
+MonkeyDude_Active:
 		jsr	Animate_RawMultiDelay(pc)
 		tst.w	d2
-		beq.s	locret_87202
+		beq.s	MonkeyDude_ActiveReturn
 		btst	#2,$38(a0)
-		bne.s	loc_87204
+		bne.s	MonkeyDude_ActiveMovingUp
 		cmpi.b	#0,mapping_frame(a0)
-		bne.s	locret_87202
+		bne.s	MonkeyDude_ActiveReturn
 		addq.w	#8,y_pos(a0)
 		subq.b	#1,$39(a0)
 		cmpi.b	#1,$39(a0)
-		beq.s	loc_87218
+		beq.s	MonkeyDude_ResetWait
 
-locret_87202:
+MonkeyDude_ActiveReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87204:
+MonkeyDude_ActiveMovingUp:
 		cmpi.b	#2,mapping_frame(a0)
-		bne.s	locret_87202
+		bne.s	MonkeyDude_ActiveReturn
 		subq.b	#1,$39(a0)
-		beq.s	loc_87218
+		beq.s	MonkeyDude_ResetWait
 		subq.w	#8,y_pos(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87218:
+MonkeyDude_ResetWait:
 		move.b	#2,routine(a0)
 		move.b	subtype(a0),$39(a0)
 		bchg	#2,$38(a0)
 		move.w	#60-1,$2E(a0)
-		move.l	#byte_876B4,$30(a0)
+		move.l	#AniRaw_MonkeyDudeWait,$30(a0)
 		move.b	#0,mapping_frame(a0)
 		clr.b	anim_frame(a0)
 		clr.b	anim_frame_timer(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87248:
+MonkeyDudeArm_InitFlipped:
 		bset	#3,$38(a0)
 
-loc_8724E:
-		lea	word_87666(pc),a1
+MonkeyDudeArm_Init:
+		lea	ObjDat3_MonkeyDudeArmSegment(pc),a1
 		jsr	SetUp_ObjAttributes3(pc)
 		clr.b	routine(a0)
 		move.b	subtype(a0),d0
@@ -182793,29 +182793,29 @@ loc_8724E:
 		move.b	d0,$3B(a0)
 		move.b	d0,$3A(a0)
 		tst.b	subtype(a0)
-		bne.s	loc_87292
-		move.l	#loc_872CC,(a0)
+		bne.s	MonkeyDudeArm_InitFollower
+		move.l	#MonkeyDudeArm_Root,(a0)
 		moveq	#$E,d0
 		btst	#3,$38(a0)
-		bne.s	loc_87280
+		bne.s	MonkeyDudeArm_SetAnchor
 		neg.w	d0
 
-loc_87280:
+MonkeyDudeArm_SetAnchor:
 		add.w	d0,x_pos(a0)
 		subq.w	#2,y_pos(a0)
 		move.w	y_pos(a0),$3E(a0)
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
 
-loc_87292:
+MonkeyDudeArm_InitFollower:
 		cmpi.b	#8,subtype(a0)
-		beq.s	loc_872A4
-		move.l	#loc_8741C,(a0)
+		beq.s	MonkeyDudeArm_InitHeldCoconut
+		move.l	#MonkeyDudeArm_Follower,(a0)
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
 
-loc_872A4:
-		move.l	#loc_8744C,(a0)
+MonkeyDudeArm_InitHeldCoconut:
+		move.l	#MonkeyDudeArm_HeldCoconut,(a0)
 		move.b	#6,mapping_frame(a0)
 		movea.w	parent3(a0),a1
 		movea.w	parent3(a1),a1
@@ -182826,340 +182826,340 @@ loc_872A4:
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
 
-loc_872CC:
-		bsr.w	sub_87500
+MonkeyDudeArm_Root:
+		bsr.w	MonkeyDudeArm_UpdateRootY
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_872E2(pc,d0.w),d1
-		jsr	off_872E2(pc,d1.w)
+		move.w	MonkeyDudeArm_RootIndex(pc,d0.w),d1
+		jsr	MonkeyDudeArm_RootIndex(pc,d1.w)
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
-off_872E2:
-		dc.w loc_872EE-off_872E2
-		dc.w loc_8732A-off_872E2
-		dc.w loc_87382-off_872E2
-		dc.w loc_873B4-off_872E2
-		dc.w loc_873EA-off_872E2
-		dc.w loc_87330-off_872E2
+MonkeyDudeArm_RootIndex:
+		dc.w MonkeyDudeArm_SwingRoot-MonkeyDudeArm_RootIndex
+		dc.w MonkeyDudeArm_WaitForPlayer-MonkeyDudeArm_RootIndex
+		dc.w MonkeyDudeArm_ThrowPose-MonkeyDudeArm_RootIndex
+		dc.w MonkeyDudeArm_ReturnPose-MonkeyDudeArm_RootIndex
+		dc.w MonkeyDudeArm_ResetPose-MonkeyDudeArm_RootIndex
+		dc.w MonkeyDudeArm_FollowPlayer-MonkeyDudeArm_RootIndex
 ; ---------------------------------------------------------------------------
 
-loc_872EE:
+MonkeyDudeArm_SwingRoot:
 		move.b	$3C(a0),d0
 		btst	#3,$38(a0)
-		beq.s	loc_87308
+		beq.s	MonkeyDudeArm_SwingRootLeft
 		addq.b	#4,d0
 		cmpi.b	#$80,d0
-		bhs.s	loc_87316
+		bhs.s	MonkeyDudeArm_StartFollow
 		move.b	d0,$3C(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87308:
+MonkeyDudeArm_SwingRootLeft:
 		subq.b	#4,d0
 		cmpi.b	#$80,d0
-		bls.s	loc_87316
+		bls.s	MonkeyDudeArm_StartFollow
 		move.b	d0,$3C(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87316:
+MonkeyDudeArm_StartFollow:
 		move.b	#2,routine(a0)
 
-loc_8731C:
-		bsr.w	sub_87638
-		move.l	#loc_87370,$34(a0)
+MonkeyDudeArm_ResetRandomWait:
+		bsr.w	MonkeyDudeArm_SetRandomWait
+		move.l	#MonkeyDudeArm_RandomWaitCallback,$34(a0)
 
-locret_87328:
+MonkeyDudeArm_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8732A:
-		bsr.w	sub_87524
-		beq.s	loc_87374
+MonkeyDudeArm_WaitForPlayer:
+		bsr.w	MonkeyDudeArm_CheckPlayerRange
+		beq.s	MonkeyDudeArm_StartThrowPose
 
-loc_87330:
+MonkeyDudeArm_FollowPlayer:
 		btst	#3,$38(a0)
-		beq.s	loc_8734E
+		beq.s	MonkeyDudeArm_FollowLeft
 		move.b	$41(a0),d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		subi.b	#$20,d0
 		cmpi.b	#$60,d0
-		bhs.s	loc_87360
-		bra.w	loc_8736C
+		bhs.s	MonkeyDudeArm_ReverseSwing
+		bra.w	MonkeyDudeArm_Wait
 ; ---------------------------------------------------------------------------
 
-loc_8734E:
+MonkeyDudeArm_FollowLeft:
 		move.b	$41(a0),d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		subi.b	#$80,d0
 		cmpi.b	#$60,d0
-		blo.s	loc_8736C
+		blo.s	MonkeyDudeArm_Wait
 
-loc_87360:
+MonkeyDudeArm_ReverseSwing:
 		neg.w	$40(a0)
 		move.b	$41(a0),d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 
-loc_8736C:
+MonkeyDudeArm_Wait:
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_87370:
-		bra.w	sub_87638
+MonkeyDudeArm_RandomWaitCallback:
+		bra.w	MonkeyDudeArm_SetRandomWait
 ; ---------------------------------------------------------------------------
 
-loc_87374:
+MonkeyDudeArm_StartThrowPose:
 		move.b	#4,routine(a0)
 		bset	#1,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87382:
+MonkeyDudeArm_ThrowPose:
 		btst	#3,$38(a0)
-		beq.s	loc_87398
+		beq.s	MonkeyDudeArm_ThrowPoseLeft
 		moveq	#4,d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		cmpi.b	#-$40,d0
-		bhs.s	loc_873A6
+		bhs.s	MonkeyDudeArm_StartReturnPose
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87398:
+MonkeyDudeArm_ThrowPoseLeft:
 		moveq	#-4,d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		cmpi.b	#$40,d0
-		bls.s	loc_873A6
+		bls.s	MonkeyDudeArm_StartReturnPose
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_873A6:
+MonkeyDudeArm_StartReturnPose:
 		move.b	#6,routine(a0)
 		bset	#2,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_873B4:
+MonkeyDudeArm_ReturnPose:
 		btst	#3,$38(a0)
-		beq.s	loc_873CA
+		beq.s	MonkeyDudeArm_ReturnPoseLeft
 		moveq	#-8,d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		moveq	#$60,d1
 		cmp.b	d1,d0
-		bls.s	loc_873D8
+		bls.s	MonkeyDudeArm_EndReturnPose
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_873CA:
+MonkeyDudeArm_ReturnPoseLeft:
 		moveq	#8,d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		moveq	#-$60,d1
 		cmp.b	d1,d0
-		bhs.s	loc_873D8
+		bhs.s	MonkeyDudeArm_EndReturnPose
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_873D8:
+MonkeyDudeArm_EndReturnPose:
 		move.b	#8,routine(a0)
 		move.b	d1,$3C(a0)
 		bclr	#1,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_873EA:
+MonkeyDudeArm_ResetPose:
 		btst	#3,$38(a0)
-		bne.s	loc_87400
+		bne.s	MonkeyDudeArm_ResetPoseRight
 		moveq	#-2,d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		moveq	#-$80,d1
 		cmp.b	d1,d0
-		bls.s	loc_8740E
+		bls.s	MonkeyDudeArm_RestartFollow
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87400:
+MonkeyDudeArm_ResetPoseRight:
 		moveq	#2,d1
-		bsr.w	sub_87540
+		bsr.w	MonkeyDudeArm_AddAngleStep
 		moveq	#-$80,d1
 		cmp.b	d1,d0
-		bhs.s	loc_8740E
+		bhs.s	MonkeyDudeArm_RestartFollow
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8740E:
+MonkeyDudeArm_RestartFollow:
 		move.b	#$A,routine(a0)
 		move.b	d1,$3C(a0)
-		bra.w	loc_8731C
+		bra.w	MonkeyDudeArm_ResetRandomWait
 ; ---------------------------------------------------------------------------
 
-loc_8741C:
-		bsr.w	sub_87518
+MonkeyDudeArm_Follower:
+		bsr.w	MonkeyDudeArm_CopyParentPriority
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_87432(pc,d0.w),d1
-		jsr	off_87432(pc,d1.w)
+		move.w	MonkeyDudeArm_FollowerIndex(pc,d0.w),d1
+		jsr	MonkeyDudeArm_FollowerIndex(pc,d1.w)
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
-off_87432:
-		dc.w loc_87438-off_87432
-		dc.w loc_87442-off_87432
-		dc.w loc_8743E-off_87432
+MonkeyDudeArm_FollowerIndex:
+		dc.w MonkeyDudeArm_FollowerWaitThrow-MonkeyDudeArm_FollowerIndex
+		dc.w MonkeyDudeArm_FollowerWaitReturn-MonkeyDudeArm_FollowerIndex
+		dc.w MonkeyDudeArm_FollowerMove-MonkeyDudeArm_FollowerIndex
 ; ---------------------------------------------------------------------------
 
-loc_87438:
+MonkeyDudeArm_FollowerWaitThrow:
 		moveq	#2,d1
-		bsr.w	sub_8756A
+		bsr.w	MonkeyDudeArm_CheckThrowPoseStart
 
-loc_8743E:
-		bra.w	loc_8754C
+MonkeyDudeArm_FollowerMove:
+		bra.w	MonkeyDudeArm_MoveFollower
 ; ---------------------------------------------------------------------------
 
-loc_87442:
+MonkeyDudeArm_FollowerWaitReturn:
 		moveq	#4,d1
-		bsr.w	sub_87592
-		bra.w	loc_8754C
+		bsr.w	MonkeyDudeArm_CheckReturnPoseStart
+		bra.w	MonkeyDudeArm_MoveFollower
 ; ---------------------------------------------------------------------------
 
-loc_8744C:
-		bsr.w	sub_87518
+MonkeyDudeArm_HeldCoconut:
+		bsr.w	MonkeyDudeArm_CopyParentPriority
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_87462(pc,d0.w),d1
-		jsr	off_87462(pc,d1.w)
+		move.w	MonkeyDudeArm_HeldCoconutIndex(pc,d0.w),d1
+		jsr	MonkeyDudeArm_HeldCoconutIndex(pc,d1.w)
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
-off_87462:
-		dc.w loc_87468-off_87462
-		dc.w loc_87472-off_87462
-		dc.w loc_8746E-off_87462
+MonkeyDudeArm_HeldCoconutIndex:
+		dc.w MonkeyDudeArm_CoconutWaitThrow-MonkeyDudeArm_HeldCoconutIndex
+		dc.w MonkeyDudeArm_CoconutThrowCheck-MonkeyDudeArm_HeldCoconutIndex
+		dc.w MonkeyDudeArm_CoconutMove-MonkeyDudeArm_HeldCoconutIndex
 ; ---------------------------------------------------------------------------
 
-loc_87468:
+MonkeyDudeArm_CoconutWaitThrow:
 		moveq	#2,d1
-		bsr.w	sub_8756A
+		bsr.w	MonkeyDudeArm_CheckThrowPoseStart
 
-loc_8746E:
-		bra.w	loc_8754C
+MonkeyDudeArm_CoconutMove:
+		bra.w	MonkeyDudeArm_MoveFollower
 ; ---------------------------------------------------------------------------
 
-loc_87472:
-		bsr.w	sub_875B4
+MonkeyDudeArm_CoconutThrowCheck:
+		bsr.w	MonkeyDudeArm_CheckCoconutThrow
 		moveq	#4,d1
-		bsr.w	sub_87592
-		bra.w	loc_8754C
+		bsr.w	MonkeyDudeArm_CheckReturnPoseStart
+		bra.w	MonkeyDudeArm_MoveFollower
 ; ---------------------------------------------------------------------------
 
-loc_87480:
-		lea	word_8766C(pc),a1
+MonkeyDudeCoconut_Init:
+		lea	ObjDat_MonkeyDudeHeldCoconut(pc),a1
 		jsr	SetUp_ObjAttributes2(pc)
-		move.l	#loc_874B6,(a0)
-		move.l	#byte_876BD,$30(a0)
-		move.l	#loc_874CA,$34(a0)
+		move.l	#MonkeyDudeCoconut_Main,(a0)
+		move.l	#AniRaw_MonkeyDudeCoconut,$30(a0)
+		move.l	#MonkeyDudeCoconut_StopAnimating,$34(a0)
 		move.b	#8,y_radius(a0)
 		move.w	#-$200,x_vel(a0)
 		move.w	#-$400,y_vel(a0)
 		jmp	(Sprite_CheckDeleteTouch3).l
 ; ---------------------------------------------------------------------------
 
-loc_874B6:
+MonkeyDudeCoconut_Main:
 		jsr	(MoveSprite_LightGravity).l
 		jsr	Animate_RawMultiDelay(pc)
 		jsr	ObjHitFloor_DoRoutine(pc)
 		jmp	(Sprite_CheckDeleteTouch3).l
 ; ---------------------------------------------------------------------------
 
-loc_874CA:
-		move.l	#loc_874D2,(a0)
+MonkeyDudeCoconut_StopAnimating:
+		move.l	#MonkeyDudeCoconut_Inert,(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_874D2:
+MonkeyDudeCoconut_Inert:
 		jmp	(Sprite_CheckDeleteTouch3).l
 ; ---------------------------------------------------------------------------
 		; unused
 		movea.w	parent3(a0),a1
 		move.b	render_flags(a1),d0
 		btst	#3,$38(a0)
-		beq.s	loc_874EC
+		beq.s	MonkeyDudeCoconut_PriorityLow
 		bchg	#0,d0
 
-loc_874EC:
+MonkeyDudeCoconut_PriorityLow:
 		move.w	#$200,priority(a0)
 		btst	#0,d0
-		beq.s	locret_874FE
+		beq.s	MonkeyDudeCoconut_PriorityReturn
 		move.w	#$300,priority(a0)
 
-locret_874FE:
+MonkeyDudeCoconut_PriorityReturn:
 		rts
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_87500:
+MonkeyDudeArm_UpdateRootY:
 		movea.w	parent3(a0),a1
 		move.w	y_pos(a1),d0
 		subq.w	#2,d0
 		tst.b	mapping_frame(a1)
-		beq.s	loc_87512
+		beq.s	MonkeyDudeArm_StoreRootY
 		subq.w	#2,d0
 
-loc_87512:
+MonkeyDudeArm_StoreRootY:
 		move.w	d0,y_pos(a0)
 		rts
-; End of function sub_87500
+; End of function MonkeyDudeArm_UpdateRootY
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_87518:
+MonkeyDudeArm_CopyParentPriority:
 		movea.w	parent3(a0),a1
 		move.w	priority(a1),priority(a0)
 		rts
-; End of function sub_87518
+; End of function MonkeyDudeArm_CopyParentPriority
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_87524:
+MonkeyDudeArm_CheckPlayerRange:
 		jsr	Find_SonicTails(pc)
 		cmpi.w	#$80,d2
-		bhs.s	loc_8753C
+		bhs.s	MonkeyDudeArm_PlayerOutOfRange
 		btst	#3,$38(a0)
-		beq.s	loc_87538
+		beq.s	MonkeyDudeArm_PlayerFacingLeft
 		subq.w	#2,d0
 
-loc_87538:
+MonkeyDudeArm_PlayerFacingLeft:
 		tst.w	d0
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8753C:
+MonkeyDudeArm_PlayerOutOfRange:
 		moveq	#1,d4
 		rts
-; End of function sub_87524
+; End of function MonkeyDudeArm_CheckPlayerRange
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_87540:
+MonkeyDudeArm_AddAngleStep:
 		move.b	$3C(a0),d0
 		add.b	d1,d0
 		move.b	d0,$3C(a0)
 		rts
-; End of function sub_87540
+; End of function MonkeyDudeArm_AddAngleStep
 
 ; ---------------------------------------------------------------------------
 
-loc_8754C:
+MonkeyDudeArm_MoveFollower:
 		subq.b	#1,$3B(a0)
-		bne.s	loc_87562
+		bne.s	MonkeyDudeArm_ApplyCircularMove
 		move.b	$3A(a0),$3B(a0)
 		movea.w	parent3(a0),a1
 		move.b	$3C(a1),$3C(a0)
 
-loc_87562:
+MonkeyDudeArm_ApplyCircularMove:
 		moveq	#5,d2
 		jsr	MoveSprite_CircularSimple(pc)
 		rts
@@ -183167,10 +183167,10 @@ loc_87562:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_8756A:
+MonkeyDudeArm_CheckThrowPoseStart:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		beq.s	locret_87590
+		beq.s	MonkeyDudeArm_ThrowStartReturn
 		move.b	d1,routine(a0)
 		bset	#1,$38(a0)
 		move.b	$3A(a0),d0
@@ -183178,91 +183178,91 @@ sub_8756A:
 		move.b	d0,$3A(a0)
 		move.b	#1,$3B(a0)
 
-locret_87590:
+MonkeyDudeArm_ThrowStartReturn:
 		rts
-; End of function sub_8756A
+; End of function MonkeyDudeArm_CheckThrowPoseStart
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_87592:
+MonkeyDudeArm_CheckReturnPoseStart:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		bne.s	locret_875B2
+		bne.s	MonkeyDudeArm_ReturnStartReturn
 		move.b	d1,routine(a0)
 		move.b	$3A(a0),d0
 		add.b	d0,d0
 		move.b	d0,$3A(a0)
 		move.b	#1,$3B(a0)
 
-locret_875B2:
+MonkeyDudeArm_ReturnStartReturn:
 		rts
-; End of function sub_87592
+; End of function MonkeyDudeArm_CheckReturnPoseStart
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_875B4:
+MonkeyDudeArm_CheckCoconutThrow:
 		btst	#3,$38(a0)
-		beq.s	loc_875E0
+		beq.s	MonkeyDudeArm_CheckCoconutThrowLeft
 		btst	#0,$38(a0)
-		bne.w	locret_87328
+		bne.w	MonkeyDudeArm_Return
 		movea.w	$44(a0),a1
 		btst	#2,$38(a1)
-		beq.s	locret_875DE
+		beq.s	MonkeyDudeArm_CoconutThrowReturn
 		movea.w	$3E(a0),a1
 		cmpi.b	#-$7C,$3C(a1)
-		blo.s	loc_8760A
+		blo.s	MonkeyDudeArm_ThrowCoconut
 
-locret_875DE:
+MonkeyDudeArm_CoconutThrowReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_875E0:
+MonkeyDudeArm_CheckCoconutThrowLeft:
 		btst	#0,$38(a0)
-		bne.w	locret_87328
+		bne.w	MonkeyDudeArm_Return
 		movea.w	$44(a0),a1
 		btst	#2,$38(a1)
-		beq.s	locret_875DE
+		beq.s	MonkeyDudeArm_CoconutThrowReturn
 		movea.w	$3E(a0),a1
 		cmpi.b	#$7C,$3C(a1)
-		blo.w	locret_87328
+		blo.w	MonkeyDudeArm_Return
 		move.w	#make_art_tile(ArtTile_MonkeyDude,1,0),art_tile(a0)
 
-loc_8760A:
+MonkeyDudeArm_ThrowCoconut:
 		bset	#0,$38(a0)
 		move.b	#4,mapping_frame(a0)
 		moveq	#signextendB(sfx_MissileThrow),d0
 		jsr	(Play_SFX).l
-		lea	(ChildObjDat_8769C).l,a2
+		lea	(ChildObjDat_MonkeyDudeCoconut).l,a2
 		jsr	CreateChild2_Complex(pc)
-		bne.s	locret_875DE
+		bne.s	MonkeyDudeArm_CoconutThrowReturn
 		btst	#3,$38(a0)
-		beq.s	locret_875DE
+		beq.s	MonkeyDudeArm_CoconutThrowReturn
 		neg.w	x_vel(a1)
 		rts
-; End of function sub_875B4
+; End of function MonkeyDudeArm_CheckCoconutThrow
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_87638:
+MonkeyDudeArm_SetRandomWait:
 		jsr	(Random_Number).l
 		move.w	(RNG_seed).w,d0
 		moveq	#1,d1
 		btst	#0,d0
-		beq.s	loc_8764C
+		beq.s	MonkeyDudeArm_StoreRandomWait
 		neg.w	d1
 
-loc_8764C:
+MonkeyDudeArm_StoreRandomWait:
 		move.w	d1,$40(a0)
 		andi.w	#$3C,d0
 		move.w	d0,$2E(a0)
 		rts
-; End of function sub_87638
+; End of function MonkeyDudeArm_SetRandomWait
 
 ; ---------------------------------------------------------------------------
 ObjDat_MonkeyDude:
@@ -183270,45 +183270,45 @@ ObjDat_MonkeyDude:
 		dc.w make_art_tile(ArtTile_MonkeyDude,1,0)
 		dc.w   $280
 		dc.b  $20, $20,   0,  $B
-word_87666:
+ObjDat3_MonkeyDudeArmSegment:
 		dc.w   $300
 		dc.b    4,   4,   3,   0
-word_8766C:
+ObjDat_MonkeyDudeHeldCoconut:
 		dc.w make_art_tile(ArtTile_MonkeyDude,1,1)
 		dc.w   $280
 		dc.b  $20, $20,   6,  $B
-ObjDat3_87674:
+ObjDat_MonkeyDudeCoconut:
 		dc.l Map_MonkeyDude
 		dc.w make_art_tile(ArtTile_MonkeyDude,0,0)
 		dc.w   $280
 		dc.b  $20, $20,   6, $98
-ChildObjDat_87680:
+ChildObjDat_MonkeyDudeChildChain:
 		dc.w 5-1
-		dc.l loc_8724E
-ChildObjDat_87686:
+		dc.l MonkeyDudeArm_Init
+ChildObjDat_MonkeyDudeFlippedChildChain:
 		dc.w 5-1
-		dc.l loc_87248
+		dc.l MonkeyDudeArm_InitFlipped
 		dc.w 1-1
-		dc.l loc_8724E
+		dc.l MonkeyDudeArm_Init
 		dc.b    0,   8
 		dc.w 1-1
-		dc.l loc_87480
+		dc.l MonkeyDudeCoconut_Init
 		dc.b    0,   0
-ChildObjDat_8769C:
+ChildObjDat_MonkeyDudeCoconut:
 		dc.w 1-1
-		dc.l loc_86D4A
-		dc.l ObjDat3_87674
+		dc.l S3KBadnikProjectile_Init
+		dc.l ObjDat_MonkeyDudeCoconut
 		dc.l 0
 		dc.l MoveSprite_LightGravity
 		dc.b    0,   0
 		dc.w  -$200, -$400
-byte_876B4:
+AniRaw_MonkeyDudeWait:
 		dc.b    7,   0,   1, $FC
-byte_876B8:
+AniRaw_MonkeyDudeActive:
 		dc.b    0,   7
 		dc.b    2,   7
 		dc.b  $FC
-byte_876BD:
+AniRaw_MonkeyDudeCoconut:
 		dc.b    8,  $F
 		dc.b    8,  $F
 		dc.b    9,  $F
@@ -183328,21 +183328,21 @@ Obj_CaterKillerJr:
 		jmp	Sprite_CheckDeleteTouch(pc)
 ; ---------------------------------------------------------------------------
 CaterKillerJr_Index:
-		dc.w loc_876EC-CaterKillerJr_Index
-		dc.w loc_87728-CaterKillerJr_Index
-		dc.w loc_87728-CaterKillerJr_Index
-		dc.w loc_87758-CaterKillerJr_Index
-		dc.w loc_8777A-CaterKillerJr_Index
+		dc.w CaterKillerJr_Init-CaterKillerJr_Index
+		dc.w CaterKillerJr_SlowSwing-CaterKillerJr_Index
+		dc.w CaterKillerJr_SlowSwing-CaterKillerJr_Index
+		dc.w CaterKillerJr_FastSwing-CaterKillerJr_Index
+		dc.w CaterKillerJr_FinishSwing-CaterKillerJr_Index
 ; ---------------------------------------------------------------------------
 
-loc_876EC:
+CaterKillerJr_Init:
 		lea	ObjDat_CaterKillerJr(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.w	#-$100,x_vel(a0)
-		lea	ChildObjDat_87898(pc),a2
+		lea	ChildObjDat_CaterKillerJrBodySegments(pc),a2
 		jsr	CreateChild3_NormalRepeated(pc)
 
-loc_87702:
+CaterKillerJr_StartSlowSwing:
 		move.b	#4,routine(a0)
 		move.b	#3,$39(a0)
 		move.w	#$80,d0
@@ -183353,14 +183353,14 @@ loc_87702:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87728:
+CaterKillerJr_SlowSwing:
 		jsr	Swing_UpAndDown_Count(pc)
-		bne.s	loc_87738
+		bne.s	CaterKillerJr_StartFastSwing
 		jsr	(MoveSprite2).l
-		bra.w	loc_8783E
+		bra.w	CaterKillerJr_RunBodyWait
 ; ---------------------------------------------------------------------------
 
-loc_87738:
+CaterKillerJr_StartFastSwing:
 		move.b	#6,routine(a0)
 		move.w	#$100,d0
 		move.w	d0,$3E(a0)
@@ -183370,71 +183370,71 @@ loc_87738:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87758:
+CaterKillerJr_FastSwing:
 		jsr	Swing_UpAndDown(pc)
 		tst.w	d3
-		beq.s	loc_87770
+		beq.s	CaterKillerJr_MoveAndAnimate
 		move.b	#8,routine(a0)
 		neg.w	x_vel(a0)
 		bchg	#0,render_flags(a0)
 
-loc_87770:
+CaterKillerJr_MoveAndAnimate:
 		jsr	(MoveSprite2).l
-		bra.w	loc_8783E
+		bra.w	CaterKillerJr_RunBodyWait
 ; ---------------------------------------------------------------------------
 
-loc_8777A:
+CaterKillerJr_FinishSwing:
 		jsr	Swing_UpAndDown(pc)
 		tst.w	d3
-		bne.s	loc_87702
+		bne.s	CaterKillerJr_StartSlowSwing
 		jsr	(MoveSprite2).l
-		bra.w	loc_8783E
+		bra.w	CaterKillerJr_RunBodyWait
 ; ---------------------------------------------------------------------------
 
-loc_8778C:
+CaterKillerJrBody:
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_877A2(pc,d0.w),d1
-		jsr	off_877A2(pc,d1.w)
+		move.w	CaterKillerJrBody_Index(pc,d0.w),d1
+		jsr	CaterKillerJrBody_Index(pc,d1.w)
 		moveq	#0,d0
 		jmp	(Child_DrawTouch_Sprite_FlickerMove).l
 ; ---------------------------------------------------------------------------
-off_877A2:
-		dc.w loc_877AC-off_877A2
-		dc.w loc_877D8-off_877A2
-		dc.w loc_87728-off_877A2
-		dc.w loc_87758-off_877A2
-		dc.w loc_8777A-off_877A2
+CaterKillerJrBody_Index:
+		dc.w CaterKillerJrBody_Init-CaterKillerJrBody_Index
+		dc.w CaterKillerJrBody_Wait-CaterKillerJrBody_Index
+		dc.w CaterKillerJr_SlowSwing-CaterKillerJrBody_Index
+		dc.w CaterKillerJr_FastSwing-CaterKillerJrBody_Index
+		dc.w CaterKillerJr_FinishSwing-CaterKillerJrBody_Index
 ; ---------------------------------------------------------------------------
 
-loc_877AC:
+CaterKillerJrBody_Init:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
-		move.w	off_877C6(pc,d0.w),d1
-		lea	off_877C6(pc,d1.w),a1
+		move.w	CaterKillerJrBody_ObjDatIndex(pc,d0.w),d1
+		lea	CaterKillerJrBody_ObjDatIndex(pc,d1.w),a1
 		lsr.w	#1,d0
-		move.b	byte_877D2(pc,d0.w),$2F(a0)
+		move.b	CaterKillerJrBody_WaitDelays(pc,d0.w),$2F(a0)
 		jmp	SetUp_ObjAttributes(pc)
 ; ---------------------------------------------------------------------------
-off_877C6:
-		dc.w ObjDat3_8786E-off_877C6
-		dc.w ObjDat3_8786E-off_877C6
-		dc.w ObjDat3_8786E-off_877C6
-		dc.w ObjDat3_8787A-off_877C6
-		dc.w ObjDat3_87886-off_877C6
-		dc.w ObjDat3_87886-off_877C6
-byte_877D2:
+CaterKillerJrBody_ObjDatIndex:
+		dc.w ObjDat_CaterKillerJrTallBody-CaterKillerJrBody_ObjDatIndex
+		dc.w ObjDat_CaterKillerJrTallBody-CaterKillerJrBody_ObjDatIndex
+		dc.w ObjDat_CaterKillerJrTallBody-CaterKillerJrBody_ObjDatIndex
+		dc.w ObjDat_CaterKillerJrThinBody-CaterKillerJrBody_ObjDatIndex
+		dc.w ObjDat_CaterKillerJrCoconutBody-CaterKillerJrBody_ObjDatIndex
+		dc.w ObjDat_CaterKillerJrCoconutBody-CaterKillerJrBody_ObjDatIndex
+CaterKillerJrBody_WaitDelays:
 		dc.b   $B, $17, $23, $2F, $37, $3F
 		even
 ; ---------------------------------------------------------------------------
 
-loc_877D8:
+CaterKillerJrBody_Wait:
 		subq.w	#1,$2E(a0)
-		bmi.s	loc_877E0
+		bmi.s	CaterKillerJrBody_StartMoving
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_877E0:
+CaterKillerJrBody_StartMoving:
 		move.b	#4,routine(a0)
 		moveq	#$40,d1
 		moveq	#0,d0
@@ -183443,41 +183443,41 @@ loc_877E0:
 		lsl.w	#2,d0
 		sub.w	d0,d1
 		move.w	d1,$2E(a0)
-		move.l	#loc_87854,$34(a0)
+		move.l	#CaterKillerJrBody_SpawnProjectile,$34(a0)
 		move.w	#-$100,x_vel(a0)
-		bra.w	loc_87702
+		bra.w	CaterKillerJr_StartSlowSwing
 ; ---------------------------------------------------------------------------
 
-loc_8780A:
-		lea	word_87892(pc),a1
+CaterKillerJrProjectile_Init:
+		lea	ObjDat3_CaterKillerJrProjectile(pc),a1
 		jsr	SetUp_ObjAttributes3(pc)
-		move.l	#loc_8782C,(a0)
+		move.l	#CaterKillerJrProjectile_Main,(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		bset	#4,shield_reaction(a0)
 		jmp	(Child_Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_8782C:
+CaterKillerJrProjectile_Main:
 		jsr	Refresh_ChildPositionAdjusted(pc)
-		lea	byte_878A8(pc),a1
+		lea	AniRaw_CaterKillerJrProjectile(pc),a1
 		jsr	Animate_RawNoSSTMultiDelay(pc)
 		jmp	(Child_Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_8783E:
-		cmpi.l	#loc_8778C,(a0)
-		bne.s	locret_87852
+CaterKillerJr_RunBodyWait:
+		cmpi.l	#CaterKillerJrBody,(a0)
+		bne.s	CaterKillerJr_WaitReturn
 		cmpi.b	#6,subtype(a0)
-		bhs.s	locret_87852
+		bhs.s	CaterKillerJr_WaitReturn
 		jsr	Obj_Wait(pc)
 
-locret_87852:
+CaterKillerJr_WaitReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87854:
+CaterKillerJrBody_SpawnProjectile:
 		move.w	#$1A,$2E(a0)
-		lea	ChildObjDat_878A0(pc),a2
+		lea	ChildObjDat_CaterKillerJrProjectile(pc),a2
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 ObjDat_CaterKillerJr:
@@ -183485,33 +183485,33 @@ ObjDat_CaterKillerJr:
 		dc.w make_art_tile(ArtTile_CaterkillerJr,1,1)
 		dc.w   $280
 		dc.b    8,   8,   0, $17
-ObjDat3_8786E:
+ObjDat_CaterKillerJrTallBody:
 		dc.l Map_CaterKillerJr
 		dc.w make_art_tile(ArtTile_CaterkillerJr,1,1)
 		dc.w   $280
 		dc.b    8,  $C,   1, $97
-ObjDat3_8787A:
+ObjDat_CaterKillerJrThinBody:
 		dc.l Map_CaterKillerJr
 		dc.w make_art_tile(ArtTile_CaterkillerJr,1,1)
 		dc.w   $280
 		dc.b    8,   8,   2, $97
-ObjDat3_87886:
+ObjDat_CaterKillerJrCoconutBody:
 		dc.l Map_MonkeyDude
 		dc.w make_art_tile(ArtTile_MonkeyDude,1,1)
 		dc.w   $280
 		dc.b    4,   4,   3, $98
-word_87892:
+ObjDat3_CaterKillerJrProjectile:
 		dc.w   $200
 		dc.b  $10, $10,   3,   0
-ChildObjDat_87898:
+ChildObjDat_CaterKillerJrBodySegments:
 		dc.w 6-1
-		dc.l loc_8778C
+		dc.l CaterKillerJrBody
 		dc.b    0,   0
-ChildObjDat_878A0:
+ChildObjDat_CaterKillerJrProjectile:
 		dc.w 1-1
-		dc.l loc_8780A
+		dc.l CaterKillerJrProjectile_Init
 		dc.b    0,   0
-byte_878A8:
+AniRaw_CaterKillerJrProjectile:
 		dc.b    3,   2
 		dc.b    3,   2
 		dc.b    4,   3
@@ -183659,7 +183659,7 @@ ObjDat3_879EC:
 		dc.b    4,   4,   2, $98
 ChildObjDat_879F8:
 		dc.w 1-1
-		dc.l loc_86D4A
+		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat3_879EC
 		dc.l byte_87A1F
 		dc.l Move_AnimateRaw
@@ -185674,7 +185674,7 @@ ChildObjDat_88E1E:
 		dc.b    0, -$C
 ChildObjDat_88E32:
 		dc.w 1-1
-		dc.l loc_86D4A
+		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat3_88E12
 		dc.l byte_88E5C
 		dc.l MoveSlowFall_AnimateRaw
@@ -186024,7 +186024,7 @@ ChildObjDat_89148:
 		dc.b    0,  -8
 ChildObjDat_89150:
 		dc.w 1-1
-		dc.l loc_86D4A
+		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat3_8913C
 		dc.l 0
 		dc.l MoveSprite2
@@ -186672,7 +186672,7 @@ ChildObjDat_89726:
 		dc.b -$1B,-$16
 ChildObjDat_8972E:
 		dc.w 1-1
-		dc.l loc_86D4A
+		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat3_8970E
 		dc.l byte_89771
 		dc.l MoveFall_AnimateRaw
@@ -186680,7 +186680,7 @@ ChildObjDat_8972E:
 		dc.w  -$200, -$400
 ChildObjDat_89746:
 		dc.w 1-1
-		dc.l loc_86D4A
+		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat3_8971A
 		dc.l byte_89775
 		dc.l MoveFall_AnimateRaw
@@ -191222,7 +191222,7 @@ ChildObjDat_8C28A:
 		dc.b   -8,   4
 ChildObjDat_8C29E:
 		dc.w 1-1
-		dc.l loc_86D4A
+		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat3_8C27E
 		dc.l 0
 		dc.l MoveSprite2
@@ -196571,7 +196571,7 @@ loc_8FB90:
 		movea.l	$3E(a0),a1
 		jsr	(SetUp_ObjAttributes3).l
 		bset	#3,shield_reaction(a0)
-		move.l	#loc_86D5E,(a0)
+		move.l	#S3KBadnikProjectile_Main,(a0)
 		move.b	subtype(a0),d0
 		lsr.b	#2,d0
 		addq.b	#6,d0
