@@ -2,63 +2,61 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Advance the OpenGGF skdisasm contribution roadmap beyond the object pointer pilot with an upstream-ready pointer-table package and a first AIZ object identity/data ownership pass.
+**Goal:** Advance the OpenGGF skdisasm contribution roadmap beyond the object pointer pilot with a local pointer-table review package and a first AIZ object identity/data ownership pass.
 
-**Architecture:** Keep upstream submission work and exploratory annotation work separate. A pointer-table PR branch should contain only reviewable upstream files and maintainer-facing evidence, while the broader roadmap branch can retain local program/audit artifacts and staged AIZ research.
+**Architecture:** Keep future upstream submission material and exploratory annotation work separate inside the fork. No upstream PRs or issues are opened until the broader contribution package is complete and the maintainer-facing scope is approved by the user. When submission time arrives, extract narrowly scoped branches from this fork-side roadmap branch.
 
 **Tech Stack:** `skdisasm` assembly sources, Git branches rooted at `upstream/master`, `chkbitperfect.lua`, manual CSV/Markdown audit artifacts, OpenGGF Java object registry only as corroborating evidence.
 
 ---
 
-### Task 1: Split Pointer Pilot Into an Upstream-Ready Branch
+### Task 1: Prepare Local Pointer Pilot Review Package
 
 **Files:**
-- Modify: `Levels/Misc/Object pointers - SK Set 1.asm`
-- Modify: `Levels/Misc/Object pointers - SK Set 2.asm`
-- Create: `OPENGGF_POINTER_TABLE_PR_PACKAGE.md`
+- Read: `Levels/Misc/Object pointers - SK Set 1.asm`
+- Read: `Levels/Misc/Object pointers - SK Set 2.asm`
+- Create: `OPENGGF_POINTER_TABLE_REVIEW_PACKAGE.md`
 
-- [ ] **Step 1: Create a clean pointer PR branch from upstream**
+- [ ] **Step 1: Confirm pointer-table scope**
 
 Run:
 ```powershell
 git fetch upstream
-git switch -c feature/ai-sk-pointer-pr upstream/master
+git diff --name-status upstream/master..HEAD -- "Levels/Misc/Object pointers - SK Set 1.asm" "Levels/Misc/Object pointers - SK Set 2.asm"
 ```
 
 Expected:
-```text
-Switched to a new branch 'feature/ai-sk-pointer-pr'
-```
-
-- [ ] **Step 2: Apply only pointer-table changes**
-
-Bring in the pointer-table edits from `feature/ai-object-pointer-annotations`, excluding `sonic3k.asm`, `OPENGGF_CONTRIBUTION_PROGRAM.md`, and `OPENGGF_SK_OBJECT_POINTER_AUDIT.csv`.
-
-Run:
-```powershell
-git checkout feature/ai-object-pointer-annotations -- "Levels/Misc/Object pointers - SK Set 1.asm" "Levels/Misc/Object pointers - SK Set 2.asm"
-git diff --name-status
-```
-
-Expected files:
 ```text
 M       Levels/Misc/Object pointers - SK Set 1.asm
 M       Levels/Misc/Object pointers - SK Set 2.asm
 ```
 
-- [ ] **Step 3: Write the PR package**
+- [ ] **Step 2: Verify byte-perfect output**
 
-Create `OPENGGF_POINTER_TABLE_PR_PACKAGE.md` with:
+Run:
+```powershell
+.\build_tools\Lua\lua.exe chkbitperfect.lua
+```
+
+Expected:
+```text
+Sonic 3 ROM is bit-perfect (with USA version).
+Sonic & Knuckles ROM is bit-perfect.
+```
+
+- [ ] **Step 3: Write the local review package**
+
+Create `OPENGGF_POINTER_TABLE_REVIEW_PACKAGE.md` with:
 ```markdown
-# Pointer Table Annotation PR Package
+# Pointer Table Annotation Review Package
 
-## Proposed PR Title
+## Future Submission Title
 
 Document Sonic & Knuckles object pointer table indexes
 
 ## Scope
 
-This PR documents the two Sonic & Knuckles object pointer tables without changing assembled output:
+This future patch documents the two Sonic & Knuckles object pointer tables without changing assembled output:
 
 - `Sprite_Listing3` / `Levels/Misc/Object pointers - SK Set 1.asm`
 - `Sprite_ListingK` / `Levels/Misc/Object pointers - SK Set 2.asm`
@@ -84,7 +82,7 @@ Sonic 3 ROM is bit-perfect (with USA version).
 Sonic & Knuckles ROM is bit-perfect.
 ```
 
-## PR Body
+## Future Submission Notes
 
 This documents the Sonic & Knuckles object pointer tables with table headers and hex object IDs. It keeps the existing pointer targets and assembled output unchanged.
 
@@ -102,31 +100,18 @@ Result:
 Sonic 3 ROM is bit-perfect (with USA version).
 Sonic & Knuckles ROM is bit-perfect.
 ```
+
+## Submission Hold
+
+No upstream PR or issue has been opened. This package is held locally until the broader roadmap contribution batch is complete and explicitly approved for submission.
 ```
 
-- [ ] **Step 4: Verify byte-perfect output**
-
-Run:
+Commit the package on the roadmap branch:
 ```powershell
-.\build_tools\Lua\lua.exe chkbitperfect.lua
+git add -- OPENGGF_POINTER_TABLE_REVIEW_PACKAGE.md OPENGGF_ROADMAP_EXECUTION_PLAN.md
+git commit -m "docs: package pointer table review evidence"
+git push
 ```
-
-Expected:
-```text
-Sonic 3 ROM is bit-perfect (with USA version).
-Sonic & Knuckles ROM is bit-perfect.
-```
-
-- [ ] **Step 5: Commit and push the pointer PR branch**
-
-Run:
-```powershell
-git add -- "Levels/Misc/Object pointers - SK Set 1.asm" "Levels/Misc/Object pointers - SK Set 2.asm" OPENGGF_POINTER_TABLE_PR_PACKAGE.md
-git commit -m "docs: annotate SK object pointer indexes"
-git push -u origin feature/ai-sk-pointer-pr
-```
-
-Expected: one upstream-sized branch that excludes later routine-label experiments.
 
 ### Task 2: Prepare AIZ Object Identity Audit
 
@@ -237,6 +222,6 @@ git push
 
 ## Self-Review
 
-- Spec coverage: The plan covers branch split, PR package evidence, byte-perfect verification, AIZ audit, and first AIZ annotation patch.
+- Spec coverage: The plan covers local review package evidence, byte-perfect verification, AIZ audit, and first AIZ annotation patch.
 - Placeholder scan: No TBD/TODO placeholders are present.
-- Scope control: The pointer-table PR branch excludes routine-label and AIZ work; AIZ work remains a separate roadmap phase.
+- Scope control: No upstream PRs or issues are opened during this roadmap execution; future submission branches are extracted only after the local contribution batch is done.
