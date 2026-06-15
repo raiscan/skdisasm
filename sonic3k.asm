@@ -43829,7 +43829,7 @@ AIZTree_PlayerFrames:
 		dc.b  $74, $74, $75, $75, $76, $76, $77, $77, $6C, $6C, $6D, $6D, $6E, $6E, $6F, $6F, $70, $70, $71, $71
 		dc.b  $72, $72, $73, $73, $74, $74, $75, $75, $6B, $6B, $6A, $6A, $69, $69
 ; ---------------------------------------------------------------------------
-byte_1F9D0:
+AIZLRZEMZRock_SizeData:
 		dc.b  $18, $27
 		dc.b  $18, $17
 		dc.b  $18,  $F
@@ -43848,8 +43848,8 @@ Obj_AIZLRZEMZRock:
 		andi.b	#7,d0
 		move.b	d0,mapping_frame(a0)
 		add.w	d0,d0
-		move.b	byte_1F9D0(pc,d0.w),width_pixels(a0)
-		move.b	byte_1F9D0+1(pc,d0.w),d1
+		move.b	AIZLRZEMZRock_SizeData(pc,d0.w),width_pixels(a0)
+		move.b	AIZLRZEMZRock_SizeData+1(pc,d0.w),d1
 		move.b	d1,height_pixels(a0)
 		move.b	d1,y_radius(a0)
 		move.l	#Map_AIZRock,mappings(a0)
@@ -43859,58 +43859,58 @@ Obj_AIZLRZEMZRock:
 		move.w	x_pos(a0),$2E(a0)
 		move.w	#$40,child_dx(a0)
 		cmpi.w	#1,(Current_zone_and_act).w
-		bne.s	loc_1FA42
+		bne.s	AIZLRZEMZRock_CheckEMZArt
 		move.l	#Map_AIZRock2,mappings(a0)
 		move.w	#make_art_tile(ArtTile_AIZMisc2,2,0),art_tile(a0)
 
-loc_1FA42:
+AIZLRZEMZRock_CheckEMZArt:
 		cmpi.w	#$1200,(Current_zone_and_act).w
-		bne.s	loc_1FA5E
+		bne.s	AIZLRZEMZRock_CheckLRZArt
 		move.l	#Map_EMZRock,mappings(a0)
 		move.w	#make_art_tile(ArtTile_EMZMisc,3,1),art_tile(a0)
 		move.b	#0,mapping_frame(a0)
 
-loc_1FA5E:
+AIZLRZEMZRock_CheckLRZArt:
 		cmpi.b	#9,(Current_zone).w
-		bne.s	loc_1FA8C
+		bne.s	AIZLRZEMZRock_SelectBehavior
 		move.l	#Map_LRZBreakableRock,mappings(a0)
 		move.w	#make_art_tile($0D3,2,0),art_tile(a0)
 		addq.b	#4,mapping_frame(a0)
 		tst.b	(Current_act).w
-		beq.s	loc_1FA8C
+		beq.s	AIZLRZEMZRock_SelectBehavior
 		move.l	#Map_LRZBreakableRock2,mappings(a0)
 		move.w	#make_art_tile(ArtTile_LRZ2Misc,3,0),art_tile(a0)
 
-loc_1FA8C:
+AIZLRZEMZRock_SelectBehavior:
 		andi.w	#$F,d2
 		cmpi.w	#$F,d2
-		bne.s	loc_1FAA0
-		move.l	#loc_20002,(a0)
-		bra.w	loc_20002
+		bne.s	AIZLRZEMZRock_CheckPushBreak
+		move.l	#AIZLRZEMZRock_KnucklesStandMain,(a0)
+		bra.w	AIZLRZEMZRock_KnucklesStandMain
 ; ---------------------------------------------------------------------------
 
-loc_1FAA0:
-		move.l	#loc_1FAF2,(a0)
+AIZLRZEMZRock_CheckPushBreak:
+		move.l	#AIZLRZEMZRock_MainSolid,(a0)
 		btst	#2,subtype(a0)
-		beq.s	loc_1FAB8
-		move.l	#loc_1FD08,(a0)
-		bra.w	loc_1FD08
+		beq.s	AIZLRZEMZRock_CheckVerticalBreak
+		move.l	#AIZLRZEMZRock_PushBreakMain,(a0)
+		bra.w	AIZLRZEMZRock_PushBreakMain
 ; ---------------------------------------------------------------------------
 
-loc_1FAB8:
+AIZLRZEMZRock_CheckVerticalBreak:
 		btst	#3,subtype(a0)
-		beq.s	loc_1FACA
-		move.l	#loc_1FF48,(a0)
-		bra.w	loc_1FF48
+		beq.s	AIZLRZEMZRock_CheckRespawnOffset
+		move.l	#AIZLRZEMZRock_VerticalBreakMain,(a0)
+		bra.w	AIZLRZEMZRock_VerticalBreakMain
 ; ---------------------------------------------------------------------------
 
-loc_1FACA:
+AIZLRZEMZRock_CheckRespawnOffset:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_1FAF2
+		beq.s	AIZLRZEMZRock_MainSolid
 		movea.w	d0,a2
 		move.b	(a2),d0
 		andi.w	#$7F,d0
-		beq.s	loc_1FAF2
+		beq.s	AIZLRZEMZRock_MainSolid
 		sub.w	d0,x_pos(a0)
 		neg.w	d0
 		addi.w	#$40,d0
@@ -43918,7 +43918,7 @@ loc_1FACA:
 		jsr	(ObjCheckFloorDist).l
 		add.w	d1,y_pos(a0)
 
-loc_1FAF2:
+AIZLRZEMZRock_MainSolid:
 		move.w	(Chain_bonus_counter).w,$38(a0)
 		move.b	(Player_1+anim).w,$32(a0)
 		move.b	(Player_2+anim).w,$33(a0)
@@ -43934,135 +43934,135 @@ loc_1FAF2:
 		move.w	x_pos(a0),d4
 		jsr	(SolidObjectFull).l
 		btst	#1,subtype(a0)
-		beq.s	loc_1FB3A
-		bsr.w	sub_200A2
+		beq.s	AIZLRZEMZRock_CheckStandBreak
+		bsr.w	AIZLRZEMZRock_UpdatePushOffset
 
-loc_1FB3A:
+AIZLRZEMZRock_CheckStandBreak:
 		btst	#0,subtype(a0)
-		beq.s	loc_1FB4C
+		beq.s	AIZLRZEMZRock_DrawOrDelete
 		move.b	status(a0),d0
 		andi.b	#standing_mask,d0
-		bne.s	loc_1FB62
+		bne.s	AIZLRZEMZRock_CheckStandingPlayers
 
-loc_1FB4C:
+AIZLRZEMZRock_DrawOrDelete:
 		tst.w	(Competition_mode).w
-		bne.s	loc_1FB5C
+		bne.s	AIZLRZEMZRock_Draw
 		move.w	$2E(a0),d0
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_1FB5C:
+AIZLRZEMZRock_Draw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_1FB62:
+AIZLRZEMZRock_CheckStandingPlayers:
 		cmpi.b	#$18,d0
-		bne.s	loc_1FB90
+		bne.s	AIZLRZEMZRock_CheckSingleStandingPlayer
 		cmpi.b	#2,$32(a0)
-		beq.s	loc_1FB78
+		beq.s	AIZLRZEMZRock_BreakFromStanding
 		cmpi.b	#2,$33(a0)
-		bne.s	loc_1FB4C
+		bne.s	AIZLRZEMZRock_DrawOrDelete
 
-loc_1FB78:
+AIZLRZEMZRock_BreakFromStanding:
 		lea	(Player_1).w,a1
 		move.b	$32(a0),d0
-		bsr.s	sub_1FBA8
+		bsr.s	AIZLRZEMZRock_BounceIfRolling
 		lea	(Player_2).w,a1
 		move.b	$33(a0),d0
-		bsr.s	sub_1FBA8
-		bra.w	loc_1FBF8
+		bsr.s	AIZLRZEMZRock_BounceIfRolling
+		bra.w	AIZLRZEMZRock_BreakFromTop
 ; ---------------------------------------------------------------------------
 
-loc_1FB90:
+AIZLRZEMZRock_CheckSingleStandingPlayer:
 		move.b	d0,d1
 		andi.b	#8,d1
-		beq.s	loc_1FBE0
+		beq.s	AIZLRZEMZRock_CheckP2Standing
 		cmpi.b	#2,$32(a0)
-		bne.s	loc_1FB4C
+		bne.s	AIZLRZEMZRock_DrawOrDelete
 		lea	(Player_1).w,a1
-		bsr.s	sub_1FBAE
-		bra.s	loc_1FBF8
+		bsr.s	AIZLRZEMZRock_SetRollBounce
+		bra.s	AIZLRZEMZRock_BreakFromTop
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1FBA8:
+AIZLRZEMZRock_BounceIfRolling:
 		cmpi.b	#2,d0
-		bne.s	loc_1FBCC
-; End of function sub_1FBA8
+		bne.s	AIZLRZEMZRock_SetPlayerAirborne
+; End of function AIZLRZEMZRock_BounceIfRolling
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1FBAE:
+AIZLRZEMZRock_SetRollBounce:
 		bset	#Status_Roll,status(a1)
 		move.b	#$E,y_radius(a1)
 		move.b	#7,x_radius(a1)
 		move.b	#2,anim(a1)
 		move.w	#-$300,y_vel(a1)
 
-loc_1FBCC:
+AIZLRZEMZRock_SetPlayerAirborne:
 		bset	#Status_InAir,status(a1)
 		bclr	#Status_OnObj,status(a1)
 		move.b	#2,routine(a1)
 		rts
-; End of function sub_1FBAE
+; End of function AIZLRZEMZRock_SetRollBounce
 
 ; ---------------------------------------------------------------------------
 
-loc_1FBE0:
+AIZLRZEMZRock_CheckP2Standing:
 		andi.b	#$10,d0
-		beq.w	loc_1FB4C
+		beq.w	AIZLRZEMZRock_DrawOrDelete
 		cmpi.b	#2,$33(a0)
-		bne.w	loc_1FB4C
+		bne.w	AIZLRZEMZRock_DrawOrDelete
 		lea	(Player_2).w,a1
-		bsr.s	sub_1FBAE
+		bsr.s	AIZLRZEMZRock_SetRollBounce
 
-loc_1FBF8:
+AIZLRZEMZRock_BreakFromTop:
 		move.w	$38(a0),(Chain_bonus_counter).w
 		andi.b	#$E7,status(a0)
 		tst.w	(Competition_mode).w
-		bne.w	loc_1FC9C
-		move.l	#loc_1FC16,(a0)
-		bsr.w	sub_2011E
+		bne.w	AIZLRZEMZRock_CompetitionBreak
+		move.l	#AIZLRZEMZRock_DebrisInit,(a0)
+		bsr.w	AIZLRZEMZRock_SpawnDebris
 
-loc_1FC16:
+AIZLRZEMZRock_DebrisInit:
 		cmpi.b	#9,(Current_zone).w
-		beq.s	loc_1FC60
-		move.l	#loc_1FC24,(a0)
+		beq.s	AIZLRZEMZRock_LRZDebrisInit
+		move.l	#AIZLRZEMZRock_DebrisMain,(a0)
 
-loc_1FC24:
+AIZLRZEMZRock_DebrisMain:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_1FC42
+		bpl.s	AIZLRZEMZRock_MoveDebris
 		move.b	#2,anim_frame_timer(a0)
 		move.b	mapping_frame(a0),d0
 		addq.b	#1,d0
 		cmpi.b	#7,d0
-		blo.s	loc_1FC3E
+		blo.s	AIZLRZEMZRock_WrapDebrisFrame
 		moveq	#3,d0
 
-loc_1FC3E:
+AIZLRZEMZRock_WrapDebrisFrame:
 		move.b	d0,mapping_frame(a0)
 
-loc_1FC42:
+AIZLRZEMZRock_MoveDebris:
 		jsr	(MoveSprite2).l
 		addi.w	#$18,y_vel(a0)
 		tst.b	render_flags(a0)
-		bpl.s	loc_1FC5A
+		bpl.s	AIZLRZEMZRock_Delete
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_1FC5A:
+AIZLRZEMZRock_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_1FC60:
-		move.l	#loc_1FC66,(a0)
+AIZLRZEMZRock_LRZDebrisInit:
+		move.l	#AIZLRZEMZRock_LRZDebrisMain,(a0)
 
-loc_1FC66:
+AIZLRZEMZRock_LRZDebrisMain:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_1FC84
+		bpl.s	AIZLRZEMZRock_MoveLRZDebris
 		move.b	#7,anim_frame_timer(a0)
 		move.b	mapping_frame(a0),d0
 		addq.b	#1,d0
@@ -44070,61 +44070,61 @@ loc_1FC66:
 		add.b	$3C(a0),d0
 		move.b	d0,mapping_frame(a0)
 
-loc_1FC84:
+AIZLRZEMZRock_MoveLRZDebris:
 		jsr	(MoveSprite2).l
 		addi.w	#$18,y_vel(a0)
 		tst.b	render_flags(a0)
-		bpl.s	loc_1FC5A
+		bpl.s	AIZLRZEMZRock_Delete
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_1FC9C:
-		bsr.s	sub_1FCC8
+AIZLRZEMZRock_CompetitionBreak:
+		bsr.s	AIZLRZEMZRock_SpawnCompetitionShard
 		move.b	#3,mapping_frame(a0)
-		move.l	#loc_1FCAE,(a0)
-		bsr.w	sub_2011E
+		move.l	#AIZLRZEMZRock_CompetitionDebrisMain,(a0)
+		bsr.w	AIZLRZEMZRock_SpawnDebris
 
-loc_1FCAE:
+AIZLRZEMZRock_CompetitionDebrisMain:
 		jsr	(MoveSprite2).l
 		addi.w	#$18,y_vel(a0)
 		tst.b	render_flags(a0)
-		bpl.w	loc_1FC5A
+		bpl.w	AIZLRZEMZRock_Delete
 		jmp	(Draw_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1FCC8:
+AIZLRZEMZRock_SpawnCompetitionShard:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	locret_1FCF0
+		bne.w	AIZLRZEMZRock_SpawnShardReturn
 		moveq	#$48,d0
 
-loc_1FCD4:
+AIZLRZEMZRock_CopyShardFields:
 		move.w	(a0,d0.w),(a1,d0.w)
 		subq.w	#2,d0
-		bcc.s	loc_1FCD4
+		bcc.s	AIZLRZEMZRock_CopyShardFields
 		move.l	(a0),$44(a1)
-		move.l	#loc_1FCF2,(a1)
+		move.l	#AIZLRZEMZRock_CompetitionShard,(a1)
 		move.b	#7,mapping_frame(a1)
 		moveq	#0,d0
 
-locret_1FCF0:
+AIZLRZEMZRock_SpawnShardReturn:
 		rts
-; End of function sub_1FCC8
+; End of function AIZLRZEMZRock_SpawnCompetitionShard
 
 ; ---------------------------------------------------------------------------
 
-loc_1FCF2:
+AIZLRZEMZRock_CompetitionShard:
 		tst.b	render_flags(a0)
-		bmi.s	loc_1FD02
+		bmi.s	AIZLRZEMZRock_DrawCompetitionShard
 		move.l	$44(a0),(a0)
 		move.b	#0,mapping_frame(a0)
 
-loc_1FD02:
+AIZLRZEMZRock_DrawCompetitionShard:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_1FD08:
+AIZLRZEMZRock_PushBreakMain:
 		move.w	(Player_1+x_vel).w,$30(a0)
 		move.w	(Player_2+x_vel).w,$36(a0)
 		moveq	#0,d1
@@ -44138,195 +44138,195 @@ loc_1FD08:
 		bsr.w	SolidObjectFull
 		swap	d6
 		andi.w	#3,d6
-		bne.s	loc_1FD4E
+		bne.s	AIZLRZEMZRock_CheckP1PushBreak
 
-loc_1FD38:
+AIZLRZEMZRock_PushDrawOrDelete:
 		tst.w	(Competition_mode).w
-		bne.s	loc_1FD48
+		bne.s	AIZLRZEMZRock_PushDraw
 		move.w	$2E(a0),d0
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_1FD48:
+AIZLRZEMZRock_PushDraw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_1FD4E:
+AIZLRZEMZRock_CheckP1PushBreak:
 		lea	(Player_1).w,a1
 		move.w	$30(a0),d1
 		move.w	d6,d0
 		andi.w	#1,d0
-		beq.w	loc_1FDEA
+		beq.w	AIZLRZEMZRock_CheckP2PushBreak
 		tst.b	subtype(a0)
-		bpl.s	loc_1FD72
+		bpl.s	AIZLRZEMZRock_CheckP1PushConditions
 		cmpi.b	#2,character_id(a1)
-		beq.s	loc_1FDA4
-		bra.w	loc_1FDEA
+		beq.s	AIZLRZEMZRock_BreakFromP1Push
+		bra.w	AIZLRZEMZRock_CheckP2PushBreak
 ; ---------------------------------------------------------------------------
 
-loc_1FD72:
+AIZLRZEMZRock_CheckP1PushConditions:
 		tst.b	(Super_Sonic_Knux_flag).w
-		bne.s	loc_1FDA4
+		bne.s	AIZLRZEMZRock_BreakFromP1Push
 		cmpi.b	#2,character_id(a1)
-		beq.s	loc_1FDA4
+		beq.s	AIZLRZEMZRock_BreakFromP1Push
 		btst	#Status_FireShield,status_secondary(a1)
-		bne.s	loc_1FD90
+		bne.s	AIZLRZEMZRock_CheckP1RollSpeed
 		btst	#p1_pushing_bit,status(a0)
-		beq.s	loc_1FDEA
+		beq.s	AIZLRZEMZRock_CheckP2PushBreak
 
-loc_1FD90:
+AIZLRZEMZRock_CheckP1RollSpeed:
 		cmpi.b	#2,anim(a1)
-		bne.s	loc_1FDEA
+		bne.s	AIZLRZEMZRock_CheckP2PushBreak
 		move.w	d1,d0
-		bpl.s	loc_1FD9E
+		bpl.s	AIZLRZEMZRock_TestP1PushSpeed
 		neg.w	d0
 
-loc_1FD9E:
+AIZLRZEMZRock_TestP1PushSpeed:
 		cmpi.w	#$480,d0
-		blo.s	loc_1FDEA
+		blo.s	AIZLRZEMZRock_CheckP2PushBreak
 
-loc_1FDA4:
+AIZLRZEMZRock_BreakFromP1Push:
 		bclr	#p1_pushing_bit,status(a0)
-		bsr.w	sub_1FE34
+		bsr.w	AIZLRZEMZRock_BreakFromPush
 		btst	#p2_pushing_bit,status(a0)
-		beq.w	loc_1FD38
+		beq.w	AIZLRZEMZRock_PushDrawOrDelete
 		lea	(Player_2).w,a1
 		cmpi.b	#2,character_id(a1)
-		beq.s	loc_1FDCE
+		beq.s	AIZLRZEMZRock_RestoreP2PushState
 		cmpi.b	#2,anim(a1)
-		bne.w	loc_1FD38
+		bne.w	AIZLRZEMZRock_PushDrawOrDelete
 
-loc_1FDCE:
+AIZLRZEMZRock_RestoreP2PushState:
 		move.w	$36(a0),x_vel(a1)
 		move.w	x_vel(a1),ground_vel(a1)
 		bclr	#p2_pushing_bit,status(a0)
 		bclr	#Status_Push,status(a1)
-		bra.w	loc_1FD38
+		bra.w	AIZLRZEMZRock_PushDrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_1FDEA:
+AIZLRZEMZRock_CheckP2PushBreak:
 		lea	(Player_2).w,a1
 		move.w	$36(a0),d1
 		btst	#p2_pushing_bit,status(a0)
-		beq.w	loc_1FD38
+		beq.w	AIZLRZEMZRock_PushDrawOrDelete
 		tst.b	subtype(a0)
-		bpl.s	loc_1FE0E
+		bpl.s	AIZLRZEMZRock_CheckP2PushConditions
 		cmpi.b	#2,character_id(a1)
-		beq.s	loc_1FE2E
-		bra.w	loc_1FD38
+		beq.s	AIZLRZEMZRock_BreakFromP2Push
+		bra.w	AIZLRZEMZRock_PushDrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_1FE0E:
+AIZLRZEMZRock_CheckP2PushConditions:
 		cmpi.b	#2,character_id(a1)
-		beq.s	loc_1FE2E
+		beq.s	AIZLRZEMZRock_BreakFromP2Push
 		cmpi.b	#2,anim(a1)
-		bne.w	loc_1FD38
+		bne.w	AIZLRZEMZRock_PushDrawOrDelete
 		move.w	d1,d0
-		bpl.s	loc_1FE26
+		bpl.s	AIZLRZEMZRock_TestP2PushSpeed
 		neg.w	d0
 
-loc_1FE26:
+AIZLRZEMZRock_TestP2PushSpeed:
 		cmpi.w	#$480,d0
-		blo.w	loc_1FD38
+		blo.w	AIZLRZEMZRock_PushDrawOrDelete
 
-loc_1FE2E:
+AIZLRZEMZRock_BreakFromP2Push:
 		bclr	#p2_pushing_bit,status(a0)
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1FE34:
-		bsr.w	sub_1FF1E
+AIZLRZEMZRock_BreakFromPush:
+		bsr.w	AIZLRZEMZRock_ReleaseStandingPlayers
 		tst.w	(Competition_mode).w
-		bne.w	loc_1FECE
+		bne.w	AIZLRZEMZRock_CompetitionPushBreak
 		move.w	d1,x_vel(a1)
 		addq.w	#4,x_pos(a1)
-		lea	(word_202F4).l,a4
+		lea	(AIZLRZEMZRock_DebrisVelocitiesLeft0).l,a4
 		move.w	x_pos(a0),d0
 		cmp.w	x_pos(a1),d0
-		blo.s	loc_1FE64
+		blo.s	AIZLRZEMZRock_SetPushDebrisDirection
 		subi.w	#8,x_pos(a1)
-		lea	(word_20314).l,a4
+		lea	(AIZLRZEMZRock_DebrisVelocitiesRight0).l,a4
 
-loc_1FE64:
+AIZLRZEMZRock_SetPushDebrisDirection:
 		move.w	x_vel(a1),ground_vel(a1)
 		bclr	#Status_Push,status(a1)
 		cmpi.b	#2,character_id(a1)
-		bne.s	loc_1FE9E
+		bne.s	AIZLRZEMZRock_SpawnPushDebris
 		cmpi.b	#1,double_jump_flag(a1)
-		bne.s	loc_1FE9E
+		bne.s	AIZLRZEMZRock_SpawnPushDebris
 		move.b	#2,double_jump_flag(a1)
 		move.b	#$21,anim(a1)
 		bclr	#Status_Facing,status(a1)
 		tst.w	x_vel(a1)
-		bpl.s	loc_1FE9E
+		bpl.s	AIZLRZEMZRock_SpawnPushDebris
 		bset	#Status_Facing,status(a1)
 
-loc_1FE9E:
+AIZLRZEMZRock_SpawnPushDebris:
 		moveq	#0,d0
 		move.b	mapping_frame(a0),d0
 		cmpi.b	#9,(Current_zone).w
-		bne.s	loc_1FEBE
+		bne.s	AIZLRZEMZRock_SpawnNonLRZPushDebris
 		subq.b	#4,d0
-		move.l	#loc_1FC66,(a0)
+		move.l	#AIZLRZEMZRock_LRZDebrisMain,(a0)
 		add.w	d0,d0
-		bsr.w	sub_201DE
-		bra.w	loc_1FC66
+		bsr.w	AIZLRZEMZRock_SpawnLRZDebrisPieces
+		bra.w	AIZLRZEMZRock_LRZDebrisMain
 ; ---------------------------------------------------------------------------
 
-loc_1FEBE:
-		move.l	#loc_1FC16,(a0)
+AIZLRZEMZRock_SpawnNonLRZPushDebris:
+		move.l	#AIZLRZEMZRock_DebrisInit,(a0)
 		add.w	d0,d0
-		bsr.w	sub_2013A
-		bra.w	loc_1FC16
+		bsr.w	AIZLRZEMZRock_SpawnDebrisPieces
+		bra.w	AIZLRZEMZRock_DebrisInit
 ; ---------------------------------------------------------------------------
 
-loc_1FECE:
+AIZLRZEMZRock_CompetitionPushBreak:
 		move.w	d1,x_vel(a1)
 		addq.w	#4,x_pos(a1)
-		lea	(word_20370).l,a4
+		lea	(AIZLRZEMZRock_CompetitionDebrisVelocitiesLeft).l,a4
 		move.w	x_pos(a0),d0
 		cmp.w	x_pos(a1),d0
-		blo.s	loc_1FEF2
+		blo.s	AIZLRZEMZRock_SetCompetitionDebrisDirection
 		subi.w	#8,x_pos(a1)
-		lea	(word_20388).l,a4
+		lea	(AIZLRZEMZRock_CompetitionDebrisVelocitiesRight).l,a4
 
-loc_1FEF2:
+AIZLRZEMZRock_SetCompetitionDebrisDirection:
 		move.w	x_vel(a1),ground_vel(a1)
 		bclr	#Status_Push,status(a1)
-		bsr.w	sub_1FCC8
-		move.l	#loc_1FCAE,(a0)
+		bsr.w	AIZLRZEMZRock_SpawnCompetitionShard
+		move.l	#AIZLRZEMZRock_CompetitionDebrisMain,(a0)
 		move.b	#3,mapping_frame(a0)
 		moveq	#0,d0
 		move.b	mapping_frame(a0),d0
 		add.w	d0,d0
-		bsr.w	sub_2013A
-		bra.w	loc_1FCAE
-; End of function sub_1FE34
+		bsr.w	AIZLRZEMZRock_SpawnDebrisPieces
+		bra.w	AIZLRZEMZRock_CompetitionDebrisMain
+; End of function AIZLRZEMZRock_BreakFromPush
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1FF1E:
+AIZLRZEMZRock_ReleaseStandingPlayers:
 		bclr	#p1_standing_bit,status(a0)
-		beq.s	loc_1FF32
+		beq.s	AIZLRZEMZRock_CheckReleaseP2
 		bset	#Status_InAir,(Player_1+status).w
 		bclr	#Status_OnObj,(Player_1+status).w
 
-loc_1FF32:
+AIZLRZEMZRock_CheckReleaseP2:
 		bclr	#p2_standing_bit,status(a0)
-		beq.s	locret_1FF46
+		beq.s	AIZLRZEMZRock_ReleasePlayersReturn
 		bset	#Status_InAir,(Player_2+status).w
 		bclr	#Status_OnObj,(Player_2+status).w
 
-locret_1FF46:
+AIZLRZEMZRock_ReleasePlayersReturn:
 		rts
-; End of function sub_1FF1E
+; End of function AIZLRZEMZRock_ReleaseStandingPlayers
 
 ; ---------------------------------------------------------------------------
 
-loc_1FF48:
+AIZLRZEMZRock_VerticalBreakMain:
 		move.w	(Player_1+y_vel).w,$30(a0)
 		move.w	(Player_2+y_vel).w,$36(a0)
 		moveq	#0,d1
@@ -44340,58 +44340,58 @@ loc_1FF48:
 		jsr	(SolidObjectFull).l
 		swap	d6
 		andi.w	#4|8,d6
-		bne.s	loc_1FF84
+		bne.s	AIZLRZEMZRock_CheckVerticalBreakPlayers
 		move.w	$2E(a0),d0
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_1FF84:
+AIZLRZEMZRock_CheckVerticalBreakPlayers:
 		move.b	d6,d0
 		andi.b	#4,d0
-		beq.s	loc_1FFA8
+		beq.s	AIZLRZEMZRock_CheckP2VerticalBreak
 		lea	(Player_1).w,a1
 		move.w	$30(a0),y_vel(a1)
 		andi.b	#8,d6
-		beq.s	loc_1FFC4
+		beq.s	AIZLRZEMZRock_BreakFromVerticalContact
 		lea	(Player_2).w,a1
 		move.w	$36(a0),y_vel(a1)
-		bra.s	loc_1FFC4
+		bra.s	AIZLRZEMZRock_BreakFromVerticalContact
 ; ---------------------------------------------------------------------------
 
-loc_1FFA8:
+AIZLRZEMZRock_CheckP2VerticalBreak:
 		andi.b	#8,d6
-		beq.s	loc_1FFBA
+		beq.s	AIZLRZEMZRock_VerticalDrawOrDelete
 		lea	(Player_2).w,a1
 		move.w	$36(a0),y_vel(a1)
-		bra.s	loc_1FFC4
+		bra.s	AIZLRZEMZRock_BreakFromVerticalContact
 ; ---------------------------------------------------------------------------
 
-loc_1FFBA:
+AIZLRZEMZRock_VerticalDrawOrDelete:
 		move.w	$2E(a0),d0
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_1FFC4:
+AIZLRZEMZRock_BreakFromVerticalContact:
 		btst	#p1_standing_bit,status(a0)
-		beq.s	loc_1FFDC
+		beq.s	AIZLRZEMZRock_CheckP2StandingRelease
 		lea	(Player_1).w,a1
 		bset	#Status_InAir,status(a1)
 		bclr	#Status_OnObj,status(a1)
 
-loc_1FFDC:
+AIZLRZEMZRock_CheckP2StandingRelease:
 		btst	#p2_standing_bit,status(a0)
-		beq.s	loc_1FFF4
+		beq.s	AIZLRZEMZRock_SpawnVerticalDebris
 		lea	(Player_2).w,a1
 		bset	#Status_InAir,status(a1)
 		bclr	#Status_OnObj,status(a1)
 
-loc_1FFF4:
-		move.l	#loc_1FC16,(a0)
-		bsr.w	sub_2011E
-		bra.w	loc_1FC16
+AIZLRZEMZRock_SpawnVerticalDebris:
+		move.l	#AIZLRZEMZRock_DebrisInit,(a0)
+		bsr.w	AIZLRZEMZRock_SpawnDebris
+		bra.w	AIZLRZEMZRock_DebrisInit
 ; ---------------------------------------------------------------------------
 
-loc_20002:
+AIZLRZEMZRock_KnucklesStandMain:
 		move.w	(Chain_bonus_counter).w,$38(a0)
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
@@ -44404,27 +44404,27 @@ loc_20002:
 		jsr	(SolidObjectFull).l
 		move.b	status(a0),d0
 		andi.b	#p1_standing,d0
-		bne.s	loc_20036
+		bne.s	AIZLRZEMZRock_CheckKnucklesStanding
 
-loc_20030:
+AIZLRZEMZRock_KnucklesStandDrawOrDelete:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_20036:
+AIZLRZEMZRock_CheckKnucklesStanding:
 		lea	(Player_1).w,a1
 		cmpi.b	#2,character_id(a1)
-		bne.s	loc_20030
-		bsr.s	sub_20056
+		bne.s	AIZLRZEMZRock_KnucklesStandDrawOrDelete
+		bsr.s	AIZLRZEMZRock_LaunchStandingKnuckles
 		btst	#p2_standing_bit,status(a0)
-		beq.s	loc_20088
+		beq.s	AIZLRZEMZRock_BreakFromKnucklesStand
 		lea	(Player_2).w,a1
-		bsr.s	sub_20056
-		bra.w	loc_20088
+		bsr.s	AIZLRZEMZRock_LaunchStandingKnuckles
+		bra.w	AIZLRZEMZRock_BreakFromKnucklesStand
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_20056:
+AIZLRZEMZRock_LaunchStandingKnuckles:
 		bset	#Status_Roll,status(a1)
 		move.b	#$E,y_radius(a1)
 		move.b	#7,x_radius(a1)
@@ -44434,61 +44434,61 @@ sub_20056:
 		bclr	#Status_OnObj,status(a1)
 		move.b	#2,routine(a1)
 		rts
-; End of function sub_20056
+; End of function AIZLRZEMZRock_LaunchStandingKnuckles
 
 ; ---------------------------------------------------------------------------
 
-loc_20088:
+AIZLRZEMZRock_BreakFromKnucklesStand:
 		move.w	$38(a0),(Chain_bonus_counter).w
 		andi.b	#$E7,status(a0)
-		move.l	#loc_1FC16,(a0)
-		bsr.w	sub_2011E
-		bra.w	loc_1FC16
+		move.l	#AIZLRZEMZRock_DebrisInit,(a0)
+		bsr.w	AIZLRZEMZRock_SpawnDebris
+		bra.w	AIZLRZEMZRock_DebrisInit
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_200A2:
+AIZLRZEMZRock_UpdatePushOffset:
 		move.b	status(a0),d3
 		andi.b	#pushing_mask,d3
-		beq.w	locret_200CA
+		beq.w	AIZLRZEMZRock_UpdatePushOffsetReturn
 		move.w	x_pos(a0),d2
 		lea	(Player_1).w,a1
 		move.b	$3A(a0),d0
 		moveq	#p1_pushing_bit,d6
-		bsr.s	sub_200CC
+		bsr.s	AIZLRZEMZRock_UpdatePlayerPushOffset
 		lea	(Player_2).w,a1
 		move.b	$3B(a0),d0
 		moveq	#p2_pushing_bit,d6
-		bsr.s	sub_200CC
+		bsr.s	AIZLRZEMZRock_UpdatePlayerPushOffset
 
-locret_200CA:
+AIZLRZEMZRock_UpdatePushOffsetReturn:
 		rts
-; End of function sub_200A2
+; End of function AIZLRZEMZRock_UpdatePushOffset
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_200CC:
+AIZLRZEMZRock_UpdatePlayerPushOffset:
 		btst	d6,d3
-		beq.s	locret_2011C
+		beq.s	AIZLRZEMZRock_UpdatePlayerPushReturn
 		cmp.w	x_pos(a1),d2
-		bhs.s	locret_2011C
+		bhs.s	AIZLRZEMZRock_UpdatePlayerPushReturn
 		btst	#5,d0
-		beq.s	locret_2011C
+		beq.s	AIZLRZEMZRock_UpdatePlayerPushReturn
 		subq.w	#1,$40(a0)
-		bpl.s	locret_2011C
+		bpl.s	AIZLRZEMZRock_UpdatePlayerPushReturn
 		move.w	#$10,$40(a0)
 		tst.w	$42(a0)
-		beq.s	locret_2011C
+		beq.s	AIZLRZEMZRock_UpdatePlayerPushReturn
 		subq.w	#1,$42(a0)
 		subq.w	#1,x_pos(a0)
 		subq.w	#1,x_pos(a1)
 		jsr	(ObjCheckFloorDist).l
 		add.w	d1,y_pos(a0)
 		move.w	respawn_addr(a0),d0
-		beq.s	locret_2011C
+		beq.s	AIZLRZEMZRock_UpdatePlayerPushReturn
 		movea.w	d0,a2
 		move.b	$43(a0),d0
 		subi.b	#$40,d0
@@ -44496,30 +44496,30 @@ sub_200CC:
 		move.b	d0,(a2)
 		bset	#7,(a2)
 
-locret_2011C:
+AIZLRZEMZRock_UpdatePlayerPushReturn:
 		rts
-; End of function sub_200CC
+; End of function AIZLRZEMZRock_UpdatePlayerPushOffset
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2011E:
+AIZLRZEMZRock_SpawnDebris:
 		cmpi.b	#9,(Current_zone).w
-		beq.w	loc_201C4
+		beq.w	AIZLRZEMZRock_SpawnLRZDebris
 		moveq	#0,d0
 		move.b	mapping_frame(a0),d0
 		add.w	d0,d0
-		lea	(off_202E4).l,a4
+		lea	(AIZLRZEMZRock_DebrisVelocityIndex).l,a4
 		adda.w	(a4,d0.w),a4
-; End of function sub_2011E
+; End of function AIZLRZEMZRock_SpawnDebris
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2013A:
-		lea	(off_2026E).l,a3
+AIZLRZEMZRock_SpawnDebrisPieces:
+		lea	(AIZLRZEMZRock_DebrisOffsetIndex).l,a3
 		adda.w	(a3,d0.w),a3
 		move.w	(a3)+,d1
 		move.l	(a0),d4
@@ -44528,14 +44528,14 @@ sub_2013A:
 		move.w	y_pos(a0),d3
 		move.w	#3,d6
 		movea.l	a0,a1
-		bra.s	loc_20162
+		bra.s	AIZLRZEMZRock_InitDebrisPiece
 ; ---------------------------------------------------------------------------
 
-loc_2015C:
+AIZLRZEMZRock_AllocateDebrisPiece:
 		bsr.w	AllocateObjectAfterCurrent
-		bne.s	loc_201BC
+		bne.s	AIZLRZEMZRock_PlayCollapseSfx
 
-loc_20162:
+AIZLRZEMZRock_InitDebrisPiece:
 		move.l	d4,(a1)
 		move.l	mappings(a0),mappings(a1)
 		move.b	d5,render_flags(a1)
@@ -44564,33 +44564,33 @@ loc_20162:
 		move.b	d6,mapping_frame(a1)
 		addq.b	#1,d6
 		cmpi.b	#7,d6
-		blo.s	loc_201B8
+		blo.s	AIZLRZEMZRock_NextDebrisFrame
 		move.w	#3,d6
 
-loc_201B8:
-		dbf	d1,loc_2015C
+AIZLRZEMZRock_NextDebrisFrame:
+		dbf	d1,AIZLRZEMZRock_AllocateDebrisPiece
 
-loc_201BC:
+AIZLRZEMZRock_PlayCollapseSfx:
 		moveq	#signextendB(sfx_Collapse),d0
 		jmp	(Play_SFX).l
-; End of function sub_2013A
+; End of function AIZLRZEMZRock_SpawnDebrisPieces
 
 ; ---------------------------------------------------------------------------
 
-loc_201C4:
-		move.l	#loc_1FC66,(a0)
+AIZLRZEMZRock_SpawnLRZDebris:
+		move.l	#AIZLRZEMZRock_LRZDebrisMain,(a0)
 		moveq	#0,d0
 		move.b	mapping_frame(a0),d0
 		subq.b	#4,d0
 		add.w	d0,d0
-		lea	(off_202E4).l,a4
+		lea	(AIZLRZEMZRock_DebrisVelocityIndex).l,a4
 		adda.w	(a4,d0.w),a4
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_201DE:
-		lea	(off_2026E).l,a3
+AIZLRZEMZRock_SpawnLRZDebrisPieces:
+		lea	(AIZLRZEMZRock_DebrisOffsetIndex).l,a3
 		adda.w	(a3,d0.w),a3
 		move.w	(a3)+,d1
 		move.l	(a0),d4
@@ -44599,14 +44599,14 @@ sub_201DE:
 		move.w	y_pos(a0),d3
 		move.w	#3,d6
 		movea.l	a0,a1
-		bra.s	loc_20206
+		bra.s	AIZLRZEMZRock_InitLRZDebrisPiece
 ; ---------------------------------------------------------------------------
 
-loc_20200:
+AIZLRZEMZRock_AllocateLRZDebrisPiece:
 		bsr.w	AllocateObjectAfterCurrent
-		bne.s	loc_20266
+		bne.s	AIZLRZEMZRock_PlayLRZCollapseSfx
 
-loc_20206:
+AIZLRZEMZRock_InitLRZDebrisPiece:
 		move.l	d4,(a1)
 		move.l	mappings(a0),mappings(a1)
 		move.b	d5,render_flags(a1)
@@ -44637,24 +44637,24 @@ loc_20206:
 		andi.b	#$FC,d0
 		move.b	d0,$3C(a1)
 		move.b	#7,anim_frame_timer(a1)
-		dbf	d1,loc_20200
+		dbf	d1,AIZLRZEMZRock_AllocateLRZDebrisPiece
 
-loc_20266:
+AIZLRZEMZRock_PlayLRZCollapseSfx:
 		moveq	#signextendB(sfx_Collapse),d0
 		jmp	(Play_SFX).l
-; End of function sub_201DE
+; End of function AIZLRZEMZRock_SpawnLRZDebrisPieces
 
 ; ---------------------------------------------------------------------------
-off_2026E:
-		dc.w word_2027E-off_2026E
-		dc.w word_20290-off_2026E
-		dc.w word_2029C-off_2026E
-		dc.w word_202A6-off_2026E
-		dc.w word_202B4-off_2026E
-		dc.w word_202C8-off_2026E
-		dc.w word_202C8-off_2026E
-		dc.w word_202DC-off_2026E
-word_2027E:
+AIZLRZEMZRock_DebrisOffsetIndex:
+		dc.w AIZLRZEMZRock_DebrisOffsets0-AIZLRZEMZRock_DebrisOffsetIndex
+		dc.w AIZLRZEMZRock_DebrisOffsets1-AIZLRZEMZRock_DebrisOffsetIndex
+		dc.w AIZLRZEMZRock_DebrisOffsets2-AIZLRZEMZRock_DebrisOffsetIndex
+		dc.w AIZLRZEMZRock_DebrisOffsets3-AIZLRZEMZRock_DebrisOffsetIndex
+		dc.w AIZLRZEMZRock_DebrisOffsets4-AIZLRZEMZRock_DebrisOffsetIndex
+		dc.w AIZLRZEMZRock_DebrisOffsets5-AIZLRZEMZRock_DebrisOffsetIndex
+		dc.w AIZLRZEMZRock_DebrisOffsets5-AIZLRZEMZRock_DebrisOffsetIndex
+		dc.w AIZLRZEMZRock_DebrisOffsets7-AIZLRZEMZRock_DebrisOffsetIndex
+AIZLRZEMZRock_DebrisOffsets0:
 		dc.w 8-1
 		dc.b   -8, -$18
 		dc.b   $B, -$1C
@@ -44664,20 +44664,20 @@ word_2027E:
 		dc.b    4,   $C
 		dc.b  -$C,  $1C
 		dc.b   $C,  $1C
-word_20290:
+AIZLRZEMZRock_DebrisOffsets1:
 		dc.w 5-1
 		dc.b   -4,  -$C
 		dc.b   $B,  -$C
 		dc.b   -4,   -4
 		dc.b  -$C,   $C
 		dc.b   $C,   $C
-word_2029C:
+AIZLRZEMZRock_DebrisOffsets2:
 		dc.w 4-1
 		dc.b   -4,   -4
 		dc.b   $C,   -4
 		dc.b  -$C,    4
 		dc.b   $C,    4
-word_202A6:
+AIZLRZEMZRock_DebrisOffsets3:
 		dc.w 6-1
 		dc.b   -8,   -8
 		dc.b    8,   -8
@@ -44685,7 +44685,7 @@ word_202A6:
 		dc.b    8,    0
 		dc.b   -8,    8
 		dc.b    8,    8
-word_202B4:
+AIZLRZEMZRock_DebrisOffsets4:
 		dc.w 6-1
 		dc.b    0,  $10,   6
 		dc.b    0,    0,   7
@@ -44693,7 +44693,7 @@ word_202B4:
 		dc.b    8,  $20,   0
 		dc.b    0, -$18,   6
 		dc.b    0,  $1B,   7
-word_202C8:
+AIZLRZEMZRock_DebrisOffsets5:
 		dc.w 6-1
 		dc.b    8,    3,   7
 		dc.b   -8,   -5,   1
@@ -44701,20 +44701,20 @@ word_202C8:
 		dc.b -$18,    0,   7
 		dc.b    0,    0,   6
 		dc.b  $18,    0,   6
-word_202DC:
+AIZLRZEMZRock_DebrisOffsets7:
 		dc.w 2-1
 		dc.b    0,  $10,   1
 		dc.b    0, -$10,   0
-off_202E4:
-		dc.w word_202F4-off_202E4
-		dc.w word_20334-off_202E4
-		dc.w word_20348-off_202E4
-		dc.w word_20358-off_202E4
-		dc.w word_203A0-off_202E4
-		dc.w word_203C0-off_202E4
-		dc.w word_203C0-off_202E4
-		dc.w word_203A0-off_202E4
-word_202F4:
+AIZLRZEMZRock_DebrisVelocityIndex:
+		dc.w AIZLRZEMZRock_DebrisVelocitiesLeft0-AIZLRZEMZRock_DebrisVelocityIndex
+		dc.w AIZLRZEMZRock_DebrisVelocities1-AIZLRZEMZRock_DebrisVelocityIndex
+		dc.w AIZLRZEMZRock_DebrisVelocities2-AIZLRZEMZRock_DebrisVelocityIndex
+		dc.w AIZLRZEMZRock_DebrisVelocities3-AIZLRZEMZRock_DebrisVelocityIndex
+		dc.w AIZLRZEMZRock_DebrisVelocities4-AIZLRZEMZRock_DebrisVelocityIndex
+		dc.w AIZLRZEMZRock_DebrisVelocities5-AIZLRZEMZRock_DebrisVelocityIndex
+		dc.w AIZLRZEMZRock_DebrisVelocities5-AIZLRZEMZRock_DebrisVelocityIndex
+		dc.w AIZLRZEMZRock_DebrisVelocities4-AIZLRZEMZRock_DebrisVelocityIndex
+AIZLRZEMZRock_DebrisVelocitiesLeft0:
 		dc.w -$300, -$300
 		dc.w -$2C0, -$280
 		dc.w -$2C0, -$280
@@ -44723,7 +44723,7 @@ word_202F4:
 		dc.w -$240, -$180
 		dc.w -$240, -$100
 		dc.w -$200, -$100
-word_20314:
+AIZLRZEMZRock_DebrisVelocitiesRight0:
 		dc.w  $2C0, -$280
 		dc.w  $300, -$300
 		dc.w  $280, -$200
@@ -44732,39 +44732,39 @@ word_20314:
 		dc.w  $280, -$180
 		dc.w  $200, -$100
 		dc.w  $240, -$100
-word_20334:
+AIZLRZEMZRock_DebrisVelocities1:
 		dc.w -$200, -$200
 		dc.w  $200, -$200
 		dc.w -$100, -$1E0
 		dc.w -$1B0, -$1C0
 		dc.w  $1C0, -$1C0
-word_20348:
+AIZLRZEMZRock_DebrisVelocities2:
 		dc.w -$100, -$200
 		dc.w  $100, -$1E0
 		dc.w -$1B0, -$1C0
 		dc.w  $1C0, -$1C0
-word_20358:
+AIZLRZEMZRock_DebrisVelocities3:
 		dc.w  -$B0, -$1E0
 		dc.w   $B0, -$1D0
 		dc.w  -$80, -$200
 		dc.w   $80, -$1E0
 		dc.w  -$D8, -$1C0
 		dc.w   $E0, -$1C0
-word_20370:
+AIZLRZEMZRock_CompetitionDebrisVelocitiesLeft:
 		dc.w -$2C0, -$280
 		dc.w -$280, -$200
 		dc.w -$280, -$180
 		dc.w -$240, -$180
 		dc.w -$240, -$100
 		dc.w -$200, -$100
-word_20388:
+AIZLRZEMZRock_CompetitionDebrisVelocitiesRight:
 		dc.w  $2C0, -$280
 		dc.w  $280, -$200
 		dc.w  $280, -$180
 		dc.w  $240, -$180
 		dc.w  $240, -$100
 		dc.w  $200, -$100
-word_203A0:
+AIZLRZEMZRock_DebrisVelocities4:
 		dc.w -$300, -$300
 		dc.w -$2C0, -$280
 		dc.w -$2C0, -$280
@@ -44773,7 +44773,7 @@ word_203A0:
 		dc.w -$240, -$180
 		dc.w -$240, -$100
 		dc.w -$200, -$100
-word_203C0:
+AIZLRZEMZRock_DebrisVelocities5:
 		dc.w   $C0, -$1E0
 		dc.w  -$80, -$1A0
 		dc.w  -$A0, -$160
