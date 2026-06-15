@@ -37409,14 +37409,19 @@ Load_Sprites_Index:
 ; ---------------------------------------------------------------------------
 
 loc_1B6A8:
+		; Choose which object pointer table the object loader will use.
+		; Sprite_Listing3 is selected for zone IDs 0-$6 and $E-$15;
+		; Sprite_ListingK is selected for zone IDs $7-$D and $16+.
+		; The same object ID can therefore resolve to different object
+		; code depending on Current_zone.
 		move.l	#Sprite_ListingK,d0
 		move.b	(Current_zone).w,d1
 		cmpi.b	#$16,d1
-		bhs.s	loc_1B6CA
+		bhs.s	loc_1B6CA			; use Sprite_ListingK
 		cmpi.b	#$E,d1
-		bhs.s	loc_1B6C4
+		bhs.s	loc_1B6C4			; use Sprite_Listing3
 		cmpi.b	#7,d1
-		bhs.s	loc_1B6CA
+		bhs.s	loc_1B6CA			; use Sprite_ListingK
 
 loc_1B6C4:
 		move.l	#Sprite_Listing3,d0
