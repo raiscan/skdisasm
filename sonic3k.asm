@@ -42279,9 +42279,9 @@ Obj_AIZ1Tree:
 		move.b	#8,width_pixels(a0)
 		move.b	#4,render_flags(a0)
 		move.w	#make_art_tile($001,2,0),art_tile(a0)
-		move.l	#loc_1E7B0,(a0)
+		move.l	#AIZ1Tree_Display,(a0)
 
-loc_1E7B0:
+AIZ1Tree_Display:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
@@ -42291,9 +42291,9 @@ Obj_AIZ1ZiplinePeg:
 		move.b	#$20,width_pixels(a0)
 		move.b	#4,render_flags(a0)
 		move.w	#make_art_tile(ArtTile_AIZSlideRope,2,0),art_tile(a0)
-		move.l	#loc_1E7DC,(a0)
+		move.l	#AIZ1ZiplinePeg_Display,(a0)
 
-loc_1E7DC:
+AIZ1ZiplinePeg_Display:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
@@ -43605,57 +43605,57 @@ sub_1F734:
 
 Obj_AIZHollowTree:
 		move.b	#$D0,width_pixels(a0)
-		move.l	#loc_1F752,(a0)
+		move.l	#AIZHollowTree_Main,(a0)
 
-loc_1F752:
-		bsr.w	sub_1F7B8
+AIZHollowTree_Main:
+		bsr.w	AIZHollowTree_CheckPlayers
 		move.b	status(a0),d0
 		andi.b	#standing_mask,d0
-		bne.s	loc_1F7B2
+		bne.s	AIZHollowTree_DeleteIfOffscreen
 		tst.w	$38(a0)
-		beq.s	loc_1F7B2
+		beq.s	AIZHollowTree_DeleteIfOffscreen
 		subq.w	#1,$38(a0)
-		bne.s	loc_1F77A
+		bne.s	AIZHollowTree_UpdateCameraLock
 		move.w	#$1300,(Camera_min_X_pos).w
 		move.w	#$4000,(Camera_max_X_pos).w
-		bra.s	loc_1F7B2
+		bra.s	AIZHollowTree_DeleteIfOffscreen
 ; ---------------------------------------------------------------------------
 
-loc_1F77A:
+AIZHollowTree_UpdateCameraLock:
 		cmpi.w	#$1300,(Camera_min_X_pos).w
-		beq.s	loc_1F796
+		beq.s	AIZHollowTree_CheckCameraMax
 		cmpi.w	#$2D00,(Player_1+x_pos).w
-		blo.s	loc_1F792
+		blo.s	AIZHollowTree_EaseCameraMin
 		move.w	#$1300,(Camera_min_X_pos).w
-		bra.s	loc_1F796
+		bra.s	AIZHollowTree_CheckCameraMax
 ; ---------------------------------------------------------------------------
 
-loc_1F792:
+AIZHollowTree_EaseCameraMin:
 		subq.w	#4,(Camera_min_X_pos).w
 
-loc_1F796:
+AIZHollowTree_CheckCameraMax:
 		cmpi.w	#$4000,(Camera_max_X_pos).w
-		beq.s	loc_1F7B2
+		beq.s	AIZHollowTree_DeleteIfOffscreen
 		cmpi.w	#$2D00,(Player_1+x_pos).w
-		bhs.s	loc_1F7AE
+		bhs.s	AIZHollowTree_EaseCameraMax
 		move.w	#$4000,(Camera_max_X_pos).w
-		bra.s	loc_1F7B2
+		bra.s	AIZHollowTree_DeleteIfOffscreen
 ; ---------------------------------------------------------------------------
 
-loc_1F7AE:
+AIZHollowTree_EaseCameraMax:
 		addq.w	#4,(Camera_max_X_pos).w
 
-loc_1F7B2:
+AIZHollowTree_DeleteIfOffscreen:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1F7B8:
+AIZHollowTree_CheckPlayers:
 		lea	(Player_1).w,a1
 		lea	$30(a0),a2
 		moveq	#p1_standing_bit,d6
-		bsr.s	sub_1F7CE
+		bsr.s	AIZHollowTree_CheckPlayer
 		lea	(Player_2).w,a1
 		lea	$34(a0),a2
 	if FixBugs
@@ -43665,63 +43665,63 @@ sub_1F7B8:
 		; a call to Perform_Player_DPLC, causing player 2 to behave erratically
 		addq.b	#p2_standing_bit-p1_standing_bit,d6
 	endif
-; End of function sub_1F7B8
+; End of function AIZHollowTree_CheckPlayers
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1F7CE:
+AIZHollowTree_CheckPlayer:
 		btst	d6,status(a0)
-		bne.w	loc_1F85C
+		bne.w	AIZHollowTree_UpdateRidingPlayer
 		btst	#Status_InAir,status(a1)
-		bne.w	locret_1F85A
+		bne.w	AIZHollowTree_PlayerReturn
 		move.w	x_pos(a1),d0
 		addi.w	#$10,d0
 		sub.w	x_pos(a0),d0
-		bcs.s	locret_1F85A
+		bcs.s	AIZHollowTree_PlayerReturn
 		cmpi.w	#$40,d0
-		bge.s	locret_1F85A
+		bge.s	AIZHollowTree_PlayerReturn
 		move.w	y_pos(a1),d0
 		sub.w	y_pos(a0),d0
 		cmpi.w	#-$5A,d0
-		blt.s	locret_1F85A
+		blt.s	AIZHollowTree_PlayerReturn
 		cmpi.w	#$A0,d0
-		bgt.s	locret_1F85A
+		bgt.s	AIZHollowTree_PlayerReturn
 		cmpi.w	#$600,x_vel(a1)
-		blt.s	locret_1F85A
+		blt.s	AIZHollowTree_PlayerReturn
 		tst.b	object_control(a1)
-		bne.s	locret_1F85A
+		bne.s	AIZHollowTree_PlayerReturn
 		bsr.w	RideObject_SetRide
 		move.l	#0,(a2)
 		bset	#6,object_control(a1)
 		bset	#1,object_control(a1)
 		move.b	#0,anim(a1)
 		cmpa.w	#Player_1,a1
-		bne.s	locret_1F85A
+		bne.s	AIZHollowTree_PlayerReturn
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_1F848
+		bne.w	AIZHollowTree_LockCameraAfterCapture
 		move.l	#Obj_AIZ1TreeRevealControl,(a1)
 
-loc_1F848:
+AIZHollowTree_LockCameraAfterCapture:
 		move.w	#$2C60,(Camera_min_X_pos).w
 		move.w	#$2C60,(Camera_max_X_pos).w
 		move.w	#$3C,$38(a0)
 
-locret_1F85A:
+AIZHollowTree_PlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1F85C:
+AIZHollowTree_UpdateRidingPlayer:
 		move.w	ground_vel(a1),d0
-		bpl.s	loc_1F864
+		bpl.s	AIZHollowTree_CheckRidingSpeed
 		neg.w	d0
 
-loc_1F864:
+AIZHollowTree_CheckRidingSpeed:
 		cmpi.w	#$600,d0
-		blo.w	loc_1F8FE
+		blo.w	AIZHollowTree_FallIfProgressComplete
 		btst	#Status_InAir,status(a1)
-		bne.s	loc_1F88C
+		bne.s	AIZHollowTree_CheckAirborneBounds
 		move.w	y_pos(a1),d0
 		sub.w	y_pos(a0),d0
 		addi.w	#$90,d0
@@ -43731,13 +43731,13 @@ loc_1F864:
 		bra.s	AIZTree_FallOff
 ; ---------------------------------------------------------------------------
 
-loc_1F88C:
+AIZHollowTree_CheckAirborneBounds:
 		cmpi.w	#$2C99,x_pos(a1)
-		bhs.s	loc_1F8A0
+		bhs.s	AIZHollowTree_CheckRightBound
 		move.w	#$2C99,x_pos(a1)
 		move.w	#$400,x_vel(a1)
 
-loc_1F8A0:
+AIZHollowTree_CheckRightBound:
 		cmpi.w	#$2D66,x_pos(a1)
 		blo.s	AIZTree_FallOff
 		move.w	#$2D66,x_pos(a1)
@@ -43760,7 +43760,7 @@ AIZTree_FallOff:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1F8FE:
+AIZHollowTree_FallIfProgressComplete:
 		cmpi.w	#$400,(a2)
 		bhs.s	AIZTree_FallOff
 		move.l	d6,-(sp)
@@ -43769,29 +43769,29 @@ loc_1F8FE:
 		movea.l	(sp)+,a1
 		move.l	(sp)+,d6
 		bra.s	AIZTree_FallOff
-; End of function sub_1F7CE
+; End of function AIZHollowTree_CheckPlayer
 
 ; ---------------------------------------------------------------------------
 		; unused
-		bra.w	loc_1F88C
+		bra.w	AIZHollowTree_CheckAirborneBounds
 
 ; =============== S U B R O U T I N E =======================================
 
 
 AIZTree_SetPlayerPos:
 		btst	#Status_OnObj,status(a1)
-		beq.w	locret_1F85A
+		beq.w	AIZHollowTree_PlayerReturn
 		move.w	ground_vel(a1),d0
 		ext.l	d0
 		lsl.l	#8,d0
 		add.l	d0,(a2)
 		bmi.s	AIZTree_FallOff
 		cmpi.w	#$400,(a2)
-		blo.s	loc_1F93C
+		blo.s	AIZHollowTree_UpdatePlayerPosition
 		move.w	#$1300,(Camera_min_X_pos).w
 		move.w	#$4000,(Camera_max_X_pos).w
 
-loc_1F93C:
+AIZHollowTree_UpdatePlayerPosition:
 		move.w	x_pos(a1),d2
 		move.w	(a2),d0
 		lsr.w	#1,d0
@@ -104418,27 +104418,27 @@ AIZ1SE_ChangeChunk4:
 
 Obj_AIZ1TreeRevealControl:
 		tst.w	$2E(a0)
-		beq.s	loc_4FA1E
+		beq.s	AIZ1TreeRevealControl_Main
 		tst.w	(Events_fg_4).w
-		bne.s	loc_4FA1E
+		bne.s	AIZ1TreeRevealControl_Main
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_4FA1E:
+AIZ1TreeRevealControl_Main:
 		subq.w	#1,$2E(a0)
 		move.w	#$480,d0
 		sub.w	(Player_1+y_pos).w,d0
 		lsr.w	#3,d0
 		addq.w	#3,d0
 		cmp.w	(Events_fg_4).w,d0
-		bhs.s	loc_4FA3C
+		bhs.s	AIZ1TreeRevealControl_Increment
 		btst	#0,$2F(a0)
-		beq.s	locret_4FA40
+		beq.s	AIZ1TreeRevealControl_Return
 
-loc_4FA3C:
+AIZ1TreeRevealControl_Increment:
 		addq.w	#1,(Events_fg_4).w
 
-locret_4FA40:
+AIZ1TreeRevealControl_Return:
 		rts
 
 ; =============== S U B R O U T I N E =======================================
