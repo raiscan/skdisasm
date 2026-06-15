@@ -46102,8 +46102,8 @@ Map_LRZBreakableWall:
 
 Obj_AIZRideVine:
 		movea.l	a0,a1
-		move.l	#loc_21D28,(a1)
-		bsr.w	sub_21D00
+		move.l	#AIZRideVine_Main,(a1)
+		bsr.w	AIZRideVine_SetCommonAttributes
 		move.b	#$21,mapping_frame(a1)
 		move.w	x_pos(a0),d2
 		move.w	y_pos(a0),d3
@@ -46116,40 +46116,40 @@ Obj_AIZRideVine:
 		moveq	#3,d1
 		addq.w	#1,d1
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_21CFE
+		bne.w	AIZRideVine_RunMain
 		move.w	a1,$3E(a0)
-		move.l	#loc_21F80,(a1)
+		move.l	#AIZRideVine_AnchorSwing,(a1)
 		move.w	a0,$3C(a1)
-		bra.s	loc_21CD0
+		bra.s	AIZRideVine_InitSegment
 ; ---------------------------------------------------------------------------
 
-loc_21CB8:
+AIZRideVine_CreateSegment:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_21CFE
-		move.l	#loc_22014,(a1)
+		bne.w	AIZRideVine_RunMain
+		move.l	#AIZRideVine_Segment,(a1)
 		move.w	a2,$3C(a1)
 		move.w	a1,$3E(a2)
 
-loc_21CD0:
+AIZRideVine_InitSegment:
 		movea.l	a1,a2
-		bsr.s	sub_21D00
+		bsr.s	AIZRideVine_SetCommonAttributes
 		move.w	d2,x_pos(a1)
 		move.w	d3,y_pos(a1)
 		addi.w	#$10,d3
 		addq.w	#1,$36(a0)
 		move.w	$36(a0),$36(a1)
-		dbf	d1,loc_21CB8
+		dbf	d1,AIZRideVine_CreateSegment
 		move.l	#Obj_AIZRideVineHandle,(a1)
 		move.b	#$20,mapping_frame(a1)
 		move.w	a1,$40(a0)
 
-loc_21CFE:
-		bra.s	loc_21D28
+AIZRideVine_RunMain:
+		bra.s	AIZRideVine_Main
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_21D00:
+AIZRideVine_SetCommonAttributes:
 		move.b	#4,render_flags(a1)
 		move.b	#8,width_pixels(a1)
 		move.b	#8,height_pixels(a1)
@@ -46157,32 +46157,32 @@ sub_21D00:
 		move.l	#Map_AIZMHZRideVine,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZSwingVine,0,0),art_tile(a1)
 		rts
-; End of function sub_21D00
+; End of function AIZRideVine_SetCommonAttributes
 
 ; ---------------------------------------------------------------------------
 
-loc_21D28:
+AIZRideVine_Main:
 		movea.w	$40(a0),a1
 		tst.w	$32(a1)
-		beq.s	loc_21D48
-		move.l	#loc_21D4C,(a0)
+		beq.s	AIZRideVine_Draw
+		move.l	#AIZRideVine_MoveToTarget,(a0)
 		movea.w	$3E(a0),a1
 		move.w	#1,$2E(a1)
 		move.w	#0,$38(a1)
 
-loc_21D48:
-		bra.w	loc_21F38
+AIZRideVine_Draw:
+		bra.w	AIZRideVine_DrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_21D4C:
+AIZRideVine_MoveToTarget:
 		addi.l	#$80000,x_pos(a0)
 		addi.l	#$20000,y_pos(a0)
 		move.w	x_pos(a0),d0
 		cmp.w	$46(a0),d0
-		blo.w	loc_21DEE
+		blo.w	AIZRideVine_DrawAfterMove
 		tst.b	subtype(a0)
-		bpl.s	loc_21DC2
-		move.l	#loc_21DF2,(a0)
+		bpl.s	AIZRideVine_StartSwing
+		move.l	#AIZRideVine_DetachedMove,(a0)
 		move.w	#$800,x_vel(a0)
 		move.w	#$200,y_vel(a0)
 		move.l	#Map_AnimatedStillSprites,mappings(a0)
@@ -46194,64 +46194,64 @@ loc_21D4C:
 		movea.w	$40(a0),a1
 		lea	$32(a1),a2
 		tst.b	(a2)
-		beq.s	loc_21DB6
+		beq.s	AIZRideVine_SetP2ForcedRelease
 		move.b	#$81,(a2)
 
-loc_21DB6:
+AIZRideVine_SetP2ForcedRelease:
 		addq.w	#1,a2
 		tst.b	(a2)
-		beq.s	loc_21DC0
+		beq.s	AIZRideVine_DetachedDraw
 		move.b	#$81,(a2)
 
-loc_21DC0:
-		bra.s	loc_21DEE
+AIZRideVine_DetachedDraw:
+		bra.s	AIZRideVine_DrawAfterMove
 ; ---------------------------------------------------------------------------
 
-loc_21DC2:
-		move.l	#loc_21E14,(a0)
+AIZRideVine_StartSwing:
+		move.l	#AIZRideVine_SwingUp,(a0)
 		movea.w	$3E(a0),a1
-		move.l	#loc_21FE8,(a1)
+		move.l	#AIZRideVine_LinkedAnchor,(a1)
 		move.w	#0,$3A(a1)
 		movea.w	$40(a0),a1
 		move.w	#1,$30(a1)
 		move.w	#0,angle(a0)
 		move.w	#$400,$3A(a0)
 
-loc_21DEE:
-		bra.w	loc_21F38
+AIZRideVine_DrawAfterMove:
+		bra.w	AIZRideVine_DrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_21DF2:
+AIZRideVine_DetachedMove:
 		jsr	(MoveSprite).l
 		tst.b	render_flags(a0)
-		bmi.s	loc_21E04
+		bmi.s	AIZRideVine_DetachedAnimate
 		move.w	#$7FF0,x_pos(a0)
 
-loc_21E04:
+AIZRideVine_DetachedAnimate:
 		lea	(Ani_AnimatedStillSprites).l,a1
 		jsr	(Animate_Sprite).l
-		bra.w	loc_21F38
+		bra.w	AIZRideVine_DrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_21E14:
+AIZRideVine_SwingUp:
 		movea.w	$40(a0),a1
 		move.w	$3A(a0),d0
 		move.b	angle(a0),d1
 		ext.w	d1
-		bpl.s	loc_21E26
+		bpl.s	AIZRideVine_ApplySwingAngle
 		neg.w	d1
 
-loc_21E26:
+AIZRideVine_ApplySwingAngle:
 		add.w	d1,d1
 		sub.w	d1,d0
 		sub.w	d0,angle(a0)
 		tst.w	$32(a1)
-		bne.s	loc_21E68
+		bne.s	AIZRideVine_DrawSwing
 		move.b	angle(a0),d0
 		addq.b	#8,d0
 		cmpi.b	#$10,d0
-		bhs.s	loc_21E68
-		move.l	#loc_21E6C,(a0)
+		bhs.s	AIZRideVine_DrawSwing
+		move.l	#AIZRideVine_DampenSwing,(a0)
 		move.w	#0,$42(a0)
 		move.w	#-$300,$44(a0)
 		move.w	#$1000,$38(a0)
@@ -46259,132 +46259,132 @@ loc_21E26:
 		movea.w	$40(a0),a1
 		move.w	#2,$30(a1)
 
-loc_21E68:
-		bra.w	loc_21F38
+AIZRideVine_DrawSwing:
+		bra.w	AIZRideVine_DrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_21E6C:
+AIZRideVine_DampenSwing:
 		moveq	#0,d2
 		move.b	$38(a0),d2
 		move.w	$44(a0),d0
 		move.w	#0,d1
 		tst.w	$2E(a0)
-		bne.s	loc_21EC4
+		bne.s	AIZRideVine_DampenSwingReverse
 		add.w	d2,d0
 		move.w	d0,$44(a0)
 		add.w	d0,$42(a0)
 		cmp.b	$42(a0),d1
-		bgt.s	loc_21EEE
+		bgt.s	AIZRideVine_UpdateSwingState
 		asr.w	#4,d0
 		sub.w	d0,$44(a0)
 		move.w	#1,$2E(a0)
 		cmpi.w	#$C00,$38(a0)
-		beq.s	loc_21EAC
+		beq.s	AIZRideVine_EndDampen
 		subi.w	#$40,$38(a0)
-		bra.s	loc_21EEE
+		bra.s	AIZRideVine_UpdateSwingState
 ; ---------------------------------------------------------------------------
 
-loc_21EAC:
-		move.l	#loc_21F0A,(a0)
+AIZRideVine_EndDampen:
+		move.l	#AIZRideVine_IdleSway,(a0)
 		move.w	#0,$38(a0)
 		movea.w	$40(a0),a1
 		move.w	#0,$30(a1)
-		bra.s	loc_21EEE
+		bra.s	AIZRideVine_UpdateSwingState
 ; ---------------------------------------------------------------------------
 
-loc_21EC4:
+AIZRideVine_DampenSwingReverse:
 		sub.w	d2,d0
 		move.w	d0,$44(a0)
 		add.w	d0,$42(a0)
 		cmp.b	$42(a0),d1
-		ble.s	loc_21EEE
+		ble.s	AIZRideVine_UpdateSwingState
 		asr.w	#4,d0
 		sub.w	d0,$44(a0)
 		move.w	#0,$2E(a0)
 		cmpi.w	#$C00,$38(a0)
-		beq.s	loc_21EAC
+		beq.s	AIZRideVine_EndDampen
 		subi.w	#$40,$38(a0)
 
-loc_21EEE:
+AIZRideVine_UpdateSwingState:
 		move.w	$42(a0),d0
 		move.w	d0,angle(a0)
 		asr.w	#3,d0
 		move.w	d0,$3A(a0)
 		movea.w	$3E(a0),a1
 		move.w	$3A(a0),$3A(a1)
-		bra.w	loc_21F38
+		bra.w	AIZRideVine_DrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_21F0A:
+AIZRideVine_IdleSway:
 		move.b	$38(a0),d0
 		addi.w	#$200,$38(a0)
 		jsr	(GetSineCosine).l
 		asl.w	#2,d0
 		cmpi.w	#$400,d0
-		bne.s	loc_21F26
+		bne.s	AIZRideVine_StoreIdleAngle
 		move.w	#$3FF,d0
 
-loc_21F26:
+AIZRideVine_StoreIdleAngle:
 		move.w	d0,angle(a0)
 		move.w	d0,$3A(a0)
 		movea.w	$3E(a0),a1
 		move.w	$3A(a0),$3A(a1)
 
-loc_21F38:
+AIZRideVine_DrawOrDelete:
 		move.w	x_pos(a0),d0
 		andi.w	#$FF80,d0
 		sub.w	(Camera_X_pos_coarse_back).w,d0
 		cmpi.w	#$280,d0
-		bhi.w	loc_21F52
+		bhi.w	AIZRideVine_DeleteChain
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_21F52:
+AIZRideVine_DeleteChain:
 		move.w	$36(a0),d2
 		subq.w	#1,d2
-		bcs.s	loc_21F6E
+		bcs.s	AIZRideVine_ClearRespawn
 		movea.w	$3E(a0),a2
 
-loc_21F5E:
+AIZRideVine_DeleteNextSegment:
 		movea.l	a2,a1
 		movea.w	$3E(a1),a2
 		jsr	(Delete_Referenced_Sprite).l
-		dbf	d2,loc_21F5E
+		dbf	d2,AIZRideVine_DeleteNextSegment
 
-loc_21F6E:
+AIZRideVine_ClearRespawn:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_21F7A
+		beq.s	AIZRideVine_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_21F7A:
+AIZRideVine_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_21F80:
+AIZRideVine_AnchorSwing:
 		tst.w	$2E(a0)
-		bne.s	loc_21FA8
+		bne.s	AIZRideVine_AnchorFastSwing
 		move.b	$38(a0),d0
 		addi.w	#$200,$38(a0)
 		jsr	(GetSineCosine).l
 		asl.w	#2,d0
 		cmpi.w	#$400,d0
-		bne.s	loc_21FA2
+		bne.s	AIZRideVine_AnchorStoreSlowAngle
 		move.w	#$3FF,d0
 
-loc_21FA2:
+AIZRideVine_AnchorStoreSlowAngle:
 		move.w	d0,$3A(a0)
-		bra.s	loc_21FBE
+		bra.s	AIZRideVine_AnchorUpdateFrame
 ; ---------------------------------------------------------------------------
 
-loc_21FA8:
+AIZRideVine_AnchorFastSwing:
 		move.b	$38(a0),d0
 		addi.w	#$100,$38(a0)
 		jsr	(GetSineCosine).l
 		asl.w	#3,d0
 		move.w	d0,$3A(a0)
 
-loc_21FBE:
+AIZRideVine_AnchorUpdateFrame:
 		move.w	$3A(a0),d0
 		move.w	d0,angle(a0)
 		move.b	angle(a0),d0
@@ -46397,7 +46397,7 @@ loc_21FBE:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_21FE8:
+AIZRideVine_LinkedAnchor:
 		movea.w	$3C(a0),a1
 		move.w	angle(a1),angle(a0)
 		move.b	angle(a0),d0
@@ -46410,7 +46410,7 @@ loc_21FE8:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_22014:
+AIZRideVine_Segment:
 		movea.w	$3C(a0),a1
 		move.w	$3A(a1),$3A(a0)
 		move.w	angle(a1),d0
@@ -46420,13 +46420,13 @@ loc_22014:
 		addq.b	#4,d0
 		lsr.b	#3,d0
 		move.b	d0,mapping_frame(a0)
-		bsr.w	sub_22040
+		bsr.w	AIZRideVine_PositionFromParent
 		jmp	(Draw_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_22040:
+AIZRideVine_PositionFromParent:
 		movea.w	$3C(a0),a1
 		move.b	angle(a1),d0
 		addq.b	#4,d0
@@ -46442,62 +46442,62 @@ sub_22040:
 		add.w	y_pos(a1),d1
 		move.w	d1,y_pos(a0)
 		rts
-; End of function sub_22040
+; End of function AIZRideVine_PositionFromParent
 
 ; ---------------------------------------------------------------------------
 
 Obj_AIZRideVineHandle:
 		move.w	x_pos(a0),d4
 		move.w	y_pos(a0),d5
-		bsr.w	sub_22040
+		bsr.w	AIZRideVine_PositionFromParent
 		cmp.w	x_pos(a0),d4
-		beq.s	loc_2208A
+		beq.s	AIZRideVineHandle_CheckPreviousY
 		move.w	d4,$42(a0)
 
-loc_2208A:
+AIZRideVineHandle_CheckPreviousY:
 		cmp.w	y_pos(a0),d5
-		beq.s	loc_22094
+		beq.s	AIZRideVineHandle_ProcessPlayers
 		move.w	d5,$44(a0)
 
-loc_22094:
+AIZRideVineHandle_ProcessPlayers:
 		lea	$32(a0),a2
 		lea	(Player_1).w,a1
 		move.w	(Ctrl_1_logical).w,d0
-		bsr.s	sub_220C2
+		bsr.s	AIZRideVineHandle_ProcessPlayer
 		lea	(Player_2).w,a1
 		addq.w	#1,a2
 		move.w	(Ctrl_2_logical).w,d0
-		bsr.s	sub_220C2
+		bsr.s	AIZRideVineHandle_ProcessPlayer
 		tst.w	$32(a0)
-		beq.s	loc_220BA
+		beq.s	AIZRideVineHandle_Draw
 		tst.w	$30(a0)
-		bne.s	locret_220C0
+		bne.s	AIZRideVineHandle_Return
 
-loc_220BA:
+AIZRideVineHandle_Draw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-locret_220C0:
+AIZRideVineHandle_Return:
 		rts
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_220C2:
+AIZRideVineHandle_ProcessPlayer:
 		tst.b	(a2)
-		beq.w	loc_222F4
-		bmi.w	loc_2217E
+		beq.w	AIZRideVineHandle_CheckGrab
+		bmi.w	AIZRideVineHandle_ForcedRelease
 		tst.b	render_flags(a1)
-		bpl.w	loc_22190
+		bpl.w	AIZRideVineHandle_ReleasePlayer
 		cmpi.b	#4,routine(a1)
-		bhs.w	loc_22190
+		bhs.w	AIZRideVineHandle_ReleasePlayer
 		move.b	d0,d1
 		andi.b	#button_A_mask|button_B_mask|button_C_mask,d1
-		beq.w	loc_221EC
+		beq.w	AIZRideVineHandle_HoldPlayer
 		clr.b	object_control(a1)
 		clr.b	(a2)
 		cmpi.w	#1,$30(a0)
-		beq.s	loc_2215C
+		beq.s	AIZRideVineHandle_SwingLaunch
 		move.w	x_pos(a0),d1
 		sub.w	$42(a0),d1
 		asl.w	#7,d1
@@ -46508,18 +46508,18 @@ sub_220C2:
 		move.w	d1,y_vel(a1)
 		move.b	#$3C,2(a2)
 		btst	#button_left+8,d0
-		beq.s	loc_22124
+		beq.s	AIZRideVineHandle_CheckRightLaunch
 		move.w	#-$200,x_vel(a1)
 
-loc_22124:
+AIZRideVineHandle_CheckRightLaunch:
 		btst	#button_right+8,d0
-		beq.s	loc_22130
+		beq.s	AIZRideVineHandle_AddJumpVelocity
 		move.w	#$200,x_vel(a1)
 
-loc_22130:
+AIZRideVineHandle_AddJumpVelocity:
 		addi.w	#-$380,y_vel(a1)
 
-loc_22136:
+AIZRideVineHandle_SetJumpState:
 		bset	#Status_InAir,status(a1)
 		move.b	#1,jumping(a1)
 		move.b	#$E,y_radius(a1)
@@ -46529,7 +46529,7 @@ loc_22136:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_2215C:
+AIZRideVineHandle_SwingLaunch:
 		move.b	#$3C,2(a2)
 		movea.w	$3C(a0),a3
 		move.b	angle(a3),d0
@@ -46538,37 +46538,37 @@ loc_2215C:
 		move.w	d1,x_vel(a1)
 		asl.w	#3,d0
 		move.w	d0,y_vel(a1)
-		bra.s	loc_22136
+		bra.s	AIZRideVineHandle_SetJumpState
 ; ---------------------------------------------------------------------------
 
-loc_2217E:
+AIZRideVineHandle_ForcedRelease:
 		move.w	#$300,x_vel(a1)
 		move.w	#$200,y_vel(a1)
 		bset	#Status_InAir,status(a1)
 
-loc_22190:
+AIZRideVineHandle_ReleasePlayer:
 		clr.b	object_control(a1)
 		clr.b	(a2)
 		move.b	#$3C,2(a2)
 		rts
-; End of function sub_220C2
+; End of function AIZRideVineHandle_ProcessPlayer
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2219E:
+AIZRideVineHandle_CheckButtonSequence:
 		cmpa.w	#Player_1,a1
-		bne.s	locret_221E0
+		bne.s	AIZRideVineHandle_ButtonSequenceReturn
 		tst.b	d0
-		beq.s	locret_221E0
+		beq.s	AIZRideVineHandle_ButtonSequenceReturn
 		moveq	#0,d1
 		move.b	$25(a0),d1
-		cmp.b	byte_221E2(pc,d1.w),d0
-		bne.s	loc_221DA
+		cmp.b	AIZRideVineHandle_ButtonSequence(pc,d1.w),d0
+		bne.s	AIZRideVineHandle_ResetButtonSequence
 		addq.b	#1,$25(a0)
-		move.b	byte_221E2+1(pc,d1.w),d1
-		bne.s	locret_221E0
+		move.b	AIZRideVineHandle_ButtonSequence+1(pc,d1.w),d1
+		bne.s	AIZRideVineHandle_ButtonSequenceReturn
 
 		moveq	#0,d1				; what the fuck
 		subi.w	#-Level_select_flag,d1
@@ -46582,15 +46582,15 @@ sub_2219E:
 		jsr	(Play_SFX).l
 		move.w	d1,d0
 
-loc_221DA:
+AIZRideVineHandle_ResetButtonSequence:
 		move.b	#0,$25(a0)
 
-locret_221E0:
+AIZRideVineHandle_ButtonSequenceReturn:
 		rts
-; End of function sub_2219E
+; End of function AIZRideVineHandle_CheckButtonSequence
 
 ; ---------------------------------------------------------------------------
-byte_221E2:
+AIZRideVineHandle_ButtonSequence:
 		dc.b button_left_mask
 		dc.b button_left_mask
 		dc.b button_left_mask
@@ -46604,10 +46604,10 @@ byte_221E2:
 		even
 ; ---------------------------------------------------------------------------
 
-loc_221EC:
+AIZRideVineHandle_HoldPlayer:
 		tst.w	$30(a0)
-		bne.s	loc_22258
-		bsr.s	sub_2219E
+		bne.s	AIZRideVineHandle_HoldPlayerSwinging
+		bsr.s	AIZRideVineHandle_CheckButtonSequence
 		move.w	x_pos(a0),x_pos(a1)
 		move.w	y_pos(a0),y_pos(a1)
 		addi.w	#$14,y_pos(a1)
@@ -46615,15 +46615,15 @@ loc_221EC:
 		moveq	#0,d0
 		move.b	angle(a3),d0
 		btst	#Status_Facing,status(a1)
-		beq.s	loc_2221A
+		beq.s	AIZRideVineHandle_SetHangingFrame
 		neg.b	d0
 
-loc_2221A:
+AIZRideVineHandle_SetHangingFrame:
 		addq.b	#8,d0
 		lsr.w	#4,d0
-		move.b	byte_22248(pc,d0.w),mapping_frame(a1)
+		move.b	AIZRideVineHandle_HangingFrames(pc,d0.w),mapping_frame(a1)
 
-loc_22224:
+AIZRideVineHandle_UpdatePlayerFrame:
 		move.b	status(a1),d1
 		andi.b	#1,d1
 		andi.b	#$FC,render_flags(a1)
@@ -46635,35 +46635,35 @@ loc_22224:
 		movea.l	(sp)+,a2
 		rts
 ; ---------------------------------------------------------------------------
-byte_22248:
+AIZRideVineHandle_HangingFrames:
 		dc.b  $91, $91, $90, $90, $90, $90, $90, $90, $92, $92, $92, $92, $92, $92, $91, $91
 		even
 ; ---------------------------------------------------------------------------
 
-loc_22258:
+AIZRideVineHandle_HoldPlayerSwinging:
 		movea.w	$3C(a0),a3
 		moveq	#0,d0
 		move.b	angle(a3),d0
 		btst	#Status_Facing,status(a1)
-		beq.s	loc_2226C
+		beq.s	AIZRideVineHandle_SetSwingingFrame
 		neg.b	d0
 
-loc_2226C:
+AIZRideVineHandle_SetSwingingFrame:
 		addi.b	#$10,d0
 		lsr.w	#5,d0
 		add.w	d0,d0
-		move.b	byte_222D4(pc,d0.w),mapping_frame(a1)
+		move.b	AIZRideVineHandle_SwingingFrames(pc,d0.w),mapping_frame(a1)
 		move.b	#0,anim(a1)
 		andi.w	#$FFFE,d0
-		move.b	byte_222E4(pc,d0.w),d2
-		move.b	byte_222E4+1(pc,d0.w),d3
+		move.b	AIZRideVineHandle_SwingingOffsets(pc,d0.w),d2
+		move.b	AIZRideVineHandle_SwingingOffsets+1(pc,d0.w),d3
 		ext.w	d2
 		ext.w	d3
 		btst	#Status_Facing,status(a1)
-		beq.s	loc_2229A
+		beq.s	AIZRideVineHandle_PositionHeldPlayer
 		neg.w	d2
 
-loc_2229A:
+AIZRideVineHandle_PositionHeldPlayer:
 		movea.w	$3C(a0),a3
 		move.b	angle(a3),d0
 		addq.b	#4,d0
@@ -46680,9 +46680,9 @@ loc_2229A:
 		add.w	y_pos(a3),d1
 		add.w	d3,d1
 		move.w	d1,y_pos(a1)
-		bra.w	loc_22224
+		bra.w	AIZRideVineHandle_UpdatePlayerFrame
 ; ---------------------------------------------------------------------------
-byte_222D4:
+AIZRideVineHandle_SwingingFrames:
 		dc.b  $78
 		dc.b  $78
 		dc.b  $7F
@@ -46699,7 +46699,7 @@ byte_222D4:
 		dc.b  $7A
 		dc.b  $79
 		dc.b  $79
-byte_222E4:
+AIZRideVineHandle_SwingingOffsets:
 		dc.b    0, $18
 		dc.b -$12, $13
 		dc.b -$18,   0
@@ -46711,28 +46711,28 @@ byte_222E4:
 		even
 ; ---------------------------------------------------------------------------
 
-loc_222F4:
+AIZRideVineHandle_CheckGrab:
 		tst.b	2(a2)
-		beq.s	loc_22302
+		beq.s	AIZRideVineHandle_TestGrabRange
 		subq.b	#1,2(a2)
-		bne.w	locret_2237C
+		bne.w	AIZRideVineHandle_ProcessPlayerReturn
 
-loc_22302:
+AIZRideVineHandle_TestGrabRange:
 		move.w	x_pos(a1),d0
 		sub.w	x_pos(a0),d0
 		addi.w	#$10,d0
 		cmpi.w	#$20,d0
-		bhs.w	locret_2237C
+		bhs.w	AIZRideVineHandle_ProcessPlayerReturn
 		move.w	y_pos(a1),d1
 		sub.w	y_pos(a0),d1
 		cmpi.w	#$18,d1
-		bhs.w	locret_2237C
+		bhs.w	AIZRideVineHandle_ProcessPlayerReturn
 		tst.b	object_control(a1)
-		bne.s	locret_2237C
+		bne.s	AIZRideVineHandle_ProcessPlayerReturn
 		cmpi.b	#4,routine(a1)
-		bhs.s	locret_2237C
+		bhs.s	AIZRideVineHandle_ProcessPlayerReturn
 		tst.w	(Debug_placement_mode).w
-		bne.s	locret_2237C
+		bne.s	AIZRideVineHandle_ProcessPlayerReturn
 		clr.w	x_vel(a1)
 		clr.w	y_vel(a1)
 		clr.w	ground_vel(a1)
@@ -46747,59 +46747,59 @@ loc_22302:
 		moveq	#signextendB(sfx_Grab),d0
 		jsr	(Play_SFX).l
 
-locret_2237C:
+AIZRideVineHandle_ProcessPlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
 Obj_AIZGiantRideVine:
 		movea.l	a0,a1
-		move.l	#loc_22442,(a1)
-		bsr.w	sub_2241A
+		move.l	#AIZGiantRideVine_Main,(a1)
+		bsr.w	AIZGiantRideVine_SetCommonAttributes
 		move.b	#$21,mapping_frame(a1)
 		move.w	x_pos(a0),d2
 		move.w	y_pos(a0),d3
 		move.b	subtype(a0),d1
 		andi.w	#$F,d1
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_22418
+		bne.w	AIZGiantRideVine_RunMain
 		move.w	#-$1B0,$44(a1)
 		move.w	#$800,$38(a1)
 		move.w	a1,$3E(a0)
-		move.l	#loc_2248A,(a1)
+		move.l	#AIZGiantRideVine_Anchor,(a1)
 		move.w	a0,$3C(a1)
 		move.b	subtype(a0),d0
 		andi.b	#$F0,d0
 		move.b	d0,$42(a1)
-		bra.s	loc_223EA
+		bra.s	AIZGiantRideVine_InitSegment
 ; ---------------------------------------------------------------------------
 
-loc_223D2:
+AIZGiantRideVine_CreateSegment:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	loc_22418
-		move.l	#loc_2251E,(a1)
+		bne.w	AIZGiantRideVine_RunMain
+		move.l	#AIZGiantRideVine_Segment,(a1)
 		move.w	a2,$3C(a1)
 		move.w	a1,$3E(a2)
 
-loc_223EA:
+AIZGiantRideVine_InitSegment:
 		movea.l	a1,a2
-		bsr.s	sub_2241A
+		bsr.s	AIZGiantRideVine_SetCommonAttributes
 		move.w	d2,x_pos(a1)
 		move.w	d3,y_pos(a1)
 		addi.w	#$10,d3
 		addq.w	#1,$36(a0)
 		move.w	$36(a0),$36(a1)
-		dbf	d1,loc_223D2
-		move.l	#loc_2257E,(a1)
+		dbf	d1,AIZGiantRideVine_CreateSegment
+		move.l	#AIZGiantRideVine_Handle,(a1)
 		move.b	#$20,mapping_frame(a1)
 		move.w	a1,$40(a0)
 
-loc_22418:
-		bra.s	loc_22442
+AIZGiantRideVine_RunMain:
+		bra.s	AIZGiantRideVine_Main
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2241A:
+AIZGiantRideVine_SetCommonAttributes:
 		move.b	#4,render_flags(a1)
 		move.b	#8,width_pixels(a1)
 		move.b	#8,height_pixels(a1)
@@ -46807,44 +46807,44 @@ sub_2241A:
 		move.l	#Map_AIZMHZRideVine,mappings(a1)
 		move.w	#make_art_tile(ArtTile_AIZSwingVine,0,0),art_tile(a1)
 		rts
-; End of function sub_2241A
+; End of function AIZGiantRideVine_SetCommonAttributes
 
 ; ---------------------------------------------------------------------------
 
-loc_22442:
+AIZGiantRideVine_Main:
 		move.w	x_pos(a0),d0
 		andi.w	#$FF80,d0
 		sub.w	(Camera_X_pos_coarse_back).w,d0
 		cmpi.w	#$280,d0
-		bhi.w	loc_2245C
+		bhi.w	AIZGiantRideVine_DeleteChain
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2245C:
+AIZGiantRideVine_DeleteChain:
 		move.w	$36(a0),d2
 		subq.w	#1,d2
-		bcs.s	loc_22478
+		bcs.s	AIZGiantRideVine_ClearRespawn
 		movea.w	$3E(a0),a2
 
-loc_22468:
+AIZGiantRideVine_DeleteNextSegment:
 		movea.l	a2,a1
 		movea.w	$3E(a1),a2
 		jsr	(Delete_Referenced_Sprite).l
-		dbf	d2,loc_22468
+		dbf	d2,AIZGiantRideVine_DeleteNextSegment
 
-loc_22478:
+AIZGiantRideVine_ClearRespawn:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_22484
+		beq.s	AIZGiantRideVine_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_22484:
+AIZGiantRideVine_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2248A:
+AIZGiantRideVine_Anchor:
 		tst.b	(a0)
-		bne.s	loc_224BC
+		bne.s	AIZGiantRideVine_AnchorSwinging
 		move.b	(AIZ_vine_angle).w,d0
 		add.b	$42(a0),d0
 		jsr	(GetSineCosine).l
@@ -46859,31 +46859,31 @@ loc_2248A:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_224BC:
+AIZGiantRideVine_AnchorSwinging:
 		moveq	#0,d2
 		move.b	$38(a0),d2
 		move.w	$44(a0),d0
 		move.w	#0,d1
 		tst.w	$2E(a0)
-		bne.s	loc_224E8
+		bne.s	AIZGiantRideVine_AnchorReverse
 		add.w	d2,d0
 		move.w	d0,$44(a0)
 		add.w	d0,$42(a0)
 		cmp.b	$42(a0),d1
-		bgt.s	loc_224FE
+		bgt.s	AIZGiantRideVine_UpdateAnchorFrame
 		move.w	#1,$2E(a0)
-		bra.s	loc_224FE
+		bra.s	AIZGiantRideVine_UpdateAnchorFrame
 ; ---------------------------------------------------------------------------
 
-loc_224E8:
+AIZGiantRideVine_AnchorReverse:
 		sub.w	d2,d0
 		move.w	d0,$44(a0)
 		add.w	d0,$42(a0)
 		cmp.b	$42(a0),d1
-		ble.s	loc_224FE
+		ble.s	AIZGiantRideVine_UpdateAnchorFrame
 		move.w	#0,$2E(a0)
 
-loc_224FE:
+AIZGiantRideVine_UpdateAnchorFrame:
 		move.w	$42(a0),d0
 		move.w	d0,angle(a0)
 		asr.w	#3,d0
@@ -46895,7 +46895,7 @@ loc_224FE:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2251E:
+AIZGiantRideVine_Segment:
 		movea.w	$3C(a0),a1
 		move.w	$3A(a1),$3A(a0)
 		move.w	angle(a1),d0
@@ -46905,13 +46905,13 @@ loc_2251E:
 		addq.b	#4,d0
 		lsr.b	#3,d0
 		move.b	d0,mapping_frame(a0)
-		bsr.w	sub_2254A
+		bsr.w	AIZGiantRideVine_PositionFromParent
 		jmp	(Draw_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_2254A:
+AIZGiantRideVine_PositionFromParent:
 		movea.w	$3C(a0),a1
 		move.b	angle(a1),d0
 		addq.b	#4,d0
@@ -46927,42 +46927,42 @@ sub_2254A:
 		add.w	y_pos(a1),d1
 		move.w	d1,y_pos(a0)
 		rts
-; End of function sub_2254A
+; End of function AIZGiantRideVine_PositionFromParent
 
 ; ---------------------------------------------------------------------------
 
-loc_2257E:
+AIZGiantRideVine_Handle:
 		move.w	x_pos(a0),d4
 		move.w	y_pos(a0),d5
-		bsr.w	sub_2254A
+		bsr.w	AIZGiantRideVine_PositionFromParent
 		cmp.w	x_pos(a0),d4
-		beq.s	loc_22594
+		beq.s	AIZGiantRideVineHandle_CheckPreviousY
 		move.w	d4,$42(a0)
 
-loc_22594:
+AIZGiantRideVineHandle_CheckPreviousY:
 		cmp.w	y_pos(a0),d5
-		beq.s	loc_2259E
+		beq.s	AIZGiantRideVineHandle_ProcessPlayers
 		move.w	d5,$44(a0)
 
-loc_2259E:
+AIZGiantRideVineHandle_ProcessPlayers:
 		lea	$32(a0),a2
 		lea	(Player_1).w,a1
 		move.w	(Ctrl_1_logical).w,d0
-		bsr.w	sub_220C2
+		bsr.w	AIZRideVineHandle_ProcessPlayer
 		lea	(Player_2).w,a1
 		addq.w	#1,a2
 		move.w	(Ctrl_2_logical).w,d0
-		bsr.w	sub_220C2
+		bsr.w	AIZRideVineHandle_ProcessPlayer
 		tst.w	$32(a0)
-		beq.s	loc_225C8
+		beq.s	AIZGiantRideVineHandle_Draw
 		tst.w	$30(a0)
-		bne.s	locret_225CE
+		bne.s	AIZGiantRideVineHandle_Return
 
-loc_225C8:
+AIZGiantRideVineHandle_Draw:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-locret_225CE:
+AIZGiantRideVineHandle_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
