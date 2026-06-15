@@ -136741,17 +136741,17 @@ Obj_AIZMinibossCutscene:
 		move.b	routine(a0),d0
 		move.w	AIZMinibossCutscene_Index(pc,d0.w),d1
 		jsr	AIZMinibossCutscene_Index(pc,d1.w)
-		bra.w	loc_68F62
+		bra.w	AIZMiniboss_CheckHitOrDefeat
 ; ---------------------------------------------------------------------------
 AIZMinibossCutscene_Index:
-		dc.w loc_68508-AIZMinibossCutscene_Index
-		dc.w loc_6852C-AIZMinibossCutscene_Index
-		dc.w loc_68574-AIZMinibossCutscene_Index
-		dc.w loc_685B8-AIZMinibossCutscene_Index
-		dc.w loc_685FC-AIZMinibossCutscene_Index
+		dc.w AIZMinibossCutscene_Init-AIZMinibossCutscene_Index
+		dc.w AIZMinibossCutscene_WaitForCamera-AIZMinibossCutscene_Index
+		dc.w AIZMiniboss_Wait-AIZMinibossCutscene_Index
+		dc.w AIZMiniboss_MoveWaitTouch-AIZMinibossCutscene_Index
+		dc.w AIZMiniboss_SwingMoveWaitTouch-AIZMinibossCutscene_Index
 ; ---------------------------------------------------------------------------
 
-loc_68508:
+AIZMinibossCutscene_Init:
 		lea	ObjDat_AIZMiniboss(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		move.b	#$60,collision_property(a0)
@@ -136761,22 +136761,22 @@ loc_68508:
 		jmp	(Load_PLC).l
 ; ---------------------------------------------------------------------------
 
-loc_6852C:
+AIZMinibossCutscene_WaitForCamera:
 		move.w	(Camera_X_pos).w,d0
 		move.w	#$2F10,d5
 		cmp.w	d5,d0
-		bhs.s	loc_6853A
+		bhs.s	AIZMinibossCutscene_StartArena
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6853A:
-		move.l	#loc_6857A,$34(a0)
-		lea	ChildObjDat_6906A(pc),a2
+AIZMinibossCutscene_StartArena:
+		move.l	#AIZMinibossCutscene_StartDrop,$34(a0)
+		lea	ChildObjDat_AIZMinibossCutscene_Debris(pc),a2
 		jsr	(CreateChild3_NormalRepeated).l
 		lea	Pal_AIZMiniboss(pc),a1
 		jsr	(PalLoad_Line1).l
 
-loc_68556:
+AIZMiniboss_LockCameraAndFade:
 		move.b	#4,routine(a0)
 		move.w	#3*60,$2E(a0)
 		move.w	d5,(Camera_min_X_pos).w
@@ -136784,47 +136784,47 @@ loc_68556:
 		moveq	#signextendB(cmd_FadeOut),d0
 		jsr	(Play_Music).l
 
-locret_68572:
+AIZMiniboss_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68574:
+AIZMiniboss_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6857A:
-		move.l	#loc_685BE,$34(a0)
+AIZMinibossCutscene_StartDrop:
+		move.l	#AIZMinibossCutscene_StartSwing,$34(a0)
 		move.b	#6,routine(a0)
-		lea	ChildObjDat_6905C(pc),a2
+		lea	ChildObjDat_AIZMiniboss_BaseChildren(pc),a2
 		jsr	(CreateChild1_Normal).l
-		lea	ChildObjDat_69072(pc),a2
+		lea	ChildObjDat_AIZMinibossCutscene_Barrels(pc),a2
 		jsr	(CreateChild1_Normal).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_6859C:
+AIZMiniboss_StartDropMusic:
 		move.w	#$100,y_vel(a0)
 		move.w	#$AF,$2E(a0)
 		moveq	#signextendB(mus_Miniboss),d0
 		jsr	(Play_Music).l
 		move.b	#mus_Miniboss,(Current_music+1).w
 		rts
-; End of function sub_6859C
+; End of function AIZMiniboss_StartDropMusic
 
 ; ---------------------------------------------------------------------------
 
-loc_685B8:
+AIZMiniboss_MoveWaitTouch:
 		jmp	(MoveWaitTouch).l
 ; ---------------------------------------------------------------------------
 
-loc_685BE:
+AIZMinibossCutscene_StartSwing:
 		move.w	#$7F,$2E(a0)
-		move.l	#loc_6862E,$34(a0)
+		move.l	#AIZMinibossCutscene_StartExplosion,$34(a0)
 		move.b	#3,$39(a0)
 		bset	#1,$38(a0)
 
-loc_685D8:
+AIZMiniboss_StartSwing:
 		move.b	#8,routine(a0)
 		clr.w	y_vel(a0)
 
@@ -136842,16 +136842,16 @@ Swing_Setup1:
 
 ; ---------------------------------------------------------------------------
 
-loc_685FC:
+AIZMiniboss_SwingMoveWaitTouch:
 		jsr	(Swing_UpAndDown).l
 		jmp	(MoveWaitTouch).l
 ; ---------------------------------------------------------------------------
 		; unused
 		subq.b	#1,$39(a0)
-		bpl.s	loc_68616
-		move.l	#loc_6862E,$34(a0)
+		bpl.s	AIZMiniboss_UnusedFlameDelay
+		move.l	#AIZMinibossCutscene_StartExplosion,$34(a0)
 
-loc_68616:
+AIZMiniboss_UnusedFlameDelay:
 		move.w	#$40,$2E(a0)
 		moveq	#signextendB(sfx_FlamethrowerQuiet),d0
 		jsr	(Play_SFX).l
@@ -136859,15 +136859,15 @@ loc_68616:
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_6862E:
+AIZMinibossCutscene_StartExplosion:
 		move.w	#$10,$2E(a0)
-		move.l	#loc_68646,$34(a0)
-		lea	ChildObjDat_69104(pc),a2
+		move.l	#AIZMinibossCutscene_StartEscape,$34(a0)
+		lea	ChildObjDat_AIZMinibossCutscene_Explosion(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_68646:
-		move.l	#loc_68690,(a0)
+AIZMinibossCutscene_StartEscape:
+		move.l	#AIZMinibossCutscene_Escape,(a0)
 		lea	Pal_AIZMiniboss(pc),a1
 		jsr	(PalLoad_Line1).l
 		move.b	#$F,collision_flags(a0)
@@ -136877,23 +136877,23 @@ loc_68646:
 		clr.w	y_vel(a0)
 		move.w	#$40,$2E(a0)
 		cmpi.w	#0,(Current_zone_and_act).w
-		bne.s	loc_68682
+		bne.s	AIZMinibossCutscene_SetDeleteCallback
 		move.w	#$120,$2E(a0)
 
-loc_68682:
+AIZMinibossCutscene_SetDeleteCallback:
 		move.l	#Go_Delete_Sprite,$34(a0)
 		st	(Events_fg_5).w
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68690:
+AIZMinibossCutscene_Escape:
 		jsr	(MoveSprite2).l
 		subq.w	#1,$2E(a0)
-		bmi.s	loc_686A2
+		bmi.s	AIZMinibossCutscene_End
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_686A2:
+AIZMinibossCutscene_End:
 		clr.b	(Boss_flag).w
 		jsr	(Restore_LevelMusic).l
 		lea	(PLC_Monitors).l,a1
@@ -136901,194 +136901,194 @@ loc_686A2:
 		jmp	(Go_Delete_Sprite_2).l
 ; ---------------------------------------------------------------------------
 
-loc_686BE:
+AIZMiniboss_TouchChild_Init:
 		jsr	(Refresh_ChildPositionAdjusted).l
-		lea	word_6900A(pc),a1
+		lea	ObjDat_AIZMiniboss_TouchChild(pc),a1
 		jsr	(SetUp_ObjAttributes2).l
 		bset	#4,shield_reaction(a0)
-		move.l	#byte_69126,$30(a0)
-		move.l	#loc_686E8,(a0)
+		move.l	#AniRaw_AIZMiniboss_TouchChild,$30(a0)
+		move.l	#AIZMiniboss_TouchChild_Main,(a0)
 		jmp	(Child_DrawTouch_Sprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_686E8:
+AIZMiniboss_TouchChild_Main:
 		jsr	(Refresh_ChildPositionAdjusted).l
 		jsr	(Animate_Raw).l
 		movea.w	parent3(a0),a1
 		btst	#7,status(a1)
-		beq.s	loc_68704
+		beq.s	AIZMiniboss_TouchChild_Draw
 		clr.b	collision_flags(a0)
 
-loc_68704:
+AIZMiniboss_TouchChild_Draw:
 		jmp	(Child_DrawTouch_Sprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_6870A:
+AIZMiniboss_DisplayChild_Init:
 		jsr	(Refresh_ChildPositionAdjusted).l
-		move.l	#loc_68720,(a0)
-		lea	word_69012(pc),a1
+		move.l	#AIZMiniboss_DisplayChild_Main,(a0)
+		lea	ObjDat_AIZMiniboss_DisplayChild(pc),a1
 		jmp	(SetUp_ObjAttributes2).l
 ; ---------------------------------------------------------------------------
 
-loc_68720:
+AIZMiniboss_DisplayChild_Main:
 		jsr	(Refresh_ChildPositionAdjusted).l
 		jmp	(Child_Draw_Sprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_6872C:
+AIZMinibossCutscene_BarrelController:
 		jsr	(Refresh_ChildPositionAdjusted).l
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_68746(pc,d0.w),d1
-		jsr	off_68746(pc,d1.w)
+		move.w	AIZMinibossCutscene_BarrelController_Index(pc,d0.w),d1
+		jsr	AIZMinibossCutscene_BarrelController_Index(pc,d1.w)
 		jmp	(Child_Draw_Sprite2).l
 ; ---------------------------------------------------------------------------
-off_68746:
-		dc.w loc_68754-off_68746
-		dc.w loc_6875E-off_68746
-		dc.w loc_6877E-off_68746
-		dc.w loc_6879C-off_68746
-		dc.w loc_687DC-off_68746
-		dc.w loc_6879C-off_68746
-		dc.w locret_68572-off_68746
+AIZMinibossCutscene_BarrelController_Index:
+		dc.w AIZMiniboss_BarrelController_InitAttrs-AIZMinibossCutscene_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_WaitTrigger-AIZMinibossCutscene_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_Wait-AIZMinibossCutscene_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_Animate-AIZMinibossCutscene_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_WaitAfterShot-AIZMinibossCutscene_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_Animate-AIZMinibossCutscene_BarrelController_Index
+		dc.w AIZMiniboss_Return-AIZMinibossCutscene_BarrelController_Index
 ; ---------------------------------------------------------------------------
 
-loc_68754:
-		lea	word_6901A(pc),a1
+AIZMiniboss_BarrelController_InitAttrs:
+		lea	ObjDat_AIZMiniboss_BarrelController(pc),a1
 		jmp	(SetUp_ObjAttributes2).l
 ; ---------------------------------------------------------------------------
 
-loc_6875E:
+AIZMiniboss_BarrelController_WaitTrigger:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		bne.s	loc_6876C
+		bne.s	AIZMiniboss_BarrelController_StartDelay
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6876C:
+AIZMiniboss_BarrelController_StartDelay:
 		move.b	#4,routine(a0)
-		move.l	#loc_68784,$34(a0)
-		bra.w	loc_68EC0
+		move.l	#AIZMinibossCutscene_BarrelController_Aim,$34(a0)
+		bra.w	AIZMiniboss_SetSubtypeDelay
 ; ---------------------------------------------------------------------------
 
-loc_6877E:
+AIZMiniboss_BarrelController_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_68784:
-		move.l	#loc_687A2,$34(a0)
+AIZMinibossCutscene_BarrelController_Aim:
+		move.l	#AIZMinibossCutscene_BarrelController_FireLoop,$34(a0)
 
-loc_6878C:
+AIZMiniboss_BarrelController_SetAimAnim:
 		move.b	#6,routine(a0)
-		move.l	#byte_6912F,$30(a0)
+		move.l	#AniRaw_AIZMiniboss_BarrelAim,$30(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6879C:
+AIZMiniboss_BarrelController_Animate:
 		jmp	(Animate_RawMultiDelay).l
 ; ---------------------------------------------------------------------------
 
-loc_687A2:
+AIZMinibossCutscene_BarrelController_FireLoop:
 		move.b	#8,routine(a0)
 		move.b	#3,$39(a0)
-		move.l	#loc_687B6,$34(a0)
+		move.l	#AIZMiniboss_BarrelController_FireShot,$34(a0)
 
-loc_687B6:
+AIZMiniboss_BarrelController_FireShot:
 		move.w	#$1C,$2E(a0)
 		subq.b	#1,$39(a0)
 		cmpi.b	#1,$39(a0)
-		beq.s	loc_687D2
-		lea	ChildObjDat_6909A(pc),a2
+		beq.s	AIZMiniboss_BarrelController_FireFinalShot
+		lea	ChildObjDat_AIZMiniboss_BarrelShotPair(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_687D2:
-		lea	ChildObjDat_690A8(pc),a2
+AIZMiniboss_BarrelController_FireFinalShot:
+		lea	ChildObjDat_AIZMiniboss_BarrelShotAndFallingShot(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_687DC:
+AIZMiniboss_BarrelController_WaitAfterShot:
 		jsr	(Obj_Wait).l
 		tst.b	$39(a0)
-		bmi.s	loc_687EA
+		bmi.s	AIZMiniboss_BarrelController_Return
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_687EA:
+AIZMiniboss_BarrelController_Return:
 		move.b	#$A,routine(a0)
-		move.l	#byte_69136,$30(a0)
-		move.l	#loc_68802,$34(a0)
+		move.l	#AniRaw_AIZMiniboss_BarrelReturn,$30(a0)
+		move.l	#AIZMiniboss_BarrelController_Reset,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68802:
+AIZMiniboss_BarrelController_Reset:
 		move.b	#$C,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6880A:
+AIZMiniboss_BarrelShotFlare:
 		jsr	(Refresh_ChildPositionAdjusted).l
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_68824(pc,d0.w),d1
-		jsr	off_68824(pc,d1.w)
+		move.w	AIZMiniboss_BarrelShotFlare_Index(pc,d0.w),d1
+		jsr	AIZMiniboss_BarrelShotFlare_Index(pc,d1.w)
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
-off_68824:
-		dc.w loc_68828-off_68824
-		dc.w loc_6879C-off_68824
+AIZMiniboss_BarrelShotFlare_Index:
+		dc.w AIZMiniboss_BarrelShotFlare_Init-AIZMiniboss_BarrelShotFlare_Index
+		dc.w AIZMiniboss_BarrelController_Animate-AIZMiniboss_BarrelShotFlare_Index
 ; ---------------------------------------------------------------------------
 
-loc_68828:
-		lea	byte_69022(pc),a1
+AIZMiniboss_BarrelShotFlare_Init:
+		lea	ObjDat_AIZMiniboss_BarrelShotFlare(pc),a1
 		jsr	(SetUp_ObjAttributes2).l
-		move.l	#byte_6913F,$30(a0)
+		move.l	#AniRaw_AIZMiniboss_BarrelShotFlare,$30(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68844:
+AIZMiniboss_BarrelShot:
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_68852(pc,d0.w),d1
-		jmp	off_68852(pc,d1.w)
+		move.w	AIZMiniboss_BarrelShot_Index(pc,d0.w),d1
+		jmp	AIZMiniboss_BarrelShot_Index(pc,d1.w)
 ; ---------------------------------------------------------------------------
-off_68852:
-		dc.w sub_6885A-off_68852
-		dc.w loc_6888E-off_68852
-		dc.w loc_68574-off_68852
-		dc.w loc_6888E-off_68852
+AIZMiniboss_BarrelShot_Index:
+		dc.w AIZMiniboss_BarrelShot_Init-AIZMiniboss_BarrelShot_Index
+		dc.w AIZMiniboss_BarrelShot_MoveWait-AIZMiniboss_BarrelShot_Index
+		dc.w AIZMiniboss_Wait-AIZMiniboss_BarrelShot_Index
+		dc.w AIZMiniboss_BarrelShot_MoveWait-AIZMiniboss_BarrelShot_Index
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_6885A:
-		lea	word_6902A(pc),a1
+AIZMiniboss_BarrelShot_Init:
+		lea	ObjDat_AIZMiniboss_BarrelShot(pc),a1
 		jsr	(SetUp_ObjAttributes2).l
 		moveq	#signextendB(sfx_Projectile),d0
 		jsr	(Play_SFX).l
-		move.l	#byte_6914C,$30(a0)
-		move.l	#loc_6889A,$34(a0)
+		move.l	#AniRaw_AIZMiniboss_BarrelShot,$30(a0)
+		move.l	#AIZMiniboss_BarrelShot_StartPause,$34(a0)
 		move.w	#-$400,y_vel(a0)
 		move.w	#$60,$2E(a0)
 		jmp	(Draw_Sprite).l
-; End of function sub_6885A
+; End of function AIZMiniboss_BarrelShot_Init
 
 ; ---------------------------------------------------------------------------
 
-loc_6888E:
+AIZMiniboss_BarrelShot_MoveWait:
 		jsr	(Move_AnimateRaw_Wait).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_6889A:
+AIZMiniboss_BarrelShot_StartPause:
 		move.b	#4,routine(a0)
 		move.w	#8,$2E(a0)
-		move.l	#loc_688B0,$34(a0)
+		move.l	#AIZMiniboss_BarrelShot_Launch,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_688B0:
+AIZMiniboss_BarrelShot_Launch:
 		move.b	#6,routine(a0)
 		moveq	#signextendB(sfx_MissileThrow),d0
 		jsr	(Play_SFX).l
@@ -137099,7 +137099,7 @@ loc_688B0:
 		movea.w	parent3(a0),a1
 		moveq	#0,d0
 		move.b	subtype(a1),d0
-		bsr.w	sub_68EE4
+		bsr.w	AIZMiniboss_SetShotPosition
 		move.w	(Camera_Y_pos).w,d0
 		subi.w	#$20,d0
 		move.w	d0,y_pos(a0)
@@ -137114,21 +137114,21 @@ Obj_AIZMiniboss_Flame:
 		jmp	AIZMiniboss_Flame_Index(pc,d1.w)
 ; ---------------------------------------------------------------------------
 AIZMiniboss_Flame_Index:
-		dc.w sub_6890E-AIZMiniboss_Flame_Index
-		dc.w loc_68574-AIZMiniboss_Flame_Index
-		dc.w loc_68956-AIZMiniboss_Flame_Index
+		dc.w AIZMiniboss_Flame_Init-AIZMiniboss_Flame_Index
+		dc.w AIZMiniboss_Wait-AIZMiniboss_Flame_Index
+		dc.w AIZMiniboss_Flame_Animate-AIZMiniboss_Flame_Index
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_6890E:
+AIZMiniboss_Flame_Init:
 		lea	ObjDat_AIZMiniboss_Flame(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		bset	#4,shield_reaction(a0)
-		move.l	#loc_6893E,$34(a0)
+		move.l	#AIZMiniboss_Flame_Start,$34(a0)
 		moveq	#6,d1
 
-loc_68928:
+BossChild_SetSubtypeDelay:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		sub.w	d0,d1
@@ -137140,47 +137140,47 @@ loc_68928:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6893E:
+AIZMiniboss_Flame_Start:
 		move.b	#4,routine(a0)
-		move.l	#byte_6915F,$30(a0)
-		move.l	#loc_68962,$34(a0)
+		move.l	#AniRaw_AIZMiniboss_Flame,$30(a0)
+		move.l	#AIZMiniboss_Flame_Explode,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68956:
+AIZMiniboss_Flame_Animate:
 		jsr	(Animate_RawMultiDelay).l
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68962:
+AIZMiniboss_Flame_Explode:
 		move.l	#Map_BossExplosion,mappings(a0)
 		move.w	#make_art_tile(ArtTile_BossExplosion2,0,1),art_tile(a0)
-		move.l	#byte_69164,$30(a0)
+		move.l	#AniRaw_AIZMiniboss_FlameExplosion,$30(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		cmpi.b	#6,subtype(a0)
-		bne.w	locret_68572
-		lea	ChildObjDat_690D0(pc),a2
+		bne.w	AIZMiniboss_Return
+		lea	ChildObjDat_AIZMiniboss_ImpactFlame(pc),a2
 		jmp	(CreateChild1_Normal).l
-; End of function sub_6890E
+; End of function AIZMiniboss_Flame_Init
 
 ; ---------------------------------------------------------------------------
 
-loc_68994:
+AIZMiniboss_ImpactFlame:
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_689A8(pc,d0.w),d1
-		jsr	off_689A8(pc,d1.w)
+		move.w	AIZMiniboss_ImpactFlame_Index(pc,d0.w),d1
+		jsr	AIZMiniboss_ImpactFlame_Index(pc,d1.w)
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
-off_689A8:
-		dc.w loc_689AC-off_689A8
-		dc.w loc_689F8-off_689A8
+AIZMiniboss_ImpactFlame_Index:
+		dc.w AIZMiniboss_ImpactFlame_Init-AIZMiniboss_ImpactFlame_Index
+		dc.w AIZMiniboss_ImpactFlame_Animate-AIZMiniboss_ImpactFlame_Index
 ; ---------------------------------------------------------------------------
 
-loc_689AC:
-		bsr.w	sub_6890E
+AIZMiniboss_ImpactFlame_Init:
+		bsr.w	AIZMiniboss_Flame_Init
 		move.w	#$100,priority(a0)
-		move.l	#byte_6916F,$30(a0)
+		move.l	#AniRaw_AIZMiniboss_ImpactFlame,$30(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		movea.w	parent3(a0),a1
 		movea.w	parent3(a1),a1
@@ -137188,34 +137188,34 @@ loc_689AC:
 		move.w	y_pos(a1),y_pos(a0)
 		move.w	#-$60,d0
 		btst	#0,render_flags(a1)
-		beq.s	loc_689EC
+		beq.s	AIZMiniboss_ImpactFlame_SetX
 		neg.w	d0
 		bset	#0,render_flags(a0)
 
-loc_689EC:
+AIZMiniboss_ImpactFlame_SetX:
 		move.w	x_pos(a1),d1
 		add.w	d0,d1
 		move.w	d1,x_pos(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_689F8:
+AIZMiniboss_ImpactFlame_Animate:
 		jsr	(Animate_RawMultiDelay).l
 		tst.w	d2
-		beq.s	locret_68A16
-		bmi.s	locret_68A16
-		move.w	word_68A18(pc,d0.w),d0
+		beq.s	AIZMiniboss_ImpactFlame_Return
+		bmi.s	AIZMiniboss_ImpactFlame_Return
+		move.w	AIZMiniboss_ImpactFlame_XOffsets(pc,d0.w),d0
 		btst	#0,render_flags(a0)
-		bne.s	loc_68A12
+		bne.s	AIZMiniboss_ImpactFlame_MoveX
 		neg.w	d0
 
-loc_68A12:
+AIZMiniboss_ImpactFlame_MoveX:
 		add.w	d0,x_pos(a0)
 
-locret_68A16:
+AIZMiniboss_ImpactFlame_Return:
 		rts
 ; ---------------------------------------------------------------------------
-word_68A18:
+AIZMiniboss_ImpactFlame_XOffsets:
 		dc.w     0
 		dc.w     0
 		dc.w     0
@@ -137229,20 +137229,20 @@ Obj_AIZMiniboss:
 		move.b	routine(a0),d0
 		move.w	AIZMiniboss_Index(pc,d0.w),d1
 		jsr	AIZMiniboss_Index(pc,d1.w)
-		bra.w	loc_68F62
+		bra.w	AIZMiniboss_CheckHitOrDefeat
 ; ---------------------------------------------------------------------------
 AIZMiniboss_Index:
-		dc.w loc_68A46-AIZMiniboss_Index
-		dc.w loc_68A6E-AIZMiniboss_Index
-		dc.w loc_68574-AIZMiniboss_Index
-		dc.w loc_68ABA-AIZMiniboss_Index
-		dc.w loc_685FC-AIZMiniboss_Index
-		dc.w loc_68B1C-AIZMiniboss_Index
-		dc.w loc_68B68-AIZMiniboss_Index
-		dc.w loc_68BBC-AIZMiniboss_Index
+		dc.w AIZMiniboss_Init-AIZMiniboss_Index
+		dc.w AIZMiniboss_WaitForCamera-AIZMiniboss_Index
+		dc.w AIZMiniboss_Wait-AIZMiniboss_Index
+		dc.w AIZMiniboss_DropMoveWaitTouch-AIZMiniboss_Index
+		dc.w AIZMiniboss_SwingMoveWaitTouch-AIZMiniboss_Index
+		dc.w AIZMiniboss_SwingMoveUntilCount-AIZMiniboss_Index
+		dc.w AIZMiniboss_WaitTouch-AIZMiniboss_Index
+		dc.w AIZMiniboss_HorizontalSwing-AIZMiniboss_Index
 ; ---------------------------------------------------------------------------
 
-loc_68A46:
+AIZMiniboss_Init:
 		lea	ObjDat_AIZMiniboss(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		move.b	#6,collision_property(a0)
@@ -137253,56 +137253,56 @@ loc_68A46:
 		jmp	(PalLoad_Line1).l
 ; ---------------------------------------------------------------------------
 
-loc_68A6E:
+AIZMiniboss_WaitForCamera:
 		move.w	(Camera_X_pos).w,d0
 		move.w	#$10E0,d5
 		cmpi.b	#2,(Player_1+character_id).w
-		bne.s	loc_68A82
+		bne.s	AIZMiniboss_CheckCameraThreshold
 		move.w	#$10C0,d5
 
-loc_68A82:
+AIZMiniboss_CheckCameraThreshold:
 		cmp.w	d5,d0
-		bhs.s	loc_68A88
+		bhs.s	AIZMiniboss_StartArena
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68A88:
-		move.l	#loc_68A94,$34(a0)
-		bra.w	loc_68556
+AIZMiniboss_StartArena:
+		move.l	#AIZMiniboss_StartDrop,$34(a0)
+		bra.w	AIZMiniboss_LockCameraAndFade
 ; ---------------------------------------------------------------------------
 
-loc_68A94:
-		move.l	#loc_68ACC,$34(a0)
+AIZMiniboss_StartDrop:
+		move.l	#AIZMiniboss_PrepareShortSwing,$34(a0)
 		move.b	#6,routine(a0)
-		bsr.w	sub_6859C
-		lea	ChildObjDat_6905C(pc),a2
+		bsr.w	AIZMiniboss_StartDropMusic
+		lea	ChildObjDat_AIZMiniboss_BaseChildren(pc),a2
 		jsr	(CreateChild1_Normal).l
-		lea	ChildObjDat_69086(pc),a2
+		lea	ChildObjDat_AIZMiniboss_Barrels(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_68ABA:
+AIZMiniboss_DropMoveWaitTouch:
 		jsr	(MoveSprite2).l
 		jsr	(Obj_Wait).l
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68ACC:
-		move.l	#loc_68ADE,$34(a0)
+AIZMiniboss_PrepareShortSwing:
+		move.l	#AIZMiniboss_SetFlameDelay,$34(a0)
 		move.w	#20,$2E(a0)
-		bra.w	loc_685D8
+		bra.w	AIZMiniboss_StartSwing
 ; ---------------------------------------------------------------------------
 
-loc_68ADE:
-		move.l	#loc_68AFE,$34(a0)
+AIZMiniboss_SetFlameDelay:
+		move.l	#AIZMiniboss_StartFlameAttack,$34(a0)
 		move.w	#30,$2E(a0)
 		cmpi.b	#2,(Player_1+character_id).w
-		bne.w	locret_68572
+		bne.w	AIZMiniboss_Return
 		bset	#1,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68AFE:
+AIZMiniboss_StartFlameAttack:
 		move.b	#$A,routine(a0)
 		move.b	#8,$39(a0)
 		moveq	#signextendB(sfx_FlamethrowerQuiet),d0
@@ -137311,41 +137311,41 @@ loc_68AFE:
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_68B1C:
+AIZMiniboss_SwingMoveUntilCount:
 		jsr	(Swing_UpAndDown_Count).l
-		beq.s	loc_68B28
+		beq.s	AIZMiniboss_SwingMove
 		tst.w	d1
-		bmi.s	loc_68B34
+		bmi.s	AIZMiniboss_StartVerticalMove
 
-loc_68B28:
+AIZMiniboss_SwingMove:
 		jsr	(MoveSprite2).l
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68B34:
+AIZMiniboss_StartVerticalMove:
 		move.b	#6,routine(a0)
 		move.w	#$5F,$2E(a0)
-		move.l	#loc_68B74,$34(a0)
+		move.l	#AIZMiniboss_StopVerticalMove,$34(a0)
 		move.w	#-$100,d0
 		bchg	#2,$38(a0)
-		beq.s	loc_68B5E
+		beq.s	AIZMiniboss_SetVerticalVelocity
 		neg.w	d0
-		move.l	#loc_68ACC,$34(a0)
+		move.l	#AIZMiniboss_PrepareShortSwing,$34(a0)
 
-loc_68B5E:
+AIZMiniboss_SetVerticalVelocity:
 		move.w	d0,y_vel(a0)
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68B68:
+AIZMiniboss_WaitTouch:
 		jsr	(Obj_Wait).l
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68B74:
-		move.l	#loc_68B92,$34(a0)
+AIZMiniboss_StopVerticalMove:
+		move.l	#AIZMiniboss_StartHorizontalSwing,$34(a0)
 
-loc_68B7C:
+AIZMiniboss_SetPause:
 		move.b	#$C,routine(a0)
 		clr.w	x_vel(a0)
 		clr.w	y_vel(a0)
@@ -137353,180 +137353,180 @@ loc_68B7C:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68B92:
+AIZMiniboss_StartHorizontalSwing:
 		move.b	#$E,routine(a0)
 		move.b	#4,$39(a0)
-		move.l	#loc_68BDC,$34(a0)
+		move.l	#AIZMiniboss_TurnAround,$34(a0)
 		move.w	#$100,d0
 		bchg	#3,$38(a0)
-		bne.s	loc_68BB4
+		bne.s	AIZMiniboss_SetHorizontalVelocity
 		neg.w	d0
 
-loc_68BB4:
+AIZMiniboss_SetHorizontalVelocity:
 		move.w	d0,x_vel(a0)
 		bra.w	Swing_Setup1
 ; ---------------------------------------------------------------------------
 
-loc_68BBC:
+AIZMiniboss_HorizontalSwing:
 		jsr	(Swing_UpAndDown_Count).l
-		bne.s	loc_68BD0
+		bne.s	AIZMiniboss_RunSwingCallback
 		jsr	(MoveSprite2).l
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68BD0:
+AIZMiniboss_RunSwingCallback:
 		movea.l	$34(a0),a1
 		jsr	(a1)
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68BDC:
+AIZMiniboss_TurnAround:
 		move.b	#4,$39(a0)
-		move.l	#loc_68BF6,$34(a0)
+		move.l	#AIZMiniboss_PrepareVerticalReturn,$34(a0)
 		bchg	#0,render_flags(a0)
 		jmp	(MoveSprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_68BF6:
-		move.l	#loc_68B34,$34(a0)
-		bra.w	loc_68B7C
+AIZMiniboss_PrepareVerticalReturn:
+		move.l	#AIZMiniboss_StartVerticalMove,$34(a0)
+		bra.w	AIZMiniboss_SetPause
 ; ---------------------------------------------------------------------------
 
-loc_68C02:
+AIZMiniboss_SpawnEndSign:
 		jsr	(Obj_EndSignControl).l
-		lea	ChildObjDat_6910C(pc),a2
+		lea	ChildObjDat_AIZMiniboss_DefeatDebris(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_68C12:
+AIZMiniboss_BarrelController:
 		jsr	(Refresh_ChildPositionAdjusted).l
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_68C2C(pc,d0.w),d1
-		jsr	off_68C2C(pc,d1.w)
+		move.w	AIZMiniboss_BarrelController_Index(pc,d0.w),d1
+		jsr	AIZMiniboss_BarrelController_Index(pc,d1.w)
 		jmp	(Child_Draw_Sprite2).l
 ; ---------------------------------------------------------------------------
-off_68C2C:
-		dc.w loc_68754-off_68C2C
-		dc.w loc_68C38-off_68C2C
-		dc.w loc_68574-off_68C2C
-		dc.w loc_6879C-off_68C2C
-		dc.w loc_6879C-off_68C2C
-		dc.w locret_68572-off_68C2C
+AIZMiniboss_BarrelController_Index:
+		dc.w AIZMiniboss_BarrelController_InitAttrs-AIZMiniboss_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_WaitTrigger2-AIZMiniboss_BarrelController_Index
+		dc.w AIZMiniboss_Wait-AIZMiniboss_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_Animate-AIZMiniboss_BarrelController_Index
+		dc.w AIZMiniboss_BarrelController_Animate-AIZMiniboss_BarrelController_Index
+		dc.w AIZMiniboss_Return-AIZMiniboss_BarrelController_Index
 ; ---------------------------------------------------------------------------
 
-loc_68C38:
+AIZMiniboss_BarrelController_WaitTrigger2:
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		bne.s	loc_68C46
+		bne.s	AIZMiniboss_BarrelController_StartDelay2
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68C46:
+AIZMiniboss_BarrelController_StartDelay2:
 		move.b	#4,routine(a0)
-		move.l	#loc_68C58,$34(a0)
-		bra.w	loc_68EC0
+		move.l	#AIZMiniboss_BarrelController_Aim,$34(a0)
+		bra.w	AIZMiniboss_SetSubtypeDelay
 ; ---------------------------------------------------------------------------
 
-loc_68C58:
-		move.l	#loc_68C64,$34(a0)
-		bra.w	loc_6878C
+AIZMiniboss_BarrelController_Aim:
+		move.l	#AIZMiniboss_BarrelController_FireFinal,$34(a0)
+		bra.w	AIZMiniboss_BarrelController_SetAimAnim
 ; ---------------------------------------------------------------------------
 
-loc_68C64:
+AIZMiniboss_BarrelController_FireFinal:
 		move.b	#8,routine(a0)
-		move.l	#loc_68C84,$34(a0)
-		move.l	#byte_69136,$30(a0)
-		lea	ChildObjDat_690A8(pc),a2
+		move.l	#AIZMiniboss_BarrelController_ResetTrigger,$34(a0)
+		move.l	#AniRaw_AIZMiniboss_BarrelReturn,$30(a0)
+		lea	ChildObjDat_AIZMiniboss_BarrelShotAndFallingShot(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_68C84:
+AIZMiniboss_BarrelController_ResetTrigger:
 		move.b	#2,routine(a0)
 		movea.w	parent3(a0),a1
 		bclr	#1,$38(a1)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68C96:
+AIZMiniboss_FallingShot:
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_68CC6(pc,d0.w),d1
-		jsr	off_68CC6(pc,d1.w)
+		move.w	AIZMiniboss_FallingShot_Index(pc,d0.w),d1
+		jsr	AIZMiniboss_FallingShot_Index(pc,d1.w)
 		movea.w	parent3(a0),a1
 		movea.w	parent3(a1),a1
 		btst	#7,status(a1)
-		bne.s	loc_68CC0
+		bne.s	AIZMiniboss_FallingShot_Delete
 		jsr	(Add_SpriteToCollisionResponseList).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68CC0:
+AIZMiniboss_FallingShot_Delete:
 		jmp	(Go_Delete_Sprite).l
 ; ---------------------------------------------------------------------------
-off_68CC6:
-		dc.w loc_68CD0-off_68CC6
-		dc.w loc_68CF4-off_68CC6
-		dc.w loc_68574-off_68CC6
-		dc.w loc_68D42-off_68CC6
-		dc.w loc_68D5E-off_68CC6
+AIZMiniboss_FallingShot_Index:
+		dc.w AIZMiniboss_FallingShot_Init-AIZMiniboss_FallingShot_Index
+		dc.w AIZMiniboss_FallingShot_Rise-AIZMiniboss_FallingShot_Index
+		dc.w AIZMiniboss_Wait-AIZMiniboss_FallingShot_Index
+		dc.w AIZMiniboss_FallingShot_Wait-AIZMiniboss_FallingShot_Index
+		dc.w AIZMiniboss_FallingShot_Fall-AIZMiniboss_FallingShot_Index
 ; ---------------------------------------------------------------------------
 
-loc_68CD0:
-		bsr.w	sub_6885A
+AIZMiniboss_FallingShot_Init:
+		bsr.w	AIZMiniboss_BarrelShot_Init
 		movea.w	parent3(a0),a1
-		cmpi.l	#loc_6872C,(a1)
-		bne.s	loc_68CE4
+		cmpi.l	#AIZMinibossCutscene_BarrelController,(a1)
+		bne.s	AIZMiniboss_FallingShot_SetPause
 		clr.b	collision_flags(a0)
 
-loc_68CE4:
-		move.l	#loc_68D06,$34(a0)
+AIZMiniboss_FallingShot_SetPause:
+		move.l	#AIZMiniboss_FallingShot_StartPause,$34(a0)
 		move.b	#8,y_radius(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68CF4:
+AIZMiniboss_FallingShot_Rise:
 		jsr	(Animate_Raw).l
 		jsr	(MoveSprite2).l
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_68D06:
+AIZMiniboss_FallingShot_StartPause:
 		move.b	#4,routine(a0)
 		move.w	#8,$2E(a0)
-		move.l	#loc_68D1C,$34(a0)
+		move.l	#AIZMiniboss_FallingShot_Drop,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68D1C:
+AIZMiniboss_FallingShot_Drop:
 		move.b	#6,routine(a0)
-		move.l	#loc_68D48,$34(a0)
+		move.l	#AIZMiniboss_FallingShot_StartFall,$34(a0)
 		bset	#1,render_flags(a0)
-		bsr.w	sub_68ED4
+		bsr.w	AIZMiniboss_SetFallingShotDelay
 		move.w	(Camera_Y_pos).w,d0
 		subi.w	#$20,d0
 		move.w	d0,y_pos(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68D42:
+AIZMiniboss_FallingShot_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_68D48:
+AIZMiniboss_FallingShot_StartFall:
 		move.b	#8,routine(a0)
 		move.w	#$80,priority(a0)
-		move.l	#loc_68D70,$34(a0)
+		move.l	#AIZMiniboss_FallingShot_Explode,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68D5E:
+AIZMiniboss_FallingShot_Fall:
 		jsr	(Animate_Raw).l
 		jsr	(MoveSprite2).l
 		jmp	(ObjHitFloor_DoRoutine).l
 ; ---------------------------------------------------------------------------
 
-loc_68D70:
+AIZMiniboss_FallingShot_Explode:
 		moveq	#signextendB(sfx_MissileExplode),d0
 		jsr	(Play_SFX).l
 		lea	ChildObjDat_690D8(pc),a2
@@ -137534,88 +137534,88 @@ loc_68D70:
 		jmp	(Go_Delete_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68D88:
+BossExplosionHitbox:
 		moveq	#0,d0
 		move.b	routine(a0),d0
-		move.w	off_68D96(pc,d0.w),d1
-		jmp	off_68D96(pc,d1.w)
+		move.w	BossExplosionHitbox_Index(pc,d0.w),d1
+		jmp	BossExplosionHitbox_Index(pc,d1.w)
 ; ---------------------------------------------------------------------------
-off_68D96:
-		dc.w loc_68D9C-off_68D96
-		dc.w loc_68DD8-off_68D96
-		dc.w loc_68DEE-off_68D96
+BossExplosionHitbox_Index:
+		dc.w BossExplosionHitbox_Init-BossExplosionHitbox_Index
+		dc.w BossExplosionHitbox_Wait-BossExplosionHitbox_Index
+		dc.w BossExplosionHitbox_Animate-BossExplosionHitbox_Index
 ; ---------------------------------------------------------------------------
 
-loc_68D9C:
-		lea	ObjDat3_69032(pc),a1
+BossExplosionHitbox_Init:
+		lea	ObjDat_BossExplosionHitbox(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		cmpi.b	#0,(Current_zone).w
-		beq.s	loc_68DB4
+		beq.s	BossExplosionHitbox_CheckParent
 		move.w	#make_art_tile(ArtTile_BossExplosion,0,0),art_tile(a0)
 
-loc_68DB4:
+BossExplosionHitbox_CheckParent:
 		movea.w	parent3(a0),a1
 		tst.b	collision_flags(a1)
-		bne.s	loc_68DC2
+		bne.s	BossExplosionHitbox_StartWait
 		clr.b	collision_flags(a0)
 
-loc_68DC2:
+BossExplosionHitbox_StartWait:
 		move.l	#AniRaw_BossExplosion,$30(a0)
-		move.l	#loc_68DDE,$34(a0)
+		move.l	#BossExplosionHitbox_StartAnim,$34(a0)
 		moveq	#$C,d1
-		bra.w	loc_68928
+		bra.w	BossChild_SetSubtypeDelay
 ; ---------------------------------------------------------------------------
 
-loc_68DD8:
+BossExplosionHitbox_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_68DDE:
+BossExplosionHitbox_StartAnim:
 		move.b	#4,routine(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68DEE:
+BossExplosionHitbox_Animate:
 		jsr	(Animate_RawMultiDelay).l
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_68DFA:
-		lea	ObjDat3_6904A(pc),a1
+AIZMinibossCutscene_Debris_Init:
+		lea	ObjDat_AIZMiniboss_CutsceneDebris(pc),a1
 		jsr	(SetUp_ObjAttributes).l
-		move.l	#loc_68E7E,(a0)
-		move.l	#loc_68E84,$34(a0)
+		move.l	#AIZMinibossCutscene_Debris_Wait,(a0)
+		move.l	#AIZMinibossCutscene_Debris_StartMove,$34(a0)
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		move.w	(Camera_X_pos).w,d1
-		move.w	word_68E48(pc,d0.w),d2
+		move.w	AIZMinibossCutscene_Debris_XOffsets(pc,d0.w),d2
 		add.w	d2,d1
 		move.w	d1,x_pos(a0)
 		move.w	(Camera_Y_pos).w,d1
-		move.w	word_68E54(pc,d0.w),d2
+		move.w	AIZMinibossCutscene_Debris_YPositions(pc,d0.w),d2
 		move.w	d2,y_pos(a0)
-		move.w	word_68E60(pc,d0.w),x_vel(a0)
-		move.w	word_68E60(pc,d0.w),$2E(a0)
+		move.w	AIZMinibossCutscene_Debris_XVelocities(pc,d0.w),x_vel(a0)
+		move.w	AIZMinibossCutscene_Debris_XVelocities(pc,d0.w),$2E(a0)
 		lsr.w	#1,d0
-		move.b	byte_68E78(pc,d0.w),mapping_frame(a0)
+		move.b	AIZMinibossCutscene_Debris_Frames(pc,d0.w),mapping_frame(a0)
 		rts
 ; ---------------------------------------------------------------------------
-word_68E48:
+AIZMinibossCutscene_Debris_XOffsets:
 		dc.w   -$20
 		dc.w   -$68
 		dc.w   -$10
 		dc.w   -$58
 		dc.w     -8
 		dc.w   -$50
-word_68E54:
+AIZMinibossCutscene_Debris_YPositions:
 		dc.w   $310
 		dc.w   $310
 		dc.w   $31C
 		dc.w   $31C
 		dc.w   $328
 		dc.w   $328
-word_68E60:
+AIZMinibossCutscene_Debris_XVelocities:
 		dc.w   $200
 		dc.w   $200
 		dc.w   $180
@@ -137628,7 +137628,7 @@ word_68E60:
 		dc.w      0
 		dc.w      0
 		dc.w      0
-byte_68E78:
+AIZMinibossCutscene_Debris_Frames:
 		dc.b    0
 		dc.b    0
 		dc.b    1
@@ -137638,22 +137638,22 @@ byte_68E78:
 		even
 ; ---------------------------------------------------------------------------
 
-loc_68E7E:
+AIZMinibossCutscene_Debris_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_68E84:
-		move.l	#loc_68E8C,(a0)
+AIZMinibossCutscene_Debris_StartMove:
+		move.l	#AIZMinibossCutscene_Debris_Move,(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68E8C:
+AIZMinibossCutscene_Debris_Move:
 		jsr	(MoveSprite2).l
 		jmp	(Child_Draw_Sprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_68E98:
-		lea	word_69056(pc),a1
+AIZMiniboss_DefeatDebris_Init:
+		lea	ObjDat_AIZMiniboss_DefeatDebris(pc),a1
 		jsr	(SetUp_ObjAttributes3).l
 		move.l	#Obj_FlickerMove,(a0)
 		moveq	#0,d0
@@ -137665,13 +137665,13 @@ loc_68E98:
 		jmp	(Set_IndexedVelocity).l
 ; ---------------------------------------------------------------------------
 
-loc_68EC0:
+AIZMiniboss_SetSubtypeDelay:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
-		move.w	word_68ECE(pc,d0.w),$2E(a0)
+		move.w	AIZMiniboss_SubtypeDelays(pc,d0.w),$2E(a0)
 		rts
 ; ---------------------------------------------------------------------------
-word_68ECE:
+AIZMiniboss_SubtypeDelays:
 		dc.w      0
 		dc.w    $10
 		dc.w    $20
@@ -137679,25 +137679,25 @@ word_68ECE:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_68ED4:
+AIZMiniboss_SetFallingShotDelay:
 		movea.w	parent3(a0),a1
 		moveq	#0,d0
 		move.b	subtype(a1),d0
-		move.w	word_68F28(pc,d0.w),$2E(a0)
+		move.w	AIZMiniboss_FallingShotDelays(pc,d0.w),$2E(a0)
 
-sub_68EE4:
+AIZMiniboss_SetShotPosition:
 		lsr.w	#1,d0
 		move.b	$39(a1),d1
 		addq.b	#4,d1
 		move.b	d1,$39(a1)
 		andi.w	#$C,d1
 		add.w	d1,d0
-		lea	byte_68F2E(pc),a2
-		lea	word_68F4E(pc),a3
+		lea	AIZMiniboss_ShotSlotsRight(pc),a2
+		lea	AIZMiniboss_ShotXOffsetsRight(pc),a3
 		btst	#0,render_flags(a1)
 		beq.s	loc_68F0E
-		lea	byte_68F3E(pc),a2
-		lea	word_68F58(pc),a3
+		lea	AIZMiniboss_ShotSlotsLeft(pc),a2
+		lea	AIZMiniboss_ShotXOffsetsLeft(pc),a3
 
 loc_68F0E:
 		move.b	(a2,d0.w),d0
@@ -137707,14 +137707,14 @@ loc_68F0E:
 		move.w	d0,x_pos(a0)
 		move.w	#$400,y_vel(a0)
 		rts
-; End of function sub_68ED4
+; End of function AIZMiniboss_SetFallingShotDelay
 
 ; ---------------------------------------------------------------------------
-word_68F28:
+AIZMiniboss_FallingShotDelays:
 		dc.w      0
 		dc.w    $20
 		dc.w    $40
-byte_68F2E:
+AIZMiniboss_ShotSlotsRight:
 		dc.b    2
 		dc.b    3
 		dc.b    4
@@ -137731,7 +137731,7 @@ byte_68F2E:
 		dc.b    1
 		dc.b    4
 		dc.b    0
-byte_68F3E:
+AIZMiniboss_ShotSlotsLeft:
 		dc.b    3
 		dc.b    2
 		dc.b    0
@@ -137749,13 +137749,13 @@ byte_68F3E:
 		dc.b    1
 		dc.b    0
 		even
-word_68F4E:
+AIZMiniboss_ShotXOffsetsRight:
 		dc.w    $24
 		dc.w    $4C
 		dc.w    $74
 		dc.w    $9C
 		dc.w    $C4
-word_68F58:
+AIZMiniboss_ShotXOffsetsLeft:
 		dc.w    $7C
 		dc.w    $A4
 		dc.w    $CC
@@ -137763,11 +137763,11 @@ word_68F58:
 		dc.w   $11C
 ; ---------------------------------------------------------------------------
 
-loc_68F62:
+AIZMiniboss_CheckHitOrDefeat:
 		tst.b	collision_flags(a0)
-		bne.s	locret_68FB4
+		bne.s	AIZMiniboss_CheckHit_Return
 		tst.b	collision_property(a0)
-		beq.s	loc_68FB6
+		beq.s	AIZMiniboss_StartDefeat
 		tst.b	$20(a0)
 		bne.s	loc_68F88
 		move.b	#$20,$20(a0)
@@ -137782,21 +137782,21 @@ loc_68F88:
 		addq.w	#2*4,d0
 
 loc_68F94:
-		lea	word_68FE6(pc),a1
-		lea	word_68FEE(pc,d0.w),a2
+		lea	AIZMiniboss_HitFlash_PaletteTargets(pc),a1
+		lea	AIZMiniboss_HitFlash_PaletteValues(pc,d0.w),a2
 		jsr	(CopyWordData_4).l
 		subq.b	#1,$20(a0)
-		bne.s	locret_68FB4
+		bne.s	AIZMiniboss_CheckHit_Return
 		bclr	#6,status(a0)
 		move.b	$25(a0),collision_flags(a0)
 
-locret_68FB4:
+AIZMiniboss_CheckHit_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_68FB6:
+AIZMiniboss_StartDefeat:
 		move.l	#Wait_FadeToLevelMusic,(a0)
-		move.l	#loc_68C02,$34(a0)
+		move.l	#AIZMiniboss_SpawnEndSign,$34(a0)
 		clr.w	x_vel(a0)
 		clr.w	y_vel(a0)
 		lea	(Child6_CreateBossExplosion).l,a2
@@ -137807,9 +137807,9 @@ loc_68FB6:
 loc_68FE0:
 		jmp	(BossDefeated_StopTimer).l
 ; ---------------------------------------------------------------------------
-word_68FE6:
+AIZMiniboss_HitFlash_PaletteTargets:
 		dc.w Normal_palette_line_2+$0E, Normal_palette_line_2+$14, Normal_palette_line_2+$16, Normal_palette_line_2+$1C
-word_68FEE:
+AIZMiniboss_HitFlash_PaletteValues:
 		dc.w   $644,  $240,   $20,  $644
 		dc.w   $888,  $AAA,  $EEE,  $AAA
 ObjDat_AIZMiniboss:
@@ -137817,27 +137817,27 @@ ObjDat_AIZMiniboss:
 		dc.w make_art_tile(ArtTile_AIZMiniboss,1,1)
 		dc.w   $200
 		dc.b  $20, $20,   0,  $F
-word_6900A:
+ObjDat_AIZMiniboss_TouchChild:
 		dc.w make_art_tile(ArtTile_AIZMiniboss,0,1)
 		dc.w   $180
 		dc.b  $28, $10,   2, $9C
-word_69012:
+ObjDat_AIZMiniboss_DisplayChild:
 		dc.w make_art_tile(ArtTile_AIZMiniboss,1,1)
 		dc.w   $200
 		dc.b    4,   8,   6,   0
-word_6901A:
+ObjDat_AIZMiniboss_BarrelController:
 		dc.w make_art_tile(ArtTile_AIZMiniboss,1,1)
 		dc.w   $280
 		dc.b    8,   8,   3,   0
-byte_69022:
+ObjDat_AIZMiniboss_BarrelShotFlare:
 		dc.w make_art_tile(ArtTile_AIZMiniboss,0,0)
 		dc.w   $200
 		dc.b    8,   8,   7,   0
-word_6902A:
+ObjDat_AIZMiniboss_BarrelShot:
 		dc.w make_art_tile(ArtTile_AIZMiniboss,0,0)
 		dc.w   $280
 		dc.b    8, $10,  $C, $98
-ObjDat3_69032:
+ObjDat_BossExplosionHitbox:
 		dc.l Map_BossExplosion
 		dc.w make_art_tile(ArtTile_BossExplosion2,0,0)
 		dc.w    $80
@@ -137847,51 +137847,51 @@ ObjDat_AIZMiniboss_Flame:
 		dc.w make_art_tile(ArtTile_AIZBossFire,0,1)
 		dc.w   $100
 		dc.b  $10, $10,   0, $8B
-ObjDat3_6904A:
+ObjDat_AIZMiniboss_CutsceneDebris:
 		dc.l Map_AIZMinibossSmall
 		dc.w make_art_tile(ArtTile_AIZMinibossSmall,1,0)
 		dc.w   $380
 		dc.b  $10, $10,   0,   0
-word_69056:
+ObjDat_AIZMiniboss_DefeatDebris:
 		dc.w   $200
 		dc.b  $10, $14,   0,   0
-ChildObjDat_6905C:
+ChildObjDat_AIZMiniboss_BaseChildren:
 		dc.w 2-1
-		dc.l loc_686BE
+		dc.l AIZMiniboss_TouchChild_Init
 		dc.b    0, $20
-		dc.l loc_6870A
+		dc.l AIZMiniboss_DisplayChild_Init
 		dc.b -$24,   8
-ChildObjDat_6906A:
+ChildObjDat_AIZMinibossCutscene_Debris:
 		dc.w 6-1
-		dc.l loc_68DFA
+		dc.l AIZMinibossCutscene_Debris_Init
 		dc.b    0,   0
-ChildObjDat_69072:
+ChildObjDat_AIZMinibossCutscene_Barrels:
 		dc.w 3-1
-		dc.l loc_6872C
+		dc.l AIZMinibossCutscene_BarrelController
 		dc.b    0,-$20
-		dc.l loc_6872C
+		dc.l AIZMinibossCutscene_BarrelController
 		dc.b    9,-$1C
-		dc.l loc_6872C
+		dc.l AIZMinibossCutscene_BarrelController
 		dc.b  $12,-$18
-ChildObjDat_69086:
+ChildObjDat_AIZMiniboss_Barrels:
 		dc.w 3-1
-		dc.l loc_68C12
+		dc.l AIZMiniboss_BarrelController
 		dc.b    0,-$20
-		dc.l loc_68C12
+		dc.l AIZMiniboss_BarrelController
 		dc.b    9,-$1C
-		dc.l loc_68C12
+		dc.l AIZMiniboss_BarrelController
 		dc.b  $12,-$18
-ChildObjDat_6909A:
+ChildObjDat_AIZMiniboss_BarrelShotPair:
 		dc.w 2-1
-		dc.l loc_6880A
+		dc.l AIZMiniboss_BarrelShotFlare
 		dc.b    0,   4
-		dc.l loc_68844
+		dc.l AIZMiniboss_BarrelShot
 		dc.b    0,   4
-ChildObjDat_690A8:
+ChildObjDat_AIZMiniboss_BarrelShotAndFallingShot:
 		dc.w 2-1
-		dc.l loc_6880A
+		dc.l AIZMiniboss_BarrelShotFlare
 		dc.b    0,   4
-		dc.l loc_68C96
+		dc.l AIZMiniboss_FallingShot
 		dc.b    0,   4
 Child1_AIZ_MinibossFlames:
 		dc.w 4-1
@@ -137903,55 +137903,55 @@ Child1_AIZ_MinibossFlames:
 		dc.b -$44,   4
 		dc.l Obj_AIZMiniboss_Flame
 		dc.b -$2C,   3
-ChildObjDat_690D0:
+ChildObjDat_AIZMiniboss_ImpactFlame:
 		dc.w 1-1
-		dc.l loc_68994
+		dc.l AIZMiniboss_ImpactFlame
 		dc.b    0,   0
 ChildObjDat_690D8:
 		dc.w 7-1
-		dc.l loc_68D88
+		dc.l BossExplosionHitbox
 		dc.b    0,-$24
-		dc.l loc_68D88
+		dc.l BossExplosionHitbox
 		dc.b    8,-$1C
-		dc.l loc_68D88
+		dc.l BossExplosionHitbox
 		dc.b   -8,-$1C
-		dc.l loc_68D88
+		dc.l BossExplosionHitbox
 		dc.b    4,-$14
-		dc.l loc_68D88
+		dc.l BossExplosionHitbox
 		dc.b   -4,-$14
-		dc.l loc_68D88
+		dc.l BossExplosionHitbox
 		dc.b    4,  -4
-		dc.l loc_68D88
+		dc.l BossExplosionHitbox
 		dc.b   -4,  -4
-ChildObjDat_69104:
+ChildObjDat_AIZMinibossCutscene_Explosion:
 		dc.w 1-1
 		dc.l Obj_BossExplosionSpecial
 		dc.b    0,   0
-ChildObjDat_6910C:
+ChildObjDat_AIZMiniboss_DefeatDebris:
 		dc.w 4-1
-		dc.l loc_68E98
+		dc.l AIZMiniboss_DefeatDebris_Init
 		dc.b -$10,  -8
-		dc.l loc_68E98
+		dc.l AIZMiniboss_DefeatDebris_Init
 		dc.b   $C,-$10
-		dc.l loc_68E98
+		dc.l AIZMiniboss_DefeatDebris_Init
 		dc.b -$10, $14
-		dc.l loc_68E98
+		dc.l AIZMiniboss_DefeatDebris_Init
 		dc.b  $10,  $C
-byte_69126:
+AniRaw_AIZMiniboss_TouchChild:
 		dc.b    1,   1,   2, $FC
 		dc.b    7,   3,   4,   5, $F4
-byte_6912F:
+AniRaw_AIZMiniboss_BarrelAim:
 		dc.b    3,   5
 		dc.b    4,   5
 		dc.b    5, $17
 		dc.b  $F4
-byte_69136:
+AniRaw_AIZMiniboss_BarrelReturn:
 		dc.b    5, $17
 		dc.b    5, $17
 		dc.b    4,   5
 		dc.b    3,   5
 		dc.b  $F4
-byte_6913F:
+AniRaw_AIZMiniboss_BarrelShotFlare:
 		dc.b    7,   1
 		dc.b    7,   1
 		dc.b    8,   1
@@ -137959,7 +137959,7 @@ byte_6913F:
 		dc.b   $A,   3
 		dc.b   $B,   3
 		dc.b  $F4
-byte_6914C:
+AniRaw_AIZMiniboss_BarrelShot:
 		dc.b    1,  $C,  $D, $FC
 		dc.b    0,   0
 		dc.b    0,   0
@@ -137969,18 +137969,18 @@ byte_6914C:
 		dc.b    4,   4
 		dc.b    5,   4
 		dc.b  $F4
-byte_6915F:
+AniRaw_AIZMiniboss_Flame:
 		dc.b    0,   1
 		dc.b    0,   1
 		dc.b  $F4
-byte_69164:
+AniRaw_AIZMiniboss_FlameExplosion:
 		dc.b    2,   1
 		dc.b    2,   1
 		dc.b    3,   2
 		dc.b    4,   4
 		dc.b    5,   1
 		dc.b  $F4
-byte_6916F:
+AniRaw_AIZMiniboss_ImpactFlame:
 		dc.b    0,   1
 		dc.b    0,   1
 		dc.b    1,   2
