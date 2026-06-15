@@ -42721,7 +42721,7 @@ loc_1ECAA:
 Map_InvisibleBlock:
 		include "General/Sprites/Level Misc/Map - Invisible Block.asm"
 ; ---------------------------------------------------------------------------
-byte_1ED1A:
+HCZBreakableBar_SizeData:
 		dc.b  $14, $28, $20,   0
 		dc.b  $24, $48, $30,   1
 		dc.b  $34, $68, $40,   2
@@ -42741,9 +42741,9 @@ Obj_HCZBreakableBar:
 		move.w	d0,$30(a0)
 		andi.w	#$30,d1
 		lsr.w	#2,d1
-		lea	byte_1ED1A(pc,d1.w),a1
+		lea	HCZBreakableBar_SizeData(pc,d1.w),a1
 		tst.b	subtype(a0)
-		bpl.s	loc_1ED8E
+		bpl.s	HCZBreakableBar_InitVertical
 		moveq	#0,d0
 		move.b	(a1)+,d0
 		move.w	d0,$36(a0)
@@ -42754,11 +42754,11 @@ Obj_HCZBreakableBar:
 		move.b	(a1)+,d0
 		addq.b	#4,d0
 		move.b	d0,mapping_frame(a0)
-		move.l	#loc_1EF64,(a0)
-		bra.w	loc_1EF64
+		move.l	#HCZBreakableBar_Horizontal,(a0)
+		bra.w	HCZBreakableBar_Horizontal
 ; ---------------------------------------------------------------------------
 
-loc_1ED8E:
+HCZBreakableBar_InitVertical:
 		moveq	#0,d0
 		move.b	(a1)+,d0
 		move.w	d0,$36(a0)
@@ -42767,113 +42767,113 @@ loc_1ED8E:
 		move.b	#4,width_pixels(a0)
 		move.b	(a1)+,height_pixels(a0)
 		move.b	(a1)+,mapping_frame(a0)
-		move.l	#loc_1EDB0,(a0)
+		move.l	#HCZBreakableBar_Vertical,(a0)
 
-loc_1EDB0:
+HCZBreakableBar_Vertical:
 		lea	$32(a0),a2
 		tst.w	$30(a0)
-		beq.s	loc_1EDC6
+		beq.s	HCZBreakableBar_VerticalCheckPlayers
 		tst.w	(a2)
-		beq.s	loc_1EDC6
+		beq.s	HCZBreakableBar_VerticalCheckPlayers
 		subq.w	#1,$30(a0)
-		beq.w	loc_1EEEC
+		beq.w	HCZBreakableBar_BreakVertical
 
-loc_1EDC6:
+HCZBreakableBar_VerticalCheckPlayers:
 		lea	(Player_1).w,a1
 		move.w	(Ctrl_1).w,d1
 		moveq	#0,d2
-		bsr.s	sub_1EDEC
+		bsr.s	HCZBreakableBar_CheckVerticalGrab
 		addq.w	#1,a2
 		lea	(Player_2).w,a1
 		move.w	(Ctrl_2).w,d1
 		moveq	#1,d2
-		bsr.s	sub_1EDEC
+		bsr.s	HCZBreakableBar_CheckVerticalGrab
 		tst.b	$3A(a0)
-		bne.w	loc_1EEEC
+		bne.w	HCZBreakableBar_BreakVertical
 		bra.w	Sprite_OnScreen_Test
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1EDEC:
+HCZBreakableBar_CheckVerticalGrab:
 		tst.b	(a2)
-		beq.s	loc_1EE4E
+		beq.s	HCZBreakableBar_VerticalTryGrab
 		move.w	y_pos(a0),d0
 		sub.w	$36(a0),d0
 		btst	#button_up+8,d1
-		beq.s	loc_1EE0C
+		beq.s	HCZBreakableBar_VerticalHeld_CheckDown
 		subq.w	#1,y_pos(a1)
 		cmp.w	y_pos(a1),d0
-		blo.s	loc_1EE0C
+		blo.s	HCZBreakableBar_VerticalHeld_CheckDown
 		move.w	d0,y_pos(a1)
 
-loc_1EE0C:
+HCZBreakableBar_VerticalHeld_CheckDown:
 		add.w	$38(a0),d0
 		btst	#button_down+8,d1
-		beq.s	loc_1EE24
+		beq.s	HCZBreakableBar_VerticalHeld_CheckRelease
 		addq.w	#1,y_pos(a1)
 		cmp.w	y_pos(a1),d0
-		bhs.s	loc_1EE24
+		bhs.s	HCZBreakableBar_VerticalHeld_CheckRelease
 		move.w	d0,y_pos(a1)
 
-loc_1EE24:
+HCZBreakableBar_VerticalHeld_CheckRelease:
 		andi.w	#button_A_mask|button_B_mask|button_C_mask,d1
-		beq.w	locret_1EEEA
+		beq.w	HCZBreakableBar_VerticalPlayerReturn
 		clr.b	(a2)
 		move.b	#$3C,2(a2)
 		bclr	d2,(_unkF7C7).w
 		andi.b	#$FE,object_control(a1)
 		btst	#6,subtype(a0)
-		bne.s	locret_1EE4C
+		bne.s	HCZBreakableBar_VerticalHeld_ReturnNoBreak
 		move.b	#1,$3A(a0)
 
-locret_1EE4C:
+HCZBreakableBar_VerticalHeld_ReturnNoBreak:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1EE4E:
+HCZBreakableBar_VerticalTryGrab:
 		tst.b	2(a2)
-		beq.s	loc_1EE5A
+		beq.s	HCZBreakableBar_VerticalCheckPlayerRange
 		subq.b	#1,2(a2)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1EE5A:
+HCZBreakableBar_VerticalCheckPlayerRange:
 		moveq	#0,d1
 		move.b	height_pixels(a0),d1
 		move.w	y_pos(a0),d0
 		sub.w	d1,d0
 		move.w	y_pos(a1),d2
 		cmp.w	d0,d2
-		blo.s	locret_1EEEA
+		blo.s	HCZBreakableBar_VerticalPlayerReturn
 		add.w	d1,d0
 		add.w	d1,d0
 		cmp.w	d0,d2
-		bhs.s	locret_1EEEA
+		bhs.s	HCZBreakableBar_VerticalPlayerReturn
 		move.w	x_pos(a0),d0
 		addi.w	#$14,d0
 		cmp.w	x_pos(a1),d0
-		bhs.s	locret_1EEEA
+		bhs.s	HCZBreakableBar_VerticalPlayerReturn
 		addi.w	#$10,d0
 		cmp.w	x_pos(a1),d0
-		blo.s	locret_1EEEA
+		blo.s	HCZBreakableBar_VerticalPlayerReturn
 		cmpi.b	#4,routine(a1)
-		bhs.s	locret_1EEEA
+		bhs.s	HCZBreakableBar_VerticalPlayerReturn
 		tst.b	object_control(a1)
-		bne.s	locret_1EEEA
+		bne.s	HCZBreakableBar_VerticalPlayerReturn
 		move.w	y_pos(a0),d0
 		sub.w	$36(a0),d0
 		cmp.w	y_pos(a1),d0
-		blo.s	loc_1EEAE
+		blo.s	HCZBreakableBar_VerticalClampBottom
 		move.w	d0,y_pos(a1)
 
-loc_1EEAE:
+HCZBreakableBar_VerticalClampBottom:
 		add.w	$38(a0),d0
 		cmp.w	y_pos(a1),d0
-		bhs.s	loc_1EEBC
+		bhs.s	HCZBreakableBar_VerticalCapture
 		move.w	d0,y_pos(a1)
 
-loc_1EEBC:
+HCZBreakableBar_VerticalCapture:
 		clr.w	x_vel(a1)
 		clr.w	y_vel(a1)
 		move.w	x_pos(a0),d0
@@ -42885,159 +42885,159 @@ loc_1EEBC:
 		bset	d2,(_unkF7C7).w
 		move.b	#1,(a2)
 
-locret_1EEEA:
+HCZBreakableBar_VerticalPlayerReturn:
 		rts
-; End of function sub_1EDEC
+; End of function HCZBreakableBar_CheckVerticalGrab
 
 ; ---------------------------------------------------------------------------
 
-loc_1EEEC:
+HCZBreakableBar_BreakVertical:
 		tst.b	$32(a0)
-		beq.s	loc_1EEF8
+		beq.s	HCZBreakableBar_BreakVertical_ClearP2
 		andi.b	#$FE,(Player_1+object_control).w
 
-loc_1EEF8:
+HCZBreakableBar_BreakVertical_ClearP2:
 		tst.b	$33(a0)
-		beq.s	loc_1EF04
+		beq.s	HCZBreakableBar_BreakVertical_SpawnDebris
 		andi.b	#$FE,(Player_2+object_control).w
 
-loc_1EF04:
+HCZBreakableBar_BreakVertical_SpawnDebris:
 		clr.b	(_unkF7C7).w
 		clr.w	$32(a0)
-		move.l	#loc_1EF3E,(a0)
+		move.l	#HCZBreakableBar_Debris,(a0)
 		move.b	#3,mapping_frame(a0)
 		move.w	#$400,x_vel(a0)
 		move.w	#0,y_vel(a0)
-		lea	(word_1F108).l,a4
-		lea	(byte_1F0F0).l,a2
+		lea	(HCZBreakableBar_VerticalDebrisOffsets).l,a4
+		lea	(HCZBreakableBar_DebrisDelayData).l,a2
 		moveq	#0,d1
 		move.b	height_pixels(a0),d1
 		lsr.w	#2,d1
 		subq.w	#1,d1
-		bsr.w	sub_1F188
+		bsr.w	HCZBreakableBar_SpawnDebris
 
-loc_1EF3E:
+HCZBreakableBar_Debris:
 		tst.b	$3F(a0)
-		beq.s	loc_1EF4A
+		beq.s	HCZBreakableBar_DebrisMove
 		subq.b	#1,$3F(a0)
-		bra.s	loc_1EF56
+		bra.s	HCZBreakableBar_DebrisDrawOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_1EF4A:
+HCZBreakableBar_DebrisMove:
 		jsr	(MoveSprite2).l
 		addi.w	#8,y_vel(a0)
 
-loc_1EF56:
+HCZBreakableBar_DebrisDrawOrDelete:
 		tst.b	render_flags(a0)
 		bpl.w	loc_1EBAA
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_1EF64:
+HCZBreakableBar_Horizontal:
 		lea	$32(a0),a2
 		tst.w	$30(a0)
-		beq.s	loc_1EF7A
+		beq.s	HCZBreakableBar_HorizontalCheckPlayers
 		tst.w	(a2)
-		beq.s	loc_1EF7A
+		beq.s	HCZBreakableBar_HorizontalCheckPlayers
 		subq.w	#1,$30(a0)
-		beq.w	loc_1F09A
+		beq.w	HCZBreakableBar_BreakHorizontal
 
-loc_1EF7A:
+HCZBreakableBar_HorizontalCheckPlayers:
 		lea	(Player_1).w,a1
 		move.w	(Ctrl_1).w,d1
 		moveq	#0,d2
-		bsr.s	sub_1EFA0
+		bsr.s	HCZBreakableBar_CheckHorizontalGrab
 		addq.w	#1,a2
 		lea	(Player_2).w,a1
 		move.w	(Ctrl_2).w,d1
 		moveq	#1,d2
-		bsr.s	sub_1EFA0
+		bsr.s	HCZBreakableBar_CheckHorizontalGrab
 		tst.b	$3A(a0)
-		bne.w	loc_1F09A
+		bne.w	HCZBreakableBar_BreakHorizontal
 		bra.w	Sprite_OnScreen_Test
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1EFA0:
+HCZBreakableBar_CheckHorizontalGrab:
 		tst.b	(a2)
-		beq.s	loc_1F002
+		beq.s	HCZBreakableBar_HorizontalTryGrab
 		move.w	x_pos(a0),d0
 		sub.w	$36(a0),d0
 		btst	#button_left+8,d1
-		beq.s	loc_1EFC0
+		beq.s	HCZBreakableBar_HorizontalHeld_CheckRight
 		subq.w	#1,x_pos(a1)
 		cmp.w	x_pos(a1),d0
-		blo.s	loc_1EFC0
+		blo.s	HCZBreakableBar_HorizontalHeld_CheckRight
 		move.w	d0,x_pos(a1)
 
-loc_1EFC0:
+HCZBreakableBar_HorizontalHeld_CheckRight:
 		add.w	$38(a0),d0
 		btst	#button_right+8,d1
-		beq.s	loc_1EFD8
+		beq.s	HCZBreakableBar_HorizontalHeld_CheckRelease
 		addq.w	#1,x_pos(a1)
 		cmp.w	x_pos(a1),d0
-		bhs.s	loc_1EFD8
+		bhs.s	HCZBreakableBar_HorizontalHeld_CheckRelease
 		move.w	d0,x_pos(a1)
 
-loc_1EFD8:
+HCZBreakableBar_HorizontalHeld_CheckRelease:
 		andi.w	#button_A_mask|button_B_mask|button_C_mask,d1
-		beq.w	locret_1F098
+		beq.w	HCZBreakableBar_HorizontalPlayerReturn
 		clr.b	(a2)
 		move.b	#$3C,2(a2)
 		bclr	d2,(_unkF7C7).w
 		andi.b	#$FE,object_control(a1)
 		btst	#6,subtype(a0)
-		bne.s	locret_1F000
+		bne.s	HCZBreakableBar_HorizontalHeld_ReturnNoBreak
 		move.b	#1,$3A(a0)
 
-locret_1F000:
+HCZBreakableBar_HorizontalHeld_ReturnNoBreak:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1F002:
+HCZBreakableBar_HorizontalTryGrab:
 		tst.b	2(a2)
-		beq.s	loc_1F00E
+		beq.s	HCZBreakableBar_HorizontalCheckPlayerRange
 		subq.b	#1,2(a2)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1F00E:
+HCZBreakableBar_HorizontalCheckPlayerRange:
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		move.w	x_pos(a0),d0
 		sub.w	d1,d0
 		move.w	x_pos(a1),d2
 		cmp.w	d0,d2
-		blo.s	locret_1F098
+		blo.s	HCZBreakableBar_HorizontalPlayerReturn
 		add.w	d1,d0
 		add.w	d1,d0
 		cmp.w	d0,d2
-		bhs.s	locret_1F098
+		bhs.s	HCZBreakableBar_HorizontalPlayerReturn
 		move.w	y_pos(a0),d0
 		subi.w	#$14,d0
 		cmp.w	y_pos(a1),d0
-		bhs.s	locret_1F098
+		bhs.s	HCZBreakableBar_HorizontalPlayerReturn
 		addi.w	#$10,d0
 		cmp.w	y_pos(a1),d0
-		blo.s	locret_1F098
+		blo.s	HCZBreakableBar_HorizontalPlayerReturn
 		cmpi.b	#4,routine(a1)
-		bhs.s	locret_1F098
+		bhs.s	HCZBreakableBar_HorizontalPlayerReturn
 		tst.b	object_control(a1)
-		bne.s	locret_1F098
+		bne.s	HCZBreakableBar_HorizontalPlayerReturn
 		move.w	x_pos(a0),d0
 		sub.w	$36(a0),d0
 		cmp.w	x_pos(a1),d0
-		blo.s	loc_1F062
+		blo.s	HCZBreakableBar_HorizontalClampRight
 		move.w	d0,x_pos(a1)
 
-loc_1F062:
+HCZBreakableBar_HorizontalClampRight:
 		add.w	$38(a0),d0
 		cmp.w	x_pos(a1),d0
-		bhs.s	loc_1F070
+		bhs.s	HCZBreakableBar_HorizontalCapture
 		move.w	d0,x_pos(a1)
 
-loc_1F070:
+HCZBreakableBar_HorizontalCapture:
 		clr.w	x_vel(a1)
 		clr.w	y_vel(a1)
 		move.w	y_pos(a0),d0
@@ -43048,43 +43048,43 @@ loc_1F070:
 		bset	d2,(_unkF7C7).w
 		move.b	#1,(a2)
 
-locret_1F098:
+HCZBreakableBar_HorizontalPlayerReturn:
 		rts
-; End of function sub_1EFA0
+; End of function HCZBreakableBar_CheckHorizontalGrab
 
 ; ---------------------------------------------------------------------------
 
-loc_1F09A:
+HCZBreakableBar_BreakHorizontal:
 		tst.b	$32(a0)
-		beq.s	loc_1F0A6
+		beq.s	HCZBreakableBar_BreakHorizontal_ClearP2
 		andi.b	#$FE,(Player_1+object_control).w
 
-loc_1F0A6:
+HCZBreakableBar_BreakHorizontal_ClearP2:
 		tst.b	$33(a0)
-		beq.s	loc_1F0B2
+		beq.s	HCZBreakableBar_BreakHorizontal_SpawnDebris
 		andi.b	#$FE,(Player_2+object_control).w
 
-loc_1F0B2:
+HCZBreakableBar_BreakHorizontal_SpawnDebris:
 		clr.b	(_unkF7C7).w
 		clr.w	$32(a0)
-		move.l	#loc_1EF3E,(a0)
+		move.l	#HCZBreakableBar_Debris,(a0)
 		move.b	#7,mapping_frame(a0)
 		move.w	#0,x_vel(a0)
 		move.w	#-$400,y_vel(a0)
-		lea	(word_1F148).l,a4
-		lea	(byte_1F0F0).l,a2
+		lea	(HCZBreakableBar_HorizontalDebrisOffsets).l,a4
+		lea	(HCZBreakableBar_DebrisDelayData).l,a2
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		lsr.w	#2,d1
 		subq.w	#1,d1
-		bsr.w	sub_1F188
-		bra.w	loc_1EF3E
+		bsr.w	HCZBreakableBar_SpawnDebris
+		bra.w	HCZBreakableBar_Debris
 ; ---------------------------------------------------------------------------
-byte_1F0F0:
+HCZBreakableBar_DebrisDelayData:
 		dc.b    7,   5,   2,   0,   1,   3,   4,   6,   7,   5,   2,   0,   1,   3,   4,   6,   8,   9,  $A,  $B
 		dc.b   $C,  $D,  $E,  $F
 		even
-word_1F108:
+HCZBreakableBar_VerticalDebrisOffsets:
 		dc.w      0,  -$1C
 		dc.w      0,  -$14
 		dc.w      0,   -$C
@@ -43101,7 +43101,7 @@ word_1F108:
 		dc.w      0,  -$34
 		dc.w      0,   $3C
 		dc.w      0,  -$3C
-word_1F148:
+HCZBreakableBar_HorizontalDebrisOffsets:
 		dc.w   -$1C,     0
 		dc.w   -$14,     0
 		dc.w    -$C,     0
@@ -43122,19 +43122,19 @@ word_1F148:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1F188:
+HCZBreakableBar_SpawnDebris:
 		move.w	x_pos(a0),d2
 		move.w	y_pos(a0),d3
 		move.w	priority(a0),d4
 		movea.l	a0,a1
-		bra.s	loc_1F1A0
+		bra.s	HCZBreakableBar_InitDebrisPiece
 ; ---------------------------------------------------------------------------
 
-loc_1F198:
+HCZBreakableBar_SpawnDebrisNext:
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	loc_1F1FA
+		bne.s	HCZBreakableBar_PlayCollapseSfx
 
-loc_1F1A0:
+HCZBreakableBar_InitDebrisPiece:
 		move.l	(a0),(a1)
 		move.l	mappings(a0),mappings(a1)
 		move.w	art_tile(a0),art_tile(a1)
@@ -43154,12 +43154,12 @@ loc_1F1A0:
 		move.w	x_vel(a0),x_vel(a1)
 		move.w	y_vel(a0),y_vel(a1)
 		move.b	(a2)+,$3F(a1)
-		dbf	d1,loc_1F198
+		dbf	d1,HCZBreakableBar_SpawnDebrisNext
 
-loc_1F1FA:
+HCZBreakableBar_PlayCollapseSfx:
 		moveq	#signextendB(sfx_Collapse),d0
 		jmp	(Play_SFX).l
-; End of function sub_1F188
+; End of function HCZBreakableBar_SpawnDebris
 
 ; ---------------------------------------------------------------------------
 
@@ -43228,7 +43228,7 @@ loc_1F2C4:
 Map_HCZWaveSplash:
 		include "Levels/HCZ/Misc Object Data/Map - Wave Splash.asm"
 ; ---------------------------------------------------------------------------
-byte_1F38A:
+HCZBlock_SizeData:
 		dc.b $10, $10
 		dc.b $20, $10
 		dc.b $30, $10
@@ -43240,16 +43240,16 @@ Obj_HCZBlock:
 		move.b	subtype(a0),d0
 		move.b	d0,mapping_frame(a0)
 		add.w	d0,d0
-		lea	byte_1F38A(pc,d0.w),a1
+		lea	HCZBlock_SizeData(pc,d0.w),a1
 		move.b	(a1)+,width_pixels(a0)
 		move.b	(a1)+,height_pixels(a0)
 		move.l	#Map_HCZBlock,mappings(a0)
 		move.w	#make_art_tile(ArtTile_HCZMisc+$A,2,0),art_tile(a0)
 		ori.b	#4,render_flags(a0)
 		move.w	#$280,priority(a0)
-		move.l	#loc_1F3CA,(a0)
+		move.l	#HCZBlock_Main,(a0)
 
-loc_1F3CA:
+HCZBlock_Main:
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		addi.w	#$B,d1
