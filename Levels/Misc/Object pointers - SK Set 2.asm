@@ -178,9 +178,9 @@
 	dc.l Obj_DEZEndBoss			; $A7 / 167
 	dc.l Obj_MHZ1CutsceneKnuckles		; $A8 / 168
 	dc.l Obj_MHZ1CutsceneButton		; $A9 / 169
-	dc.l Obj_SOZGhosts			; $AA / 170
-	dc.l Obj_SOZGhostCapsuleLoadArt		; $AB / 171
-	dc.l Obj_SOZGhostCapsule		; $AC / 172
+	dc.l Obj_Hyudoro			; $AA / 170
+	dc.l Obj_SOZHyudoroCapsuleLoadArt	; $AB / 171
+	dc.l Obj_SOZHyudoroCapsule		; $AC / 172
 	dc.l Obj_LRZ3Platform			; $AD / 173
 	dc.l Obj_LRZ2CutsceneKnuckles		; $AE / 174
 	dc.l Obj_SSZCutsceneButton		; $AF / 175

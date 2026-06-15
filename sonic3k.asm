@@ -62267,7 +62267,7 @@ loc_2D86E:
 		bne.s	loc_2D88A
 		jsr	(AllocateObject).l
 		bne.s	loc_2D88A
-		move.l	#Obj_SOZGhosts,(a1)	; If new level is Sandopolis 2, then load the ghosts
+		move.l	#Obj_Hyudoro,(a1)	; If new level is Sandopolis 2, then load Hyudoro
 
 loc_2D88A:
 		cmpi.b	#$16,(Current_zone).w
@@ -195447,8 +195447,8 @@ Map_Rockn:
 ; ---------------------------------------------------------------------------
 
 ; original label: gost08
-; Obj_SOZGhosts:
-Obj_SOZGhosts:
+; Obj_Hyudoro:
+Obj_Hyudoro:
 		move.l	#Hyudoro_ctr,(a0)
 		move.w	#$120,x_pos(a0)
 		move.w	#$A0,y_pos(a0)
@@ -195752,8 +195752,8 @@ Hyudoro_body_fout0:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-; Obj_SOZGhostCapsuleLoadArt:
-Obj_SOZGhostCapsuleLoadArt:
+; Obj_SOZHyudoroCapsuleLoadArt:
+Obj_SOZHyudoroCapsuleLoadArt:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		movea.l	.col_tbl(pc,d0.w),a1
@@ -195807,13 +195807,13 @@ set_soz_enemy_cg:
 ; ---------------------------------------------------------------------------
 
 ; original label: obox08
-; Obj_SOZGhostCapsule:
-Obj_SOZGhostCapsule:
-		lea	SOZGhostCapsule_InitTbl(pc),a1
+; Obj_SOZHyudoroCapsule:
+Obj_SOZHyudoroCapsule:
+		lea	SOZHyudoroCapsule_InitTbl(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		move.l	#loc_89C14,(a0)
 		move.b	#3,subtype(a0)
-		lea	SOZGhostCapsuleSwitch_SetTbl(pc),a2
+		lea	SOZHyudoroCapsuleSwitch_SetTbl(pc),a2
 		jsr	(CreateChild1_Normal).l
 		tst.b	(Last_star_post_hit).w
 		bne.s	._100
@@ -195832,7 +195832,7 @@ return:
 ; ---------------------------------------------------------------------------
 
 ; loc_8F438:
-SOZGhostCapsule_Switch:
+SOZHyudoroCapsule_Switch:
 		lea	(word_86B3E).l,a1
 		jsr	(SetUp_ObjAttributes3).l
 		move.l	#loc_8672A,(a0)
@@ -195847,7 +195847,7 @@ SOZGhostCapsule_Switch:
 ; ---------------------------------------------------------------------------
 
 ; loc_8F45E:
-SOZGhostCapsule_Hyudoro:
+SOZHyudoroCapsule_Hyudoro:
 		moveq	#0,d0
 		move.b	routine(a0),d0
 		move.w	.act_tbl(pc,d0.w),d1
@@ -195866,13 +195866,13 @@ SOZGhostCapsule_Hyudoro:
 
 ; off_8F488:
 .act_tbl:
-		dc.w SOZGhostCapsule_Hyudoro_init-.act_tbl
-		dc.w SOZGhostCapsule_Hyudoro_move0-.act_tbl
-		dc.w SOZGhostCapsule_Hyudoro_move1-.act_tbl
+		dc.w SOZHyudoroCapsule_Hyudoro_init-.act_tbl
+		dc.w SOZHyudoroCapsule_Hyudoro_move0-.act_tbl
+		dc.w SOZHyudoroCapsule_Hyudoro_move1-.act_tbl
 ; ---------------------------------------------------------------------------
 
 ; loc_8F48E:
-SOZGhostCapsule_Hyudoro_init:
+SOZHyudoroCapsule_Hyudoro_init:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		add.w	d0,d0
@@ -195888,7 +195888,7 @@ SOZGhostCapsule_Hyudoro_init:
 
 ; loc_8F4B6:
 ._100:
-		lea	SOZGhostCapsuleHyudoro_InitTbl(pc),a1
+		lea	SOZHyudoroCapsuleHyudoro_InitTbl(pc),a1
 		jmp	(SetUp_ObjAttributes).l
 ; ---------------------------------------------------------------------------
 
@@ -195903,12 +195903,12 @@ SOZGhostCapsule_Hyudoro_init:
 ; ---------------------------------------------------------------------------
 
 ; loc_8F4D8:
-SOZGhostCapsule_Hyudoro_move0:
+SOZHyudoroCapsule_Hyudoro_move0:
 		lea	Hyudoro_pg00(pc),a1
 		jsr	(Animate_RawNoSST).l
 
 ; loc_8F4E2:
-SOZGhostCapsule_Hyudoro_move1:
+SOZHyudoroCapsule_Hyudoro_move1:
 		move.w	$40(a0),d0
 		add.w	d0,y_vel(a0)
 		jmp	(MoveSprite2).l
@@ -195950,7 +195950,7 @@ set_Hyudoro:
 		move.w	(a1)+,(Saved_X_pos).w
 		move.w	(a1)+,(Saved_Y_pos).w
 		jsr	(Save_Level_Data).l
-		lea	SOZGhostCapsuleHyudoro_SetTbl(pc),a2
+		lea	SOZHyudoroCapsuleHyudoro_SetTbl(pc),a2
 		jmp	(CreateChild1_Normal).l
 
 ; =============== S U B R O U T I N E =======================================
@@ -196071,39 +196071,39 @@ Hyudoro_init_tbl:
 		dc.b  $10, $14,   0,   0
 
 ; ObjDat_SOZGhostCapsule:
-SOZGhostCapsule_InitTbl:
+SOZHyudoroCapsule_InitTbl:
 		dc.l Map_EggCapsule
 		dc.w make_art_tile(ArtTile_SOZGhostCapsule,0,1)
 		dc.w   $180
 		dc.b  $30, $20,   0,   0
 
 ; ObjDat3_8F63A:
-SOZGhostCapsuleHyudoro_InitTbl:
+SOZHyudoroCapsuleHyudoro_InitTbl:
 		dc.l Map_SOZGhosts
 		dc.w make_art_tile(ArtTile_SOZGhosts,1,1)
 		dc.w   $200
 		dc.b  $30, $20,   0,   0
 
 ; ChildObjDat_8F646:
-SOZGhostCapsuleSwitch_SetTbl:
+SOZHyudoroCapsuleSwitch_SetTbl:
 		dc.w 1-1
-		dc.l SOZGhostCapsule_Switch
+		dc.l SOZHyudoroCapsule_Switch
 		dc.b    0,-$24
 
 ; ChildObjDat_8F64E:
-SOZGhostCapsuleHyudoro_SetTbl:
+SOZHyudoroCapsuleHyudoro_SetTbl:
 		dc.w 6-1
-		dc.l SOZGhostCapsule_Hyudoro
+		dc.l SOZHyudoroCapsule_Hyudoro
 		dc.b   -8,  -4
-		dc.l SOZGhostCapsule_Hyudoro
+		dc.l SOZHyudoroCapsule_Hyudoro
 		dc.b    8,  -4
-		dc.l SOZGhostCapsule_Hyudoro
+		dc.l SOZHyudoroCapsule_Hyudoro
 		dc.b  $10,  -4
-		dc.l SOZGhostCapsule_Hyudoro
+		dc.l SOZHyudoroCapsule_Hyudoro
 		dc.b -$10,  -4
-		dc.l SOZGhostCapsule_Hyudoro
+		dc.l SOZHyudoroCapsule_Hyudoro
 		dc.b  $18,  -4
-		dc.l SOZGhostCapsule_Hyudoro
+		dc.l SOZHyudoroCapsule_Hyudoro
 		dc.b -$18,  -4
 
 ; ChildObjDat_8F674:
