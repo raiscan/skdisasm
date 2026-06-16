@@ -1,13 +1,13 @@
 Map_LBZPipePlug_:
-		dc.w Frame_2268C6-Map_LBZPipePlug_
-		dc.w Frame_2268CE-Map_LBZPipePlug_
-		dc.w Frame_2268D6-Map_LBZPipePlug_
-		dc.w Frame_2268DE-Map_LBZPipePlug_
-		dc.w Frame_2268E6-Map_LBZPipePlug_
-		dc.w Frame_2268EE-Map_LBZPipePlug_
-		dc.w Frame_2268F6-Map_LBZPipePlug_
-		dc.w Frame_226864-Map_LBZPipePlug_
-Frame_226864:	dc.w $10
+		dc.w Map_LBZPipePlug_Frame0-Map_LBZPipePlug_
+		dc.w Map_LBZPipePlug_Frame1-Map_LBZPipePlug_
+		dc.w Map_LBZPipePlug_Frame2-Map_LBZPipePlug_
+		dc.w Map_LBZPipePlug_Frame3-Map_LBZPipePlug_
+		dc.w Map_LBZPipePlug_Frame4-Map_LBZPipePlug_
+		dc.w Map_LBZPipePlug_Frame5-Map_LBZPipePlug_
+		dc.w Map_LBZPipePlug_Frame6-Map_LBZPipePlug_
+		dc.w Map_LBZPipePlug_Frame7-Map_LBZPipePlug_
+Map_LBZPipePlug_Frame7:	dc.w $10	; Frame_226864
 		dc.b  $E0,   5,   0,   4, $FF, $F0
 		dc.b  $E0,   5,   8,   4,   0,   0
 		dc.b  $10,   5, $10,   4, $FF, $F0
@@ -24,17 +24,17 @@ Frame_226864:	dc.w $10
 		dc.b    0,   1,   0,  $E, $FF, $FF
 		dc.b    0,   1,   8,  $A,   0,   4
 		dc.b    0,   1,   8,   8,   0,   7
-Frame_2268C6:	dc.w 1
+Map_LBZPipePlug_Frame0:	dc.w 1	; Frame_2268C6
 		dc.b    0,   1,   0,   8,   0,   0
-Frame_2268CE:	dc.w 1
+Map_LBZPipePlug_Frame1:	dc.w 1	; Frame_2268CE
 		dc.b    0,   1,   0,  $A,   0,   0
-Frame_2268D6:	dc.w 1
+Map_LBZPipePlug_Frame2:	dc.w 1	; Frame_2268D6
 		dc.b    0,   1,   0,  $C,   0,   0
-Frame_2268DE:	dc.w 1
+Map_LBZPipePlug_Frame3:	dc.w 1	; Frame_2268DE
 		dc.b    0,   1,   0,  $E,   0,   0
-Frame_2268E6:	dc.w 1
+Map_LBZPipePlug_Frame4:	dc.w 1	; Frame_2268E6
 		dc.b    0,   1,   8,  $C,   0,   0
-Frame_2268EE:	dc.w 1
+Map_LBZPipePlug_Frame5:	dc.w 1	; Frame_2268EE
 		dc.b    0,   1,   8,  $A,   0,   0
-Frame_2268F6:	dc.w 1
+Map_LBZPipePlug_Frame6:	dc.w 1	; Frame_2268F6
 		dc.b    0,   1,   8,   8,   0,   0
