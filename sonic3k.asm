@@ -184814,7 +184814,7 @@ Tunnelbot_SetTriggerAndDelete:
 ; ---------------------------------------------------------------------------
 
 Obj_MGZMiniboss:
-		lea	word_8859C(pc),a1
+		lea	MGZMiniboss_CameraRange(pc),a1
 		jsr	(Check_CameraInRange).l
 		moveq	#0,d0
 		move.b	routine(a0),d0
@@ -184824,21 +184824,21 @@ Obj_MGZMiniboss:
 		jmp	Draw_And_Touch_Sprite(pc)
 ; ---------------------------------------------------------------------------
 MGZMiniboss_Index:
-		dc.w loc_885A4-MGZMiniboss_Index
-		dc.w loc_88604-MGZMiniboss_Index
+		dc.w MGZMiniboss_Init-MGZMiniboss_Index
+		dc.w MGZMiniboss_IntroWait-MGZMiniboss_Index
 		dc.w TunnelbotMiniboss_SpinUp-MGZMiniboss_Index
 		dc.w TunnelbotMiniboss_CeilingRise-MGZMiniboss_Index
 		dc.w TunnelbotMiniboss_RumbleWait-MGZMiniboss_Index
-		dc.w loc_8867A-MGZMiniboss_Index
-		dc.w loc_886EA-MGZMiniboss_Index
-		dc.w loc_88748-MGZMiniboss_Index
-		dc.w loc_8876A-MGZMiniboss_Index
-		dc.w loc_88790-MGZMiniboss_Index
-word_8859C:
+		dc.w MGZMiniboss_DelayBeforeDrop-MGZMiniboss_Index
+		dc.w MGZMiniboss_DropRumbleWait-MGZMiniboss_Index
+		dc.w MGZMiniboss_DropDown-MGZMiniboss_Index
+		dc.w MGZMiniboss_Rise-MGZMiniboss_Index
+		dc.w MGZMiniboss_SwingReturn-MGZMiniboss_Index
+MGZMiniboss_CameraRange:
 		dc.w   $D20,  $EC0, $2B80, $3080
 ; ---------------------------------------------------------------------------
 
-loc_885A4:
+MGZMiniboss_Init:
 		lea	ObjDat_Tunnelbot(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.b	#6,collision_property(a0)
@@ -184846,168 +184846,168 @@ loc_885A4:
 		move.w	#$2E00,(Camera_max_X_pos).w
 		move.w	#$E10,(Camera_target_max_Y_pos).w
 		move.w	#$2E00,$3A(a0)
-		move.l	#loc_88616,$34(a0)
+		move.l	#MGZMiniboss_StartSpinUp,$34(a0)
 		jsr	(Swing_Setup1).l
 		bset	#1,$38(a0)
 		lea	PLC_MGZMiniboss(pc),a1
 		jsr	(Load_PLC_Raw).l
 		jsr	(AllocateObject).l
-		bne.s	loc_885FC
+		bne.s	MGZMiniboss_CreateHitboxChildren
 		move.l	#Obj_Song_Fade_Transition,(a1)
 		move.b	#mus_Miniboss,subtype(a1)
 
-loc_885FC:
+MGZMiniboss_CreateHitboxChildren:
 		lea	TunnelbotMiniboss_HitboxChildren(pc),a2
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
-loc_88604:
+MGZMiniboss_IntroWait:
 		jsr	(Swing_UpAndDown).l
 		jsr	(MoveSprite2).l
 		jmp	(loc_85C7E).l
 ; ---------------------------------------------------------------------------
 
-loc_88616:
+MGZMiniboss_StartSpinUp:
 		move.b	#4,routine(a0)
 		move.l	#TunnelbotMiniboss_SpinUpAnim,$30(a0)
-		move.l	#loc_8862E,$34(a0)
+		move.l	#MGZMiniboss_StartCeilingRise,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8862E:
+MGZMiniboss_StartCeilingRise:
 		move.b	#6,routine(a0)
 		move.l	#TunnelbotMiniboss_CeilingRiseAnim,$30(a0)
-		move.l	#loc_88646,$34(a0)
+		move.l	#MGZMiniboss_StartRumbleWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88646:
+MGZMiniboss_StartRumbleWait:
 		move.b	#8,routine(a0)
 		st	(Screen_shake_flag).w
 		move.w	#$7F,$2E(a0)
-		move.l	#loc_88660,$34(a0)
+		move.l	#MGZMiniboss_StartDelayBeforeDrop,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88660:
+MGZMiniboss_StartDelayBeforeDrop:
 		move.b	#$A,routine(a0)
 		clr.w	(Screen_shake_flag).w
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_8867E,$34(a0)
+		move.l	#MGZMiniboss_StartDropFromCeiling,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8867A:
+MGZMiniboss_DelayBeforeDrop:
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_8867E:
+MGZMiniboss_StartDropFromCeiling:
 		move.b	#$C,routine(a0)
 		bset	#1,render_flags(a0)
 		st	(Screen_shake_flag).w
 		move.w	#$7F,$2E(a0)
-		move.l	#loc_88716,$34(a0)
+		move.l	#MGZMiniboss_StartRiseSequence,$34(a0)
 		move.w	(Camera_X_pos).w,x_pos(a0)
 		jsr	(Random_Number).l
 		andi.w	#$E,d0
-		move.w	word_886DA(pc,d0.w),d1
+		move.w	MGZMiniboss_DropXOffsetData(pc,d0.w),d1
 		add.w	d1,x_pos(a0)
 		subi.w	#$40,y_pos(a0)
 		cmpi.b	#2,(Player_1+character_id).w
-		bne.s	locret_886D8
+		bne.s	MGZMiniboss_Return
 		move.w	d0,d3
 		lea	ChildObjDat_88B62(pc),a2
 		jsr	CreateChild1_Normal(pc)
 		cmpi.w	#8,d3
-		bhs.s	locret_886D8
+		bhs.s	MGZMiniboss_Return
 		bset	#0,render_flags(a1)
 
-locret_886D8:
+MGZMiniboss_Return:
 		rts
 ; ---------------------------------------------------------------------------
-word_886DA:
+MGZMiniboss_DropXOffsetData:
 		dc.w    $30,   $48,   $60,   $78,   $C8,   $E0,   $F8,  $110
 ; ---------------------------------------------------------------------------
 
-loc_886EA:
+MGZMiniboss_DropRumbleWait:
 		jsr	Animate_Raw(pc)
 		moveq	#2,d0
 		move.b	(V_int_run_count+3).w,d1
 		btst	#0,d1
-		beq.s	loc_886FC
+		beq.s	MGZMiniboss_DropRumbleApplyYStep
 		moveq	#-1,d0
 
-loc_886FC:
+MGZMiniboss_DropRumbleApplyYStep:
 		add.w	d0,y_pos(a0)
 		andi.b	#7,d1
-		bne.s	loc_88712
+		bne.s	MGZMiniboss_DropRumbleWaitTail
 		moveq	#signextendB(sfx_Rumble2),d0
 		jsr	(Play_SFX).l
 		bsr.w	TunnelbotMiniboss_SpawnDebris
 
-loc_88712:
+MGZMiniboss_DropRumbleWaitTail:
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_88716:
+MGZMiniboss_StartRiseSequence:
 		move.b	#$E,routine(a0)
 		clr.w	(Screen_shake_flag).w
 		cmpi.b	#2,(Player_1+character_id).w
-		beq.s	loc_88738
+		beq.s	MGZMiniboss_StartKnucklesSwingDelay
 		move.w	#$2F,$2E(a0)
-		move.l	#loc_88754,$34(a0)
+		move.l	#MGZMiniboss_StartRiseDelay,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88738:
+MGZMiniboss_StartKnucklesSwingDelay:
 		move.w	#$17,$2E(a0)
-		move.l	#loc_88776,$34(a0)
+		move.l	#MGZMiniboss_StartSwingReturn,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88748:
+MGZMiniboss_DropDown:
 		addq.w	#4,y_pos(a0)
 		jsr	Animate_Raw(pc)
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_88754:
+MGZMiniboss_StartRiseDelay:
 		move.b	#$10,routine(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_88776,$34(a0)
+		move.l	#MGZMiniboss_StartSwingReturn,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8876A:
+MGZMiniboss_Rise:
 		jsr	Animate_Raw(pc)
 		subq.w	#1,y_pos(a0)
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_88776:
+MGZMiniboss_StartSwingReturn:
 		move.b	#$12,routine(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_887A4,$34(a0)
+		move.l	#MGZMiniboss_StartNextCycle,$34(a0)
 		jmp	(Swing_Setup1).l
 ; ---------------------------------------------------------------------------
 
-loc_88790:
+MGZMiniboss_SwingReturn:
 		jsr	(Swing_UpAndDown).l
 		jsr	(MoveSprite2).l
 		jsr	Animate_Raw(pc)
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_887A4:
+MGZMiniboss_StartNextCycle:
 		bclr	#1,render_flags(a0)
 		move.w	#$1F,$2E(a0)
-		move.l	#loc_887BA,$34(a0)
+		move.l	#MGZMiniboss_RestartRumble,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_887BA:
+MGZMiniboss_RestartRumble:
 		move.b	#6,routine(a0)
-		move.l	#loc_88646,$34(a0)
+		move.l	#MGZMiniboss_StartRumbleWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
