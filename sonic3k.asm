@@ -50884,19 +50884,19 @@ Obj_HCZSnakeBlocks:
 		move.b	status(a0),$2E(a0)
 		moveq	#1,d0
 		move.b	subtype(a0),d1
-		bpl.s	loc_25706
+		bpl.s	HCZSnakeBlocks_StoreDirection
 		neg.w	d0
 
-loc_25706:
+HCZSnakeBlocks_StoreDirection:
 		move.b	d0,$40(a0)
 		andi.b	#$7F,d1
 		move.b	d1,angle(a0)
 		move.w	#$280,$42(a0)
 		move.w	x_pos(a0),$44(a0)
-		move.l	#loc_25724,(a0)
+		move.l	#HCZSnakeBlocks_Main,(a0)
 
-loc_25724:
-		bsr.s	sub_25770
+HCZSnakeBlocks_Main:
+		bsr.s	HCZSnakeBlocks_UpdatePosition
 		moveq	#0,d1
 		move.b	width_pixels(a0),d1
 		addi.w	#$B,d1
@@ -50910,58 +50910,58 @@ loc_25724:
 		andi.w	#$FF80,d0
 		sub.w	(Camera_X_pos_coarse_back).w,d0
 		cmp.w	$42(a0),d0
-		bhi.w	loc_2575E
+		bhi.w	HCZSnakeBlocks_DeleteAndClearRespawn
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_2575E:
+HCZSnakeBlocks_DeleteAndClearRespawn:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_2576A
+		beq.s	HCZSnakeBlocks_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_2576A:
+HCZSnakeBlocks_Delete:
 		jmp	(Delete_Current_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_25770:
+HCZSnakeBlocks_UpdatePosition:
 		move.b	$40(a0),d0
-		bpl.s	loc_2579A
+		bpl.s	HCZSnakeBlocks_MoveForward
 		add.b	d0,angle(a0)
-		bcs.s	loc_25786
+		bcs.s	HCZSnakeBlocks_BackwardSegment
 		subq.b	#1,$2E(a0)
 		andi.b	#3,$2E(a0)
 
-loc_25786:
+HCZSnakeBlocks_BackwardSegment:
 		move.w	#$40,d2
 		move.b	angle(a0),d0
 		cmpi.b	#$80,d0
-		bhs.s	loc_257BC
+		bhs.s	HCZSnakeBlocks_ApplySegment
 		move.b	#$80,d0
-		bra.s	loc_257BC
+		bra.s	HCZSnakeBlocks_ApplySegment
 ; ---------------------------------------------------------------------------
 
-loc_2579A:
+HCZSnakeBlocks_MoveForward:
 		add.b	d0,angle(a0)
-		bne.s	loc_257AA
+		bne.s	HCZSnakeBlocks_ForwardSegment
 		addq.b	#1,$2E(a0)
 		andi.b	#3,$2E(a0)
 
-loc_257AA:
+HCZSnakeBlocks_ForwardSegment:
 		move.w	#$40,d2
 		move.b	angle(a0),d0
 		cmpi.b	#$80,d0
-		bhs.s	loc_257BC
+		bhs.s	HCZSnakeBlocks_ApplySegment
 		move.b	#$80,d0
 
-loc_257BC:
+HCZSnakeBlocks_ApplySegment:
 		jsr	(GetSineCosine).l
 		asr.w	#2,d1
 		move.b	$2E(a0),d3
 		andi.b	#3,d3
-		bne.s	loc_257E2
+		bne.s	HCZSnakeBlocks_Segment1
 		add.w	$30(a0),d1
 		move.w	d1,x_pos(a0)
 		neg.w	d2
@@ -50970,9 +50970,9 @@ loc_257BC:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_257E2:
+HCZSnakeBlocks_Segment1:
 		subq.b	#1,d3
-		bne.s	loc_257F8
+		bne.s	HCZSnakeBlocks_Segment2
 		add.w	$34(a0),d1
 		move.w	d1,y_pos(a0)
 		add.w	$30(a0),d2
@@ -50980,9 +50980,9 @@ loc_257E2:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_257F8:
+HCZSnakeBlocks_Segment2:
 		subq.b	#1,d3
-		bne.s	loc_25810
+		bne.s	HCZSnakeBlocks_Segment3
 		neg.w	d1
 		add.w	$30(a0),d1
 		move.w	d1,x_pos(a0)
@@ -50991,7 +50991,7 @@ loc_257F8:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_25810:
+HCZSnakeBlocks_Segment3:
 		neg.w	d1
 		add.w	$34(a0),d1
 		move.w	d1,y_pos(a0)
@@ -50999,7 +50999,7 @@ loc_25810:
 		add.w	$30(a0),d2
 		move.w	d2,x_pos(a0)
 		rts
-; End of function sub_25770
+; End of function HCZSnakeBlocks_UpdatePosition
 
 ; ---------------------------------------------------------------------------
 byte_25826:
@@ -68014,7 +68014,7 @@ loc_324E2:
 		move.b	#0,jumping(a1)
 		move.b	#0,anim(a1)
 		move.b	#1,(a2)
-		bra.w	loc_3260A
+		bra.w	PlayerTwist_UpdateFrame
 ; ---------------------------------------------------------------------------
 
 locret_32536:
@@ -68062,7 +68062,7 @@ loc_325A2:
 
 loc_325B6:
 		andi.b	#button_A_mask|button_B_mask|button_C_mask,d5
-		beq.s	loc_3260A
+		beq.s	PlayerTwist_UpdateFrame
 		move.b	#1,jumping(a1)
 		move.b	#$E,y_radius(a1)
 		move.b	#7,x_radius(a1)
@@ -68083,7 +68083,7 @@ loc_32604:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3260A:
+PlayerTwist_UpdateFrame:
 		moveq	#0,d0
 		move.b	1(a2),d0
 
@@ -68128,101 +68128,101 @@ Obj_HCZSpinningColumn:
 		move.w	d1,$40(a0)
 		move.w	#1,$42(a0)
 		cmpi.w	#$E0,d1
-		bne.s	loc_326B0
+		bne.s	HCZSpinningColumn_SetMain
 		neg.w	$42(a0)
 
-loc_326B0:
-		move.l	#loc_326B6,(a0)
+HCZSpinningColumn_SetMain:
+		move.l	#HCZSpinningColumn_Main,(a0)
 
-loc_326B6:
-		bsr.s	sub_32712
+HCZSpinningColumn_Main:
+		bsr.s	HCZSpinningColumn_UpdateMovement
 		lea	$32(a0),a2
 		lea	(Player_1).w,a1
 		moveq	#p1_standing_bit,d6
 		move.w	(Ctrl_1_logical).w,d5
-		bsr.w	sub_32784
+		bsr.w	HCZSpinningColumn_ProcessPlayer
 		addq.w	#4,a2
 		lea	(Player_2).w,a1
 		moveq	#p2_standing_bit,d6
 		move.w	(Ctrl_2_logical).w,d5
-		bsr.w	sub_32784
+		bsr.w	HCZSpinningColumn_ProcessPlayer
 		move.w	#$1B,d1
 		move.w	#$20,d2
 		move.w	#$21,d3
 		move.w	x_pos(a0),d4
 		jsr	(SolidObjectFull).l
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_32708
+		bpl.s	HCZSpinningColumn_Display
 		move.b	#7,anim_frame_timer(a0)
 		subq.b	#1,mapping_frame(a0)
-		bcc.s	loc_32708
+		bcc.s	HCZSpinningColumn_Display
 		move.b	#2,mapping_frame(a0)
 
-loc_32708:
+HCZSpinningColumn_Display:
 		move.w	$2E(a0),d0
 		jmp	(Sprite_OnScreen_Test2).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_32712:
+HCZSpinningColumn_UpdateMovement:
 		move.w	$3A(a0),d0
-		move.w	off_3271E(pc,d0.w),d0
-		jmp	off_3271E(pc,d0.w)
-; End of function sub_32712
+		move.w	HCZSpinningColumn_MovementIndex(pc,d0.w),d0
+		jmp	HCZSpinningColumn_MovementIndex(pc,d0.w)
+; End of function HCZSpinningColumn_UpdateMovement
 
 ; ---------------------------------------------------------------------------
-off_3271E:
-		dc.w locret_32724-off_3271E
-		dc.w loc_32726-off_3271E
-		dc.w loc_32766-off_3271E
+HCZSpinningColumn_MovementIndex:
+		dc.w HCZSpinningColumn_MovementReturn-HCZSpinningColumn_MovementIndex
+		dc.w HCZSpinningColumn_HorizontalMove-HCZSpinningColumn_MovementIndex
+		dc.w HCZSpinningColumn_VerticalOscillate-HCZSpinningColumn_MovementIndex
 ; ---------------------------------------------------------------------------
 
-locret_32724:
+HCZSpinningColumn_MovementReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_32726:
+HCZSpinningColumn_HorizontalMove:
 		move.w	$42(a0),d1
-		bmi.s	loc_3273E
+		bmi.s	HCZSpinningColumn_HorizontalMoveLeft
 		move.w	$40(a0),d0
 		add.w	d1,d0
 		cmpi.w	#$E0,d0
-		bne.s	loc_3273C
+		bne.s	HCZSpinningColumn_StoreHorizontalDelta
 		neg.w	$42(a0)
 
-loc_3273C:
-		bra.s	loc_3274A
+HCZSpinningColumn_StoreHorizontalDelta:
+		bra.s	HCZSpinningColumn_ApplyHorizontalMove
 ; ---------------------------------------------------------------------------
 
-loc_3273E:
+HCZSpinningColumn_HorizontalMoveLeft:
 		move.w	$40(a0),d0
 		add.w	d1,d0
-		bne.s	loc_3274A
+		bne.s	HCZSpinningColumn_ApplyHorizontalMove
 		neg.w	$42(a0)
 
-loc_3274A:
+HCZSpinningColumn_ApplyHorizontalMove:
 		move.w	d0,$40(a0)
 		subi.w	#$70,d0
 		btst	#0,status(a0)
-		beq.s	loc_3275C
+		beq.s	HCZSpinningColumn_ApplyHorizontalX
 		neg.w	d0
 
-loc_3275C:
+HCZSpinningColumn_ApplyHorizontalX:
 		add.w	$2E(a0),d0
 		move.w	d0,x_pos(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_32766:
+HCZSpinningColumn_VerticalOscillate:
 		moveq	#0,d0
 		move.b	(Oscillating_table+$1E).w,d0
 		btst	#0,status(a0)
-		beq.s	loc_3277A
+		beq.s	HCZSpinningColumn_ApplyVerticalY
 		neg.w	d0
 		addi.w	#$80,d0
 
-loc_3277A:
+HCZSpinningColumn_ApplyVerticalY:
 		add.w	$30(a0),d0
 		move.w	d0,y_pos(a0)
 		rts
@@ -68230,19 +68230,19 @@ loc_3277A:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_32784:
+HCZSpinningColumn_ProcessPlayer:
 		move.b	(a2),d0
-		bne.s	loc_327FC
+		bne.s	HCZSpinningColumn_UpdateHeldPlayer
 		btst	d6,status(a0)
-		beq.s	locret_327FA
+		beq.s	HCZSpinningColumn_ProcessPlayerReturn
 		move.b	#0,1(a2)
 		move.w	x_pos(a1),d0
 		sub.w	x_pos(a0),d0
-		bpl.s	loc_327A6
+		bpl.s	HCZSpinningColumn_CapturePlayer
 		neg.w	d0
 		move.b	#$80,1(a2)
 
-loc_327A6:
+HCZSpinningColumn_CapturePlayer:
 		move.b	d0,2(a2)
 		move.w	#0,x_vel(a1)
 		move.w	#0,y_vel(a1)
@@ -68257,25 +68257,25 @@ loc_327A6:
 		move.b	#0,jumping(a1)
 		move.b	#0,anim(a1)
 		move.b	#1,(a2)
-		bra.w	loc_3260A
+		bra.w	PlayerTwist_UpdateFrame
 ; ---------------------------------------------------------------------------
 
-locret_327FA:
+HCZSpinningColumn_ProcessPlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_327FC:
+HCZSpinningColumn_UpdateHeldPlayer:
 		tst.b	render_flags(a1)
-		bpl.w	loc_328AC
+		bpl.w	HCZSpinningColumn_ReleaseHeldPlayer
 		cmpi.b	#4,routine(a1)
-		bhs.w	loc_328AC
+		bhs.w	HCZSpinningColumn_ReleaseHeldPlayer
 		btst	d6,status(a0)
-		beq.w	loc_328BE
+		beq.w	HCZSpinningColumn_ClearHeldFlag
 		tst.b	2(a2)
-		beq.s	loc_32820
+		beq.s	HCZSpinningColumn_UpdateHeldPosition
 		subq.b	#1,2(a2)
 
-loc_32820:
+HCZSpinningColumn_UpdateHeldPosition:
 		moveq	#0,d0
 		move.b	1(a2),d0
 		jsr	(GetSineCosine).l
@@ -68291,19 +68291,19 @@ loc_32820:
 		addq.b	#2,1(a2)
 		move.w	#0,ground_vel(a1)
 		move.w	y_vel(a0),d0
-		bpl.s	loc_3285A
+		bpl.s	HCZSpinningColumn_CheckBounceSpeed
 		neg.w	d0
 
-loc_3285A:
+HCZSpinningColumn_CheckBounceSpeed:
 		btst	#Status_InAir,status(a1)
-		bne.s	loc_3286E
+		bne.s	HCZSpinningColumn_CheckJumpRelease
 		cmpi.w	#$480,d0
-		blo.s	loc_3286E
+		blo.s	HCZSpinningColumn_CheckJumpRelease
 		move.w	#$800,ground_vel(a1)
 
-loc_3286E:
+HCZSpinningColumn_CheckJumpRelease:
 		andi.b	#button_A_mask|button_B_mask|button_C_mask,d5
-		beq.w	loc_3260A
+		beq.w	PlayerTwist_UpdateFrame
 		move.b	#1,jumping(a1)
 		move.b	#$E,y_radius(a1)
 		move.b	#7,x_radius(a1)
@@ -68314,15 +68314,15 @@ loc_3286E:
 		move.w	#0,x_vel(a1)
 		move.w	#0,ground_vel(a1)
 
-loc_328AC:
+HCZSpinningColumn_ReleaseHeldPlayer:
 		bset	#Status_InAir,status(a1)
 		move.w	#$100,priority(a1)
 		move.b	#0,object_control(a1)
 
-loc_328BE:
+HCZSpinningColumn_ClearHeldFlag:
 		move.b	#0,(a2)
 		rts
-; End of function sub_32784
+; End of function HCZSpinningColumn_ProcessPlayer
 
 ; ---------------------------------------------------------------------------
 
@@ -75251,14 +75251,14 @@ Ani_HCZWaterDrop:
 
 Obj_HCZWaterSplash:
 		tst.b	subtype(a0)
-		beq.s	loc_38432
+		beq.s	HCZWaterSplash_InitSplash
 		move.l	#Map_HCZWaterSplash2,mappings(a0)
 		move.w	#make_art_tile(ArtTile_HCZ2WaterSplash2,0,0),art_tile(a0)
 		tst.b	(Current_act).w
-		beq.s	loc_383DC
+		beq.s	HCZWaterSplash_InitSkimShared
 		move.w	#make_art_tile(ArtTile_HCZ1WaterSplash2,0,0),art_tile(a0)
 
-loc_383DC:
+HCZWaterSplash_InitSkimShared:
 		ori.b	#4,render_flags(a0)
 		move.w	#$300,priority(a0)
 		move.b	#$A0,width_pixels(a0)
@@ -75274,11 +75274,11 @@ loc_383DC:
 		move.w	x_pos(a0),(a2)+
 		move.w	y_pos(a0),(a2)+
 		move.w	#(5<<8)|5,(a2)+
-		move.l	#loc_384B2,(a0)
-		bra.w	loc_384B2
+		move.l	#HCZWaterSplash_SkimMain,(a0)
+		bra.w	HCZWaterSplash_SkimMain
 ; ---------------------------------------------------------------------------
 
-loc_38432:
+HCZWaterSplash_InitSplash:
 		move.l	#Map_HCZWaterSplash,mappings(a0)
 		move.w	#make_art_tile(ArtTile_HCZWaterSplash,2,0),art_tile(a0)
 		ori.b	#4,render_flags(a0)
@@ -75286,22 +75286,22 @@ loc_38432:
 		move.b	#$28,width_pixels(a0)
 		move.b	#$20,height_pixels(a0)
 		move.b	#-1,$30(a0)
-		move.l	#loc_38464,(a0)
+		move.l	#HCZWaterSplash_SplashMain,(a0)
 
-loc_38464:
+HCZWaterSplash_SplashMain:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_3847A
+		bpl.s	HCZWaterSplash_CheckSplashDma
 		move.b	#7,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		andi.b	#3,mapping_frame(a0)
 
-loc_3847A:
+HCZWaterSplash_CheckSplashDma:
 		tst.b	render_flags(a0)
-		bpl.s	loc_384AC
+		bpl.s	HCZWaterSplash_Display
 		moveq	#0,d1
 		move.b	mapping_frame(a0),d1
 		cmp.b	$30(a0),d1
-		beq.s	loc_384AC
+		beq.s	HCZWaterSplash_Display
 		move.b	d1,$30(a0)
 		lsl.w	#8,d1
 		move.w	d1,d0
@@ -75312,37 +75312,37 @@ loc_3847A:
 		move.w	#$180,d3
 		jsr	(Add_To_DMA_Queue).l
 
-loc_384AC:
+HCZWaterSplash_Display:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_384B2:
+HCZWaterSplash_SkimMain:
 		move.w	(Player_1+x_pos).w,x_pos(a0)
 		move.w	(Water_level).w,y_pos(a0)
-		bsr.s	sub_38534
+		bsr.s	HCZWaterSplash_CheckSkimPlayers
 		tst.b	status(a0)
-		beq.s	loc_384F8
+		beq.s	HCZWaterSplash_CheckSkimDma
 		move.b	(Level_frame_counter+1).w,d0
 		addq.b	#2,d0
 		andi.b	#$F,d0
-		bne.s	loc_384DA
+		bne.s	HCZWaterSplash_AdvanceSkimFrame
 		moveq	#signextendB(sfx_WaterSkid),d0
 		jsr	(Play_SFX).l
 
-loc_384DA:
+HCZWaterSplash_AdvanceSkimFrame:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.s	loc_384F8
+		bpl.s	HCZWaterSplash_CheckSkimDma
 		move.b	#2,anim_frame_timer(a0)
 		addq.b	#1,$30(a0)
 		cmpi.b	#5,$30(a0)
-		blo.s	loc_384F8
+		blo.s	HCZWaterSplash_CheckSkimDma
 		move.b	#0,$30(a0)
 
-loc_384F8:
+HCZWaterSplash_CheckSkimDma:
 		moveq	#0,d1
 		move.b	$30(a0),d1
 		cmp.b	$31(a0),d1
-		beq.s	loc_3852E
+		beq.s	HCZWaterSplash_DisplaySkim
 		move.b	d1,$31(a0)
 		lsl.w	#7,d1
 		move.w	d1,d0
@@ -75351,139 +75351,139 @@ loc_384F8:
 		addi.l	#ArtUnc_HCZWaterSplash2,d1
 		move.w	#tiles_to_bytes(ArtTile_HCZ2WaterSplash2),d2
 		tst.b	(Current_act).w
-		beq.s	loc_38524
+		beq.s	HCZWaterSplash_QueueSkimDma
 		move.w	#tiles_to_bytes(ArtTile_HCZ1WaterSplash2),d2
 
-loc_38524:
+HCZWaterSplash_QueueSkimDma:
 		move.w	#$C0,d3
 		jsr	(Add_To_DMA_Queue).l
 
-loc_3852E:
+HCZWaterSplash_DisplaySkim:
 		jmp	(Sprite_OnScreen_Test).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_38534:
+HCZWaterSplash_CheckSkimPlayers:
 		lea	(Player_1).w,a1
 		lea	sub2_x_pos(a0),a2
 		moveq	#p1_standing_bit,d6
 		move.w	(Ctrl_1_logical).w,d5
-		bsr.s	sub_3857E
+		bsr.s	HCZWaterSplash_CheckSkimPlayer
 		bclr	#0,render_flags(a0)
 		btst	#Status_Facing,status(a1)
-		beq.s	loc_38558
+		beq.s	HCZWaterSplash_CheckPlayer2
 		bset	#0,render_flags(a0)
 
-loc_38558:
+HCZWaterSplash_CheckPlayer2:
 		lea	(Player_2).w,a1
 		lea	sub3_x_pos(a0),a2
 		moveq	#p2_standing_bit,d6
 		move.w	(Ctrl_2_logical).w,d5
-		bsr.s	sub_3857E
+		bsr.s	HCZWaterSplash_CheckSkimPlayer
 		move.b	render_flags(a0),d0
 		add.b	status(a1),d0
 		andi.b	#1,d0
-		beq.s	locret_3857C
+		beq.s	HCZWaterSplash_CheckPlayersReturn
 		move.b	#5,sub3_mapframe-sub3_x_pos(a2)
 
-locret_3857C:
+HCZWaterSplash_CheckPlayersReturn:
 		rts
-; End of function sub_38534
+; End of function HCZWaterSplash_CheckSkimPlayers
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_3857E:
+HCZWaterSplash_CheckSkimPlayer:
 		btst	d6,status(a0)
-		bne.s	loc_385D2
+		bne.s	HCZWaterSplash_UpdateSkimmingPlayer
 		tst.w	y_vel(a1)
-		bne.s	locret_385D0
+		bne.s	HCZWaterSplash_CheckSkimPlayerReturn
 		moveq	#0,d1
 		move.b	y_radius(a1),d1
 		add.w	y_pos(a1),d1
 		addq.w	#1,d1
 		cmp.w	(Water_level).w,d1
-		bne.s	locret_385D0
+		bne.s	HCZWaterSplash_CheckSkimPlayerReturn
 		move.w	x_vel(a1),d0
-		bpl.s	loc_385A4
+		bpl.s	HCZWaterSplash_CheckSkimSpeed
 		neg.w	d0
 
-loc_385A4:
+HCZWaterSplash_CheckSkimSpeed:
 		cmpi.w	#$700,d0
-		blo.s	locret_385D0
+		blo.s	HCZWaterSplash_CheckSkimPlayerReturn
 		bset	d6,status(a0)
 		move.w	x_pos(a1),(a2)
 		move.w	(Water_level).w,sub2_y_pos-sub2_x_pos(a2)
 		move.b	#0,sub2_mapframe-sub2_x_pos(a2)
 		bclr	#Status_Facing,status(a1)
 		tst.w	x_vel(a1)
-		bpl.s	locret_385D0
+		bpl.s	HCZWaterSplash_CheckSkimPlayerReturn
 		bset	#Status_Facing,status(a1)
 
-locret_385D0:
+HCZWaterSplash_CheckSkimPlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_385D2:
+HCZWaterSplash_UpdateSkimmingPlayer:
 		move.w	d5,d0
 		andi.w	#button_A_mask|button_B_mask|button_C_mask,d0
-		bne.s	loc_38652
+		bne.s	HCZWaterSplash_JumpOffSkim
 		move.w	(Water_level).w,d0
 		moveq	#0,d1
 		move.b	y_radius(a1),d1
 		sub.w	d1,d0
 		subq.w	#1,d0
 		cmp.w	y_pos(a1),d0
-		bhi.s	loc_38646
+		bhi.s	HCZWaterSplash_EndSkim
 		move.w	x_vel(a1),d1
-		bpl.s	loc_385F6
+		bpl.s	HCZWaterSplash_CheckHeldSkimSpeed
 		neg.w	d1
 
-loc_385F6:
+HCZWaterSplash_CheckHeldSkimSpeed:
 		cmpi.w	#$700,d1
-		blo.s	loc_38646
+		blo.s	HCZWaterSplash_EndSkim
 		move.w	d0,y_pos(a1)
 		move.w	#0,y_vel(a1)
 		move.w	x_pos(a1),(a2)
 		move.w	(Water_level).w,sub2_y_pos-sub2_x_pos(a2)
 		btst	#Status_InAir,status(a1)
-		beq.s	locret_38650
+		beq.s	HCZWaterSplash_UpdateSkimReturn
 		andi.w	#(button_left_mask|button_right_mask)<<8,d5
-		bne.s	locret_38650
+		bne.s	HCZWaterSplash_UpdateSkimReturn
 		move.w	#$C,d1
 		move.w	x_vel(a1),d0
-		beq.s	loc_38646
-		bmi.s	loc_38638
+		beq.s	HCZWaterSplash_EndSkim
+		bmi.s	HCZWaterSplash_DecelerateLeft
 		sub.w	d1,d0
-		bcc.s	loc_38632
+		bcc.s	HCZWaterSplash_StoreRightSkimSpeed
 		move.w	#0,d0
 
-loc_38632:
+HCZWaterSplash_StoreRightSkimSpeed:
 		move.w	d0,x_vel(a1)
-		bra.s	locret_38650
+		bra.s	HCZWaterSplash_UpdateSkimReturn
 ; ---------------------------------------------------------------------------
 
-loc_38638:
+HCZWaterSplash_DecelerateLeft:
 		add.w	d1,d0
-		bcc.s	loc_38640
+		bcc.s	HCZWaterSplash_StoreLeftSkimSpeed
 		move.w	#0,d0
 
-loc_38640:
+HCZWaterSplash_StoreLeftSkimSpeed:
 		move.w	d0,x_vel(a1)
-		bra.s	locret_38650
+		bra.s	HCZWaterSplash_UpdateSkimReturn
 ; ---------------------------------------------------------------------------
 
-loc_38646:
+HCZWaterSplash_EndSkim:
 		bclr	d6,status(a0)
 		move.b	#5,sub2_mapframe-sub2_x_pos(a2)
 
-locret_38650:
+HCZWaterSplash_UpdateSkimReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_38652:
+HCZWaterSplash_JumpOffSkim:
 		bclr	d6,status(a0)
 		move.b	#5,sub2_mapframe-sub2_x_pos(a2)
 		move.w	#-$680,y_vel(a1)
@@ -75494,7 +75494,7 @@ loc_38652:
 		move.b	#2,anim(a1)
 		bset	#Status_Roll,status(a1)
 		rts
-; End of function sub_3857E
+; End of function HCZWaterSplash_CheckSkimPlayer
 
 ; ---------------------------------------------------------------------------
 
