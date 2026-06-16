@@ -183531,7 +183531,7 @@ Obj_Jawz:
 
 loc_878CE:
 		jsr	(MoveSprite2).l
-		lea	byte_87924(pc),a1
+		lea	AniRaw_Jawz(pc),a1
 		jsr	Animate_RawNoSST(pc)
 		moveq	#0,d0
 		move.b	collision_property(a0),d0
@@ -183563,7 +183563,7 @@ ObjDat_Jawz:
 		dc.w make_art_tile(ArtTile_Jawz,1,1)
 		dc.w   $280
 		dc.b  $1C,  $C,   0, $D7
-byte_87924:
+AniRaw_Jawz:	; byte_87924
 		dc.b    0,   0,   1, $FC
 		even
 ; ---------------------------------------------------------------------------
