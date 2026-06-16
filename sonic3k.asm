@@ -139227,9 +139227,9 @@ Pal_AIZEndBoss:
 ; ---------------------------------------------------------------------------
 
 Obj_HCZMiniboss:
-		lea	word_69ED2(pc),a1
+		lea	HCZMiniboss_CameraRange(pc),a1
 		jsr	(Check_CameraInRange).l
-		move.l	#loc_69EDA,(a0)
+		move.l	#HCZMiniboss_WaitCameraLocks,(a0)
 		move.b	#1,(Boss_flag).w
 		st	(Events_bg+$16).w
 		moveq	#$5B,d0
@@ -139238,44 +139238,44 @@ Obj_HCZMiniboss:
 		lea	ChildObjDat_6AD6E(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
-word_69ED2:
+HCZMiniboss_CameraRange:
 		dc.w   $300,  $400, $3500, $3700
 ; ---------------------------------------------------------------------------
 
-loc_69EDA:
+HCZMiniboss_WaitCameraLocks:
 		btst	#0,$38(a0)
-		bne.s	loc_69EFE
+		bne.s	HCZMiniboss_CheckHorizontalCameraLock
 		move.w	#$638,d0
 		cmp.w	(Camera_Y_pos).w,d0
-		bhi.s	loc_69EFE
+		bhi.s	HCZMiniboss_CheckHorizontalCameraLock
 		bset	#0,$38(a0)
 		move.w	d0,(Camera_min_Y_pos).w
 		move.w	d0,(Camera_max_Y_pos).w
 		move.w	d0,(Camera_target_max_Y_pos).w
 
-loc_69EFE:
+HCZMiniboss_CheckHorizontalCameraLock:
 		btst	#1,$38(a0)
 		move.w	#$3680,d0
 		move.w	(Camera_X_pos).w,d1
 		move.w	d1,(Camera_min_X_pos).w
 		cmp.w	d1,d0
-		bhi.s	loc_69F22
+		bhi.s	HCZMiniboss_CheckIntroReady
 		bset	#1,$38(a0)
 		move.w	d0,(Camera_min_X_pos).w
 		move.w	d0,(Camera_max_X_pos).w
 
-loc_69F22:
+HCZMiniboss_CheckIntroReady:
 		cmpi.b	#3,$38(a0)
-		beq.s	loc_69F2C
+		beq.s	HCZMiniboss_StartIntroFade
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_69F2C:
+HCZMiniboss_StartIntroFade:
 		move.w	(Camera_max_X_pos).w,(Camera_stored_max_X_pos).w
 		move.w	y_pos(a0),$44(a0)
 		move.l	#Obj_Wait,(a0)
 		move.w	#2*60,$2E(a0)
-		move.l	#loc_69F64,$34(a0)
+		move.l	#HCZMiniboss_StartFight,$34(a0)
 		moveq	#signextendB(cmd_FadeOut),d0
 		jsr	(Play_Music).l
 		bset	#3,$38(a0)
@@ -139283,13 +139283,13 @@ loc_69F2C:
 		jmp	(PalLoad_Line1).l
 ; ---------------------------------------------------------------------------
 
-loc_69F64:
+HCZMiniboss_StartFight:
 		move.l	#Obj_HCZ_MinibossLoop,(a0)
 		moveq	#signextendB(mus_Miniboss),d0
 		jsr	(Play_Music).l
 		move.b	#mus_Miniboss,(Current_music+1).w
 
-locret_69F78:
+HCZMiniboss_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -139302,21 +139302,21 @@ Obj_HCZ_MinibossLoop:
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 HCZ_MinibossLoop_Index:
-		dc.w loc_69FAA-HCZ_MinibossLoop_Index
-		dc.w loc_69FE4-HCZ_MinibossLoop_Index
-		dc.w loc_6A00A-HCZ_MinibossLoop_Index
-		dc.w loc_69FE4-HCZ_MinibossLoop_Index
-		dc.w loc_6A00A-HCZ_MinibossLoop_Index
-		dc.w loc_6A076-HCZ_MinibossLoop_Index
-		dc.w loc_6A0C2-HCZ_MinibossLoop_Index
-		dc.w loc_6A0F8-HCZ_MinibossLoop_Index
-		dc.w loc_6A110-HCZ_MinibossLoop_Index
-		dc.w loc_6A15A-HCZ_MinibossLoop_Index
-		dc.w loc_6A00A-HCZ_MinibossLoop_Index
-		dc.w loc_6A216-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_Init-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_MoveAndWait-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_Wait-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_MoveAndWait-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_Wait-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_FallToFloor-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_GroundedMoveWait-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_RiseToOrigin-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_MoveBelowOrigin-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_GravityWait-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_Wait-HCZ_MinibossLoop_Index
+		dc.w HCZMinibossLoop_MoveUpToOrigin-HCZ_MinibossLoop_Index
 ; ---------------------------------------------------------------------------
 
-loc_69FAA:
+HCZMinibossLoop_Init:
 		lea	ObjDat_HCZMiniboss_Loop(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		move.b	#6,collision_property(a0)
@@ -139324,47 +139324,47 @@ loc_69FAA:
 		bset	#3,$38(a0)
 		move.w	#$100,y_vel(a0)
 		move.w	#$DF,$2E(a0)
-		move.l	#loc_69FF0,$34(a0)
+		move.l	#HCZMinibossLoop_SetRoutine04,$34(a0)
 		lea	Child1_HCZMiniboss_RocketsEngine(pc),a2
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_69FE4:
+HCZMinibossLoop_MoveAndWait:
 		jsr	(MoveSprite2).l
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_69FF0:
+HCZMinibossLoop_SetRoutine04:
 		move.b	#4,routine(a0)
 		clr.w	y_vel(a0)
 		move.w	#60-1,$2E(a0)
-		move.l	#loc_6A010,$34(a0)
+		move.l	#HCZMinibossLoop_StartRising,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A00A:
+HCZMinibossLoop_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6A010:
+HCZMinibossLoop_StartRising:
 		move.b	#6,routine(a0)
 		move.w	#-$400,y_vel(a0)
 		move.w	#$37,$2E(a0)
-		move.l	#loc_6A02C,$34(a0)
+		move.l	#HCZMinibossLoop_SetRoutine08,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A02C:
+HCZMinibossLoop_SetRoutine08:
 		move.b	#8,routine(a0)
 		move.w	#60-1,$2E(a0)
-		move.l	#loc_6A042,$34(a0)
+		move.l	#HCZMinibossLoop_PrepareRollDive,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A042:
+HCZMinibossLoop_PrepareRollDive:
 		bsr.w	sub_6AAD2
 
-loc_6A046:
+HCZMinibossLoop_StartRollDive:
 		move.b	#$A,routine(a0)
 		moveq	#signextendB(sfx_Roll),d0
 		jsr	(Play_SFX).l
@@ -139372,138 +139372,138 @@ loc_6A046:
 		bclr	#7,$38(a0)
 		move.w	#$400,y_vel(a0)
 		move.w	#$47,$2E(a0)
-		move.l	#loc_6A098,$34(a0)
+		move.l	#HCZMinibossLoop_StartHorizontalPass,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A076:
+HCZMinibossLoop_FallToFloor:
 		btst	#7,$38(a0)
-		bne.s	loc_6A08C
+		bne.s	HCZMinibossLoop_MoveFall
 		move.w	y_pos(a0),d0
 		cmp.w	(Water_level).w,d0
-		blo.s	loc_6A08C
+		blo.s	HCZMinibossLoop_MoveFall
 		bsr.w	sub_6AAB6
 
-loc_6A08C:
+HCZMinibossLoop_MoveFall:
 		jsr	(MoveSprite2).l
 		jmp	(ObjHitFloor_DoRoutine).l
 ; ---------------------------------------------------------------------------
 
-loc_6A098:
+HCZMinibossLoop_StartHorizontalPass:
 		move.b	#$C,routine(a0)
 		move.w	$40(a0),x_vel(a0)
 		neg.w	$40(a0)
 		clr.w	y_vel(a0)
 		move.w	#$2F,$2E(a0)
-		move.l	#loc_6A0D8,$34(a0)
+		move.l	#HCZMinibossLoop_NextJumpOrPhase,$34(a0)
 		bclr	#7,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A0C2:
+HCZMinibossLoop_GroundedMoveWait:
 		jsr	(MoveSprite2).l
 		jsr	(ObjCheckFloorDist).l
 		add.w	d1,y_pos(a0)
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6A0D8:
+HCZMinibossLoop_NextJumpOrPhase:
 		move.w	#-$400,y_vel(a0)
 		clr.w	x_vel(a0)
 		subq.b	#1,$39(a0)
-		bmi.s	loc_6A0F0
+		bmi.s	HCZMinibossLoop_StartLowerPhase
 		move.b	#$E,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A0F0:
+HCZMinibossLoop_StartLowerPhase:
 		move.b	#$10,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A0F8:
+HCZMinibossLoop_RiseToOrigin:
 		bsr.w	sub_6AAA0
 		jsr	(MoveSprite2).l
 		move.w	y_pos(a0),d0
 		cmp.w	$44(a0),d0
-		bls.w	loc_6A046
+		bls.w	HCZMinibossLoop_StartRollDive
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A110:
+HCZMinibossLoop_MoveBelowOrigin:
 		bsr.w	sub_6AAA0
 		jsr	(MoveSprite2).l
 		move.w	$44(a0),d0
 		addi.w	#$108,d0
 		cmp.w	y_pos(a0),d0
-		bhs.s	loc_6A12A
+		bhs.s	HCZMinibossLoop_StartSidePass
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A12A:
+HCZMinibossLoop_StartSidePass:
 		move.b	#$12,routine(a0)
 		bclr	#7,$38(a0)
 		move.w	d0,y_pos(a0)
 		move.w	#$180,d0
 		tst.w	$40(a0)
-		bpl.s	loc_6A146
+		bpl.s	HCZMinibossLoop_SetSidePassSpeed
 		neg.w	d0
 
-loc_6A146:
+HCZMinibossLoop_SetSidePassSpeed:
 		move.w	d0,x_vel(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_6A16C,$34(a0)
+		move.l	#HCZMinibossLoop_StartDoorCloseWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A15A:
+HCZMinibossLoop_GravityWait:
 		addi.w	#$20,y_vel(a0)
 		jsr	(MoveSprite2).l
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6A16C:
+HCZMinibossLoop_StartDoorCloseWait:
 		move.b	#$14,routine(a0)
 		moveq	#signextendB(sfx_DoorClose),d0
 		jsr	(Play_SFX).l
 		bclr	#3,$38(a0)
 		move.w	#$9F,$2E(a0)
-		move.l	#loc_6A194,$34(a0)
+		move.l	#HCZMinibossLoop_StartFlag2Wait,$34(a0)
 		clr.w	x_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A194:
+HCZMinibossLoop_StartFlag2Wait:
 		bset	#2,$38(a0)
 		move.w	#$17F,$2E(a0)
-		move.l	#loc_6A1AA,$34(a0)
+		move.l	#HCZMinibossLoop_ClearFlag2Wait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A1AA:
+HCZMinibossLoop_ClearFlag2Wait:
 		bclr	#2,$38(a0)
 		move.w	#$7F,$2E(a0)
-		move.l	#loc_6A1C0,$34(a0)
+		move.l	#HCZMinibossLoop_StartFlag3Wait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A1C0:
+HCZMinibossLoop_StartFlag3Wait:
 		bset	#3,$38(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_6A1C0,$34(a0)
-		move.l	#loc_6A1DE,$34(a0)
+		move.l	#HCZMinibossLoop_StartFlag3Wait,$34(a0)
+		move.l	#HCZMinibossLoop_SetRoutine02SlowRise,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A1DE:
+HCZMinibossLoop_SetRoutine02SlowRise:
 		move.b	#2,routine(a0)
 		move.w	#-$20,y_vel(a0)
 		move.w	#$7F,$2E(a0)
-		move.l	#loc_6A1FA,$34(a0)
+		move.l	#HCZMinibossLoop_StartExitRise,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A1FA:
+HCZMinibossLoop_StartExitRise:
 		move.b	#$16,routine(a0)
 		bclr	#6,$38(a0)
 		move.w	#-$400,y_vel(a0)
@@ -139512,11 +139512,11 @@ loc_6A1FA:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A216:
+HCZMinibossLoop_MoveUpToOrigin:
 		jsr	(MoveSprite2).l
 		move.w	y_pos(a0),d0
 		cmp.w	$44(a0),d0
-		bls.w	loc_6A042
+		bls.w	HCZMinibossLoop_PrepareRollDive
 		rts
 ; ---------------------------------------------------------------------------
 
@@ -139534,7 +139534,7 @@ loc_6A242:
 
 loc_6A24C:
 		tst.b	(_unkFAA8).w
-		bne.w	locret_69F78
+		bne.w	HCZMiniboss_Return
 		move.l	#loc_6A270,(a0)
 		clr.w	(Ctrl_1_logical).w
 		clr.w	(Ctrl_2_logical).w
@@ -139544,7 +139544,7 @@ loc_6A24C:
 
 loc_6A270:
 		tst.b	(End_of_level_flag).w
-		beq.w	locret_69F78
+		beq.w	HCZMiniboss_Return
 		move.l	#loc_6A2A0,(a0)
 		lea	ChildObjDat_6ADA4(pc),a2
 		tst.b	(Player_mode+1).w
@@ -139558,7 +139558,7 @@ loc_6A28C:
 
 loc_6A2A0:
 		btst	#0,$38(a0)
-		beq.w	locret_69F78
+		beq.w	HCZMiniboss_Return
 		lea	ChildObjDat_6AD98(pc),a2
 		jsr	(CreateChild6_Simple).l
 		jmp	(Obj_Wait).l
@@ -139573,16 +139573,16 @@ Obj_HCZMiniboss_Rockets:
 		jmp	(Child_DrawTouch_Sprite_FlickerMove).l
 ; ---------------------------------------------------------------------------
 HCZMiniboss_Rockets_Index:
-		dc.w loc_6A2DE-HCZMiniboss_Rockets_Index
-		dc.w loc_6A2F8-HCZMiniboss_Rockets_Index
-		dc.w loc_6A34C-HCZMiniboss_Rockets_Index
-		dc.w loc_6A36C-HCZMiniboss_Rockets_Index
-		dc.w loc_6A37A-HCZMiniboss_Rockets_Index
-		dc.w loc_6A404-HCZMiniboss_Rockets_Index
-		dc.w loc_6A41E-HCZMiniboss_Rockets_Index
+		dc.w HCZMiniboss_Rockets_Init-HCZMiniboss_Rockets_Index
+		dc.w HCZMiniboss_Rockets_WaitForParentActive-HCZMiniboss_Rockets_Index
+		dc.w HCZMiniboss_Rockets_OrbitWait-HCZMiniboss_Rockets_Index
+		dc.w HCZMiniboss_Rockets_Wait-HCZMiniboss_Rockets_Index
+		dc.w HCZMiniboss_Rockets_PreFireWait-HCZMiniboss_Rockets_Index
+		dc.w HCZMiniboss_Rockets_CheckParentInactive-HCZMiniboss_Rockets_Index
+		dc.w HCZMiniboss_Rockets_WaitAngleForRearm-HCZMiniboss_Rockets_Index
 ; ---------------------------------------------------------------------------
 
-loc_6A2DE:
+HCZMiniboss_Rockets_Init:
 		lea	ObjDat_HCZMiniboss_Rockets(pc),a1
 		jsr	(SetUp_ObjAttributes).l
 		bset	#6,$38(a0)
@@ -139590,166 +139590,166 @@ loc_6A2DE:
 		jmp	(CreateChild1_Normal).l
 ; ---------------------------------------------------------------------------
 
-loc_6A2F8:
+HCZMiniboss_Rockets_WaitForParentActive:
 		clr.b	collision_flags(a0)
 		movea.w	parent3(a0),a1
 		btst	#3,$38(a1)
-		beq.w	locret_69F78
+		beq.w	HCZMiniboss_Return
 		move.b	#4,routine(a0)
 		move.b	#1,$40(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_6A356,$34(a0)
+		move.l	#HCZMiniboss_Rockets_SetPreFireDelay,$34(a0)
 		moveq	#0,d0
 		move.b	subtype(a0),d0
-		move.w	word_6A344(pc,d0.w),$3C(a0)
+		move.w	HCZMiniboss_Rockets_InitialAngleData(pc,d0.w),$3C(a0)
 		cmpi.b	#4,d0
-		blo.s	locret_6A342
+		blo.s	HCZMiniboss_Rockets_WaitParentReturn
 		bset	#0,render_flags(a0)
 		move.b	#6,routine(a0)
 
-locret_6A342:
+HCZMiniboss_Rockets_WaitParentReturn:
 		rts
 ; ---------------------------------------------------------------------------
-word_6A344:
+HCZMiniboss_Rockets_InitialAngleData:
 		dc.w      0, $8080, $8000,   $80
 ; ---------------------------------------------------------------------------
 
-loc_6A34C:
+HCZMiniboss_Rockets_OrbitWait:
 		bsr.w	sub_6AB1A
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6A356:
+HCZMiniboss_Rockets_SetPreFireDelay:
 		move.b	#8,routine(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_6A384,$34(a0)
+		move.l	#HCZMiniboss_Rockets_ArmCollision,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A36C:
+HCZMiniboss_Rockets_Wait:
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6A372:
+HCZMiniboss_Rockets_ResetToParentWait:
 		move.b	#2,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A37A:
+HCZMiniboss_Rockets_PreFireWait:
 		bsr.w	sub_6AB1A
 		jmp	(Obj_Wait).l
 ; ---------------------------------------------------------------------------
 
-loc_6A384:
+HCZMiniboss_Rockets_ArmCollision:
 		move.b	#2,$40(a0)
 		move.b	#$8B,collision_flags(a0)
 		move.w	#$1F,$2E(a0)
-		move.l	#loc_6A3A0,$34(a0)
+		move.l	#HCZMiniboss_Rockets_Fire,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A3A0:
+HCZMiniboss_Rockets_Fire:
 		move.b	#$A,routine(a0)
 		move.b	#4,$40(a0)
-		move.l	#loc_6A416,$34(a0)
+		move.l	#HCZMiniboss_Rockets_SetRearmWait,$34(a0)
 		bclr	#6,$38(a0)
 		moveq	#signextendB(sfx_LevelProjectile),d0
 		jsr	(Play_SFX).l
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A3C4:
+HCZMiniboss_Rockets_Cooldown:
 		move.b	#2,$40(a0)
 		move.w	#$1F,$2E(a0)
-		move.l	#loc_6A3DA,$34(a0)
+		move.l	#HCZMiniboss_Rockets_ReturnToOrbit,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A3DA:
+HCZMiniboss_Rockets_ReturnToOrbit:
 		move.b	#6,routine(a0)
 		cmpi.b	#4,subtype(a0)
-		blo.s	loc_6A3EE
+		blo.s	HCZMiniboss_Rockets_SetParentWait
 		move.b	#4,routine(a0)
 
-loc_6A3EE:
+HCZMiniboss_Rockets_SetParentWait:
 		move.b	#1,$40(a0)
 		move.w	#$3F,$2E(a0)
-		move.l	#loc_6A372,$34(a0)
+		move.l	#HCZMiniboss_Rockets_ResetToParentWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A404:
+HCZMiniboss_Rockets_CheckParentInactive:
 		bsr.w	sub_6AB1A
 		movea.w	parent3(a0),a1
 		btst	#3,$38(a1)
-		bne.w	locret_69F78
+		bne.w	HCZMiniboss_Return
 
-loc_6A416:
+HCZMiniboss_Rockets_SetRearmWait:
 		move.b	#$C,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A41E:
+HCZMiniboss_Rockets_WaitAngleForRearm:
 		bsr.w	sub_6AB1A
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		lsr.b	#1,d0
-		move.b	byte_6A45C(pc,d0.w),d1
+		move.b	HCZMiniboss_Rockets_RearmAngleTargets(pc,d0.w),d1
 		cmp.b	$3C(a0),d1
-		beq.s	loc_6A436
+		beq.s	HCZMiniboss_Rockets_Rearm
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A436:
+HCZMiniboss_Rockets_Rearm:
 		move.b	#8,routine(a0)
 		clr.b	collision_flags(a0)
 		move.b	#2,$40(a0)
 		move.w	#$1F,$2E(a0)
-		move.l	#loc_6A3C4,$34(a0)
+		move.l	#HCZMiniboss_Rockets_Cooldown,$34(a0)
 		bset	#6,$38(a0)
 		rts
 ; ---------------------------------------------------------------------------
-byte_6A45C:
+HCZMiniboss_Rockets_RearmAngleTargets:
 		dc.b  $80,   0, $C0, $40
 ; ---------------------------------------------------------------------------
 
-loc_6A460:
+HCZMiniboss_RocketTouch_Init:
 		lea	word_6AD08(pc),a1
 		jsr	(SetUp_ObjAttributes2).l
-		move.l	#loc_6A478,(a0)
+		move.l	#HCZMiniboss_RocketTouch_Main,(a0)
 		bset	#4,shield_reaction(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A478:
+HCZMiniboss_RocketTouch_Main:
 		bsr.w	sub_6ABA8
 
-loc_6A47C:
+HCZMiniboss_RocketTouch_DrawOrDelete:
 		movea.w	parent3(a0),a1
 		btst	#7,status(a1)
-		bne.s	loc_6A4A2
+		bne.s	HCZMiniboss_RocketTouch_Delete
 		btst	#6,$38(a1)
-		bne.w	locret_69F78
+		bne.w	HCZMiniboss_Return
 		btst	#0,(V_int_run_count+3).w
-		bne.w	locret_69F78
+		bne.w	HCZMiniboss_Return
 		jmp	(Draw_And_Touch_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_6A4A2:
+HCZMiniboss_RocketTouch_Delete:
 		jmp	(Go_Delete_Sprite).l
 ; ---------------------------------------------------------------------------
 
 Obj_HCZMiniboss_Engine:
 		lea	ObjDat2_HCZMiniboss_Engine(pc),a1
 		jsr	(SetUp_ObjAttributes2).l
-		move.l	#loc_6A4C0,(a0)
+		move.l	#HCZMiniboss_Engine_Main,(a0)
 		bset	#4,shield_reaction(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_6A4C0:
+HCZMiniboss_Engine_Main:
 		jsr	(Refresh_ChildPosition).l
-		bra.s	loc_6A47C
+		bra.s	HCZMiniboss_RocketTouch_DrawOrDelete
 ; ---------------------------------------------------------------------------
 
 loc_6A4C8:
@@ -139808,7 +139808,7 @@ loc_6A542:
 
 loc_6A55C:
 		tst.b	render_flags(a0)
-		bpl.w	locret_69F78
+		bpl.w	HCZMiniboss_Return
 		move.b	#4,routine(a0)
 		lea	Pal_HCZMinibossWater(pc),a1
 		lea	(Water_palette_line_2).w,a2
@@ -139823,7 +139823,7 @@ loc_6A574:
 loc_6A57C:
 		movea.w	parent3(a0),a1
 		btst	#2,$38(a1)
-		beq.w	locret_69F78
+		beq.w	HCZMiniboss_Return
 		move.b	#6,routine(a0)
 		move.l	#byte_6ADEC,$30(a0)
 		move.l	#loc_6A5BC,$34(a0)
@@ -140003,7 +140003,7 @@ loc_6A7BE:
 loc_6A7C4:
 		lea	(Player_1).w,a1
 		btst	#Status_Underwater,status(a1)
-		beq.w	locret_69F78
+		beq.w	HCZMiniboss_Return
 		move.l	#loc_6A872,(a0)
 		clr.b	(_unkFAA2).w
 		movea.w	parent3(a0),a1
@@ -140165,11 +140165,11 @@ loc_6A95A:
 sub_6A960:
 		movea.w	parent3(a0),a1
 		btst	#7,status(a1)
-		beq.w	locret_69F78
+		beq.w	HCZMiniboss_Return
 		move.l	#loc_6A636,(a0)
 		clr.b	collision_flags(a0)
 		bclr	#3,$38(a0)
-		beq.w	locret_69F78
+		beq.w	HCZMiniboss_Return
 		bra.w	loc_6A986
 
 loc_6A986:
@@ -140329,10 +140329,10 @@ locret_6AA9E:
 
 sub_6AAA0:
 		btst	#7,$38(a0)
-		bne.w	locret_69F78
+		bne.w	HCZMiniboss_Return
 		move.w	y_pos(a0),d0
 		cmp.w	(Water_level).w,d0
-		blo.w	locret_69F78
+		blo.w	HCZMiniboss_Return
 ; End of function sub_6AAA0
 
 
@@ -140665,7 +140665,7 @@ ChildObjDat_6AD6E:
 		dc.b    0,   0
 ChildObjDat_6AD76:
 		dc.w 1-1
-		dc.l loc_6A460
+		dc.l HCZMiniboss_RocketTouch_Init
 		dc.b    0,   0
 ChildObjDat_6AD7E:
 		dc.w 3-1
