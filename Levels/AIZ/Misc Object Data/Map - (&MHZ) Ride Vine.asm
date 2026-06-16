@@ -1,110 +1,110 @@
 Map_AIZRideVine_:
-		dc.w word_22BE6-Map_AIZRideVine_
-		dc.w word_22BEE-Map_AIZRideVine_
-		dc.w word_22BF6-Map_AIZRideVine_
-		dc.w word_22BFE-Map_AIZRideVine_
-		dc.w word_22C06-Map_AIZRideVine_
-		dc.w word_22C0E-Map_AIZRideVine_
-		dc.w word_22C16-Map_AIZRideVine_
-		dc.w word_22C1E-Map_AIZRideVine_
-		dc.w word_22C26-Map_AIZRideVine_
-		dc.w word_22C2E-Map_AIZRideVine_
-		dc.w word_22C36-Map_AIZRideVine_
-		dc.w word_22C3E-Map_AIZRideVine_
-		dc.w word_22C46-Map_AIZRideVine_
-		dc.w word_22C4E-Map_AIZRideVine_
-		dc.w word_22C56-Map_AIZRideVine_
-		dc.w word_22C5E-Map_AIZRideVine_
-		dc.w word_22C66-Map_AIZRideVine_
-		dc.w word_22C6E-Map_AIZRideVine_
-		dc.w word_22C76-Map_AIZRideVine_
-		dc.w word_22C7E-Map_AIZRideVine_
-		dc.w word_22C86-Map_AIZRideVine_
-		dc.w word_22C8E-Map_AIZRideVine_
-		dc.w word_22C96-Map_AIZRideVine_
-		dc.w word_22C9E-Map_AIZRideVine_
-		dc.w word_22CA6-Map_AIZRideVine_
-		dc.w word_22CAE-Map_AIZRideVine_
-		dc.w word_22CB6-Map_AIZRideVine_
-		dc.w word_22CBE-Map_AIZRideVine_
-		dc.w word_22CC6-Map_AIZRideVine_
-		dc.w word_22CCE-Map_AIZRideVine_
-		dc.w word_22CD6-Map_AIZRideVine_
-		dc.w word_22CDE-Map_AIZRideVine_
-		dc.w word_22CE6-Map_AIZRideVine_
-		dc.w word_22CEE-Map_AIZRideVine_
-		dc.w word_22CF6-Map_AIZRideVine_
-		dc.w word_22CFE-Map_AIZRideVine_
-word_22BE6:	dc.w 1
+		dc.w Map_AIZMHZRideVine_Frame0-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame1-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame2-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame3-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame4-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame5-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame6-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame7-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame8-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame9-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame10-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame11-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame12-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame13-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame14-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame15-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame16-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame17-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame18-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame19-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame20-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame21-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame22-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame23-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame24-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame25-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame26-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame27-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame28-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame29-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame30-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame31-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame32-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame33-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame34-Map_AIZRideVine_
+		dc.w Map_AIZMHZRideVine_Frame35-Map_AIZRideVine_
+Map_AIZMHZRideVine_Frame0:	dc.w 1
 		dc.b    0,   1,   0, $1B, $FF, $F8
-word_22BEE:	dc.w 1
+Map_AIZMHZRideVine_Frame1:	dc.w 1
 		dc.b    0,   1,   0, $19, $FF, $F8
-word_22BF6:	dc.w 1
+Map_AIZMHZRideVine_Frame2:	dc.w 1
 		dc.b    0,   1,   0, $17, $FF, $F8
-word_22BFE:	dc.w 1
+Map_AIZMHZRideVine_Frame3:	dc.w 1
 		dc.b    0,   5,   0, $13, $FF, $F0
-word_22C06:	dc.w 1
+Map_AIZMHZRideVine_Frame4:	dc.w 1
 		dc.b    0,   5,   0,  $F, $FF, $F0
-word_22C0E:	dc.w 1
+Map_AIZMHZRideVine_Frame5:	dc.w 1
 		dc.b    0,   5,   0,  $B, $FF, $F0
-word_22C16:	dc.w 1
+Map_AIZMHZRideVine_Frame6:	dc.w 1
 		dc.b    0,   4,   0,   9, $FF, $F0
-word_22C1E:	dc.w 1
+Map_AIZMHZRideVine_Frame7:	dc.w 1
 		dc.b    0,   4,   0,   7, $FF, $F0
-word_22C26:	dc.w 1
+Map_AIZMHZRideVine_Frame8:	dc.w 1
 		dc.b    0,   4,   0,   5, $FF, $F0
-word_22C2E:	dc.w 1
+Map_AIZMHZRideVine_Frame9:	dc.w 1
 		dc.b  $F9,   4, $10,   7, $FF, $F0
-word_22C36:	dc.w 1
+Map_AIZMHZRideVine_Frame10:	dc.w 1
 		dc.b  $F9,   4, $10,   9, $FF, $F0
-word_22C3E:	dc.w 1
+Map_AIZMHZRideVine_Frame11:	dc.w 1
 		dc.b  $F1,   5, $10,  $B, $FF, $F0
-word_22C46:	dc.w 1
+Map_AIZMHZRideVine_Frame12:	dc.w 1
 		dc.b  $F1,   5, $10,  $F, $FF, $F0
-word_22C4E:	dc.w 1
+Map_AIZMHZRideVine_Frame13:	dc.w 1
 		dc.b  $F1,   5, $10, $13, $FF, $F0
-word_22C56:	dc.w 1
+Map_AIZMHZRideVine_Frame14:	dc.w 1
 		dc.b  $F1,   1, $10, $17, $FF, $F8
-word_22C5E:	dc.w 1
+Map_AIZMHZRideVine_Frame15:	dc.w 1
 		dc.b  $F1,   1, $10, $19, $FF, $F8
-word_22C66:	dc.w 1
+Map_AIZMHZRideVine_Frame16:	dc.w 1
 		dc.b  $F1,   1, $10, $1B, $FF, $F8
-word_22C6E:	dc.w 1
+Map_AIZMHZRideVine_Frame17:	dc.w 1
 		dc.b  $F1,   1, $18, $19, $FF, $FF
-word_22C76:	dc.w 1
+Map_AIZMHZRideVine_Frame18:	dc.w 1
 		dc.b  $F1,   1, $18, $17, $FF, $FF
-word_22C7E:	dc.w 1
+Map_AIZMHZRideVine_Frame19:	dc.w 1
 		dc.b  $F1,   5, $18, $13, $FF, $FF
-word_22C86:	dc.w 1
+Map_AIZMHZRideVine_Frame20:	dc.w 1
 		dc.b  $F1,   5, $18,  $F, $FF, $FF
-word_22C8E:	dc.w 1
+Map_AIZMHZRideVine_Frame21:	dc.w 1
 		dc.b  $F1,   5, $18,  $B, $FF, $FF
-word_22C96:	dc.w 1
+Map_AIZMHZRideVine_Frame22:	dc.w 1
 		dc.b  $F9,   4, $18,   9, $FF, $FF
-word_22C9E:	dc.w 1
+Map_AIZMHZRideVine_Frame23:	dc.w 1
 		dc.b  $F9,   4, $18,   7, $FF, $FF
-word_22CA6:	dc.w 1
+Map_AIZMHZRideVine_Frame24:	dc.w 1
 		dc.b    0,   4,   8,   5, $FF, $FF
-word_22CAE:	dc.w 1
+Map_AIZMHZRideVine_Frame25:	dc.w 1
 		dc.b    0,   4,   8,   7, $FF, $FF
-word_22CB6:	dc.w 1
+Map_AIZMHZRideVine_Frame26:	dc.w 1
 		dc.b    0,   4,   8,   9, $FF, $FF
-word_22CBE:	dc.w 1
+Map_AIZMHZRideVine_Frame27:	dc.w 1
 		dc.b    0,   5,   8,  $B, $FF, $FF
-word_22CC6:	dc.w 1
+Map_AIZMHZRideVine_Frame28:	dc.w 1
 		dc.b    0,   5,   8,  $F, $FF, $FF
-word_22CCE:	dc.w 1
+Map_AIZMHZRideVine_Frame29:	dc.w 1
 		dc.b    0,   5,   8, $13, $FF, $FF
-word_22CD6:	dc.w 1
+Map_AIZMHZRideVine_Frame30:	dc.w 1
 		dc.b    0,   1,   8, $17, $FF, $FF
-word_22CDE:	dc.w 1
+Map_AIZMHZRideVine_Frame31:	dc.w 1
 		dc.b    0,   1,   8, $19, $FF, $FF
-word_22CE6:	dc.w 1
+Map_AIZMHZRideVine_Frame32:	dc.w 1
 		dc.b  $FC,   8,   0,   0, $FF, $F4
-word_22CEE:	dc.w 1
+Map_AIZMHZRideVine_Frame33:	dc.w 1
 		dc.b  $FC,   4,   0,   3, $FF, $F8
-word_22CF6:	dc.w 1
+Map_AIZMHZRideVine_Frame34:	dc.w 1
 		dc.b  $FC,   8,   0, $20, $FF, $F4
-word_22CFE:	dc.w 1
+Map_AIZMHZRideVine_Frame35:	dc.w 1
 		dc.b  $FC,   8,   0, $1D, $FF, $F7
 
