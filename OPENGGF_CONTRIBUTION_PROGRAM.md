@@ -232,6 +232,8 @@ The audit table is a local working artifact. It may guide future patch scope and
 
 Each proposed upstream change should have primary evidence. OpenGGF evidence is corroborating, not sufficient on its own.
 
+Current contribution scope is narrower than "anything discoverable from the disassembly." Prefer data that has been specifically implemented and validated in engine code, focused tests, or trace work. If a label is only obvious from `skdisasm` structure but has not been exercised by implementation, leave it for a later pass unless it is required to document an implemented data set.
+
 Primary evidence:
 
 - current `skdisasm` pointer tables and code references
