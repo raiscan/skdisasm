@@ -1,6 +1,6 @@
 Map_LBZUnusedElevator_:
-		dc.w Frame_2248EC-Map_LBZUnusedElevator_
-Frame_2248EC:	dc.w 6
+		dc.w Map_LBZUnusedElevator_Frame0-Map_LBZUnusedElevator_
+Map_LBZUnusedElevator_Frame0:	dc.w 6	; Frame_2248EC
 		dc.b  $F8,  $D,   0, $10, $FF, $D0
 		dc.b  $F8,   5,   0, $14, $FF, $F0
 		dc.b  $F8,   5,   0, $14,   0,   0
