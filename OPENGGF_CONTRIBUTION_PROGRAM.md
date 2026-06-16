@@ -4,9 +4,9 @@
 
 This document and the surrounding `OPENGGF_*` audit files describe fork-side preparation work. They are not an upstream submission plan that agents may execute now.
 
-Do not open an upstream PR, draft PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact from this work at this time. The only allowed trigger for any upstream contact is an externally decided OpenGGF release-readiness decision by the project. That trigger is expected to be a while off, and it must come from outside this skdisasm contribution loop.
+Standing rule: do not open an upstream PR, draft PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact from this work at this moment in time. The only allowed trigger for any upstream contact is an externally decided OpenGGF release-readiness decision by the project. That trigger is expected to be a while off, and it must come from outside this skdisasm contribution loop.
 
-Before any future upstream PR branch exists, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch. Files such as `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts only. A branch that still contains them is not an upstream PR branch.
+Before any future upstream PR branch exists, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch. Files such as `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts only. A branch that still contains them is not an upstream PR branch, even if the assembly-source changes themselves are reviewable.
 
 ## Purpose
 
@@ -16,16 +16,16 @@ This is not an effort to import OpenGGF's internal model into `skdisasm`. Upstre
 
 ## Submission Freeze
 
-No upstream pull request, draft upstream pull request, upstream issue, maintainer ping, maintainer-facing submission, or style-confirmation contact may be opened at this time.
+No upstream pull request, draft upstream pull request, upstream issue, maintainer ping, maintainer-facing submission, or style-confirmation contact may be opened at this moment in time.
 
-This is a hard hold, not a review checkpoint. Finishing the local roadmap, passing byte-perfect checks, accumulating many ready-looking commits, or having agent consensus does not authorize upstream contact. The only allowed trigger is an externally made OpenGGF release-readiness decision by the project, and that decision is expected to be a while off. The trigger must come from outside this skdisasm contribution loop; agents working this branch must not decide that the project is "ready enough" on their own.
+This is a hard hold, not a review checkpoint. Finishing the local roadmap, passing byte-perfect checks, accumulating many ready-looking commits, having agent consensus, or preparing a clean-looking patch stack does not authorize upstream contact. The only allowed trigger is an externally made OpenGGF release-readiness decision by the project, and that decision is expected to be a while off. The trigger must come from outside this skdisasm contribution loop; agents working this branch must not decide that the project is "ready enough" on their own.
 
 The current work is local preparation only. The upstream trigger is external to this branch and external to this planning document: wait until OpenGGF is considered ready for release by the project. That release-readiness decision is expected to be a while off and will be made outside this skdisasm fork work. Until that external trigger happens, all changes stay in the fork as reviewable checkpoint commits and local audit packages.
 
 Before any future upstream PR is created:
 
 - confirm that the external OpenGGF release-readiness trigger has happened
-- extract a narrow upstream-facing branch from the local fork work
+- extract a narrow upstream-facing branch from the local fork work only after that trigger
 - remove OpenGGF-specific Markdown documentation, CSV audit packages, and any OpenGGF-branded process notes from the PR branch before opening the PR; this includes local files such as `OPENGGF_*.md` and `OPENGGF_*.csv`
 - rewrite PR text and commit scope around `skdisasm` evidence, ROM/disassembly verification, and byte-perfect annotation value
 - keep OpenGGF references out of source comments and labels; OpenGGF may only be mentioned in external PR prose if that is still useful and appropriate at submission time
@@ -309,10 +309,10 @@ Mitigations:
 Near-term success:
 
 - a fork exists and can build `skdisasm`
-- the object pointer pilot is prepared as a small upstream-ready branch
+- the object pointer pilot is prepared as a small local fork-side candidate, not as an upstream PR branch
 - the pilot preserves assembled output
 - the pilot has a primary-evidence audit table
-- future PR language is drafted locally as disassembly clarity, not OpenGGF synchronization
+- future PR language is drafted locally as disassembly clarity, not OpenGGF synchronization, and remains unused until the external release-readiness trigger
 - no upstream PR, draft PR, issue, maintainer ping, or style-confirmation contact has been opened before the external OpenGGF release-readiness trigger
 
 Long-term success:

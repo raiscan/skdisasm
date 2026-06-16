@@ -2,11 +2,11 @@
 
 ## Current Status: Held Locally
 
-This package is local review material only. It must not be used to open an upstream PR, draft PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact now.
+This package is local review material only. It must not be used to open an upstream PR, draft PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact at this moment in time.
 
 Any upstream-contact trigger must be an externally decided OpenGGF release-readiness decision by the project. That trigger is expected to be a while off and is outside this skdisasm fork work; local completion, byte-perfect verification, and agent review do not authorize upstream contact.
 
-Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch, including `OPENGGF_*.md` and `OPENGGF_*.csv`. If those files remain, the branch is still local fork material and must not be used for upstream review.
+Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch, including `OPENGGF_*.md` and `OPENGGF_*.csv`. If those files remain, the branch is still local fork material and must not be used for upstream review, even if the assembly-source patch is otherwise ready.
 
 ## Future Submission Title
 
