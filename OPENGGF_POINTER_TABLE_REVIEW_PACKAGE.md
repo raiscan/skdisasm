@@ -49,4 +49,8 @@ Sonic & Knuckles ROM is bit-perfect.
 
 ## Submission Hold
 
-No upstream PR or issue has been opened. This review package is held locally until the broader roadmap contribution batch is complete and explicitly approved for submission.
+No upstream PR or issue has been opened, and none should be opened during this work.
+
+This review package is held locally until the externally decided OpenGGF release-readiness trigger occurs and the maintainer-facing scope is explicitly approved for submission. That trigger is expected to be a while off; local checkpoint commits and fork-side audit packages are the intended state until then.
+
+Before any future PR is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, and process notes from the PR branch. Future upstream branches should contain only narrow `skdisasm` source changes and submission prose grounded in `skdisasm`/ROM evidence.

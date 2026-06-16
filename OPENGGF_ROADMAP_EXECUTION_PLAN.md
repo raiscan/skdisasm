@@ -4,7 +4,7 @@
 
 **Goal:** Advance the OpenGGF skdisasm contribution roadmap beyond the object pointer pilot with a local pointer-table review package and a first AIZ object identity/data ownership pass.
 
-**Architecture:** Keep future upstream submission material and exploratory annotation work separate inside the fork. No upstream PRs or issues are opened until the broader contribution package is complete and the maintainer-facing scope is approved by the user. When submission time arrives, extract narrowly scoped branches from this fork-side roadmap branch.
+**Architecture:** Keep future upstream submission material and exploratory annotation work separate inside the fork. No upstream PRs or issues are opened now. The trigger for any upstream contact is external: wait until OpenGGF is considered ready for release by the project, which is expected to be a while off. When that future trigger happens, extract narrowly scoped branches from this fork-side roadmap branch and remove OpenGGF-specific Markdown documentation, CSV audit packages, and process notes from any PR branch before submission.
 
 **Tech Stack:** `skdisasm` assembly sources, Git branches rooted at `upstream/master`, `chkbitperfect.lua`, manual CSV/Markdown audit artifacts, OpenGGF Java object registry only as corroborating evidence.
 
@@ -103,7 +103,9 @@ Sonic & Knuckles ROM is bit-perfect.
 
 ## Submission Hold
 
-No upstream PR or issue has been opened. This package is held locally until the broader roadmap contribution batch is complete and explicitly approved for submission.
+No upstream PR or issue has been opened, and none should be opened during this work. This package is held locally until the externally decided OpenGGF release-readiness trigger occurs and the maintainer-facing scope is explicitly approved for submission.
+
+Before any future PR is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, and process notes from the PR branch. Future upstream branches should contain only narrow `skdisasm` source changes and submission prose grounded in `skdisasm`/ROM evidence.
 ```
 
 Commit the package on the roadmap branch:
@@ -224,4 +226,4 @@ git push
 
 - Spec coverage: The plan covers local review package evidence, byte-perfect verification, AIZ audit, and first AIZ annotation patch.
 - Placeholder scan: No TBD/TODO placeholders are present.
-- Scope control: No upstream PRs or issues are opened during this roadmap execution; future submission branches are extracted only after the local contribution batch is done.
+- Scope control: No upstream PRs or issues are opened during this roadmap execution. Future submission branches are extracted only after the external OpenGGF release-readiness trigger and must exclude OpenGGF-specific Markdown, CSV audit files, and process documentation.

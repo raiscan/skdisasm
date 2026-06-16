@@ -6,6 +6,19 @@ OpenGGF has accumulated verified Sonic 3 & Knuckles object, data, and behavior k
 
 This is not an effort to import OpenGGF's internal model into `skdisasm`. Upstream changes should use `skdisasm` terminology, preserve byte-perfect build behavior, and remain reviewable on their own.
 
+## Submission Freeze
+
+No upstream pull request, upstream issue, or maintainer-facing submission should be opened at this time.
+
+The current work is local preparation only. The upstream trigger is external to this branch: wait until OpenGGF is considered ready for release by the project, which is expected to be a while off. Until that external release-readiness decision happens, all changes stay in the fork as reviewable checkpoint commits and local audit packages.
+
+Before any future upstream PR is created:
+
+- extract a narrow upstream-facing branch from the local fork work
+- remove OpenGGF-specific Markdown documentation, CSV audit packages, and any OpenGGF-branded process notes from the PR branch unless upstream maintainers explicitly ask for them
+- rewrite PR text and commit scope around `skdisasm` evidence, ROM/disassembly verification, and byte-perfect annotation value
+- keep OpenGGF references out of source comments and labels; OpenGGF may only be mentioned in external PR prose if that is still useful and appropriate at submission time
+
 ## High-Level Goal
 
 Move verified areas of `skdisasm` gradually from opaque labels toward clearer preservation and research annotations with:
@@ -43,6 +56,8 @@ Non-goals for upstream patches:
 
 OpenGGF can be cited in PR descriptions as the source of verification work, but the patch content should stand as disassembly improvement rather than project synchronization.
 
+This is future guidance only. During the current submission freeze, do not cite OpenGGF in any upstream venue because no upstream venue should be opened.
+
 ## Naming Policy
 
 OpenGGF names are implementation evidence, not upstream names by default.
@@ -63,11 +78,11 @@ We should maintain a fork of `skdisasm` for this work.
 The fork provides room to:
 
 - commit freely while auditing labels and cross-references
-- keep staging branches for proposed upstream PRs
+- keep local staging branches for possible future upstream PRs after the release-readiness trigger
 - maintain a backlog of candidate annotations
-- run byte-perfect build checks before upstream submission
-- split large research findings into small reviewable PRs
-- prepare tiny style-confirmation PRs before scaling naming or comment conventions
+- run byte-perfect build checks before any future upstream submission
+- split large research findings into small reviewable future PR scopes
+- prepare style-confirmation material locally before any future maintainer contact
 
 The fork should not become a permanent divergent disassembly. Its role is a staging and verification workspace. Changes intended for upstream should be kept in narrow branches that can be rebased, reviewed, and submitted independently.
 
@@ -77,7 +92,7 @@ Recommended repo boundaries:
 - `upstream` should point at `https://github.com/sonicretro/skdisasm.git`
 - patch branches should live in the standalone `skdisasm` checkout, not in the OpenGGF engine repository
 - generated audit reports may live in OpenGGF tooling or notes, but upstream patch files should be edited only in the standalone `skdisasm` git tree
-- sync from `upstream/master` before starting each upstream PR branch
+- sync from `upstream/master` before starting each future upstream PR branch
 - use narrowly named branches such as `feature/ai-object-pointer-annotations`
 
 ## Completeness Ladder
@@ -211,7 +226,7 @@ Every factual upstream annotation should include at least one primary source. Pr
 
 ## Byte-Perfect Verification
 
-Before each upstream PR:
+Before each future upstream PR, after the external OpenGGF release-readiness trigger:
 
 1. Start from a clean checkout synced to `upstream/master`.
 2. Build the relevant baseline target using the repository's build scripts, such as `buildSK`, `buildS3`, `buildS3Complete`, or `chkbitperfect`.
@@ -245,13 +260,13 @@ The tool or manual report should produce Markdown or CSV backlog notes. It shoul
 3. Run and record a baseline build or `chkbitperfect` result.
 4. Create a branch in the standalone `skdisasm` checkout for the SK object pointer pilot.
 5. Prepare the pointer-table audit table using upstream tables, placement data, linked assets, ROM behavior, and OpenGGF only as a cross-check.
-6. Open a very small style-confirmation PR or issue if maintainer preferences are unclear.
-7. Submit a small upstream PR for pointer table annotation only.
-8. After review, apply the accepted style to related pointer tables if applicable.
-9. Start zone-by-zone object identity passes, likely beginning with AIZ because OpenGGF coverage is strong.
-10. Follow with data ownership passes for implemented objects.
-11. Add behavior notes only where identity and routine structure are already clear.
-12. Maintain an internal backlog of candidate upstream contributions grouped by confidence and review risk.
+6. Continue local zone-by-zone object identity passes, beginning with AIZ and then adjacent high-confidence areas where primary evidence is strong.
+7. Follow with data ownership passes for implemented objects.
+8. Add behavior notes only where identity and routine structure are already clear.
+9. Maintain an internal backlog of candidate upstream contributions grouped by confidence and review risk.
+10. Wait for the external OpenGGF release-readiness trigger before any upstream issue, style-confirmation PR, or annotation PR.
+11. After that trigger, create clean upstream-facing branches that exclude OpenGGF-specific Markdown/CSV audit files and process documentation.
+12. Only then, consider a very small style-confirmation issue or PR if maintainer preferences are unclear, followed by narrow annotation PRs.
 
 ## Risk Management
 
@@ -268,10 +283,10 @@ Mitigations:
 - use upstream-native terms only
 - keep PRs narrow
 - include evidence in PR descriptions
-- run build and byte-perfect checks in the fork before submission
+- run build and byte-perfect checks in the fork before any future submission
 - prefer comments over renames when confidence is moderate
 - keep experimental work on fork-only branches until ready
-- confirm maintainer style early with a tiny PR or issue before broad annotation work
+- confirm maintainer style with a tiny PR or issue only after the external OpenGGF release-readiness trigger
 
 ## Success Criteria
 
@@ -281,7 +296,8 @@ Near-term success:
 - the object pointer pilot is prepared as a small upstream-ready branch
 - the pilot preserves assembled output
 - the pilot has a primary-evidence audit table
-- PR language explains the contribution as disassembly clarity, not OpenGGF synchronization
+- future PR language is drafted locally as disassembly clarity, not OpenGGF synchronization
+- no upstream PR or issue has been opened before OpenGGF release readiness
 
 Long-term success:
 
