@@ -183574,69 +183574,69 @@ Obj_Blastoid:
 		move.b	routine(a0),d0
 		move.w	Blastoid_Index(pc,d0.w),d1
 		jsr	Blastoid_Index(pc,d1.w)
-		bsr.w	sub_879A8
+		bsr.w	Blastoid_CheckPlayerTouch
 		jmp	Sprite_CheckDeleteTouch(pc)
 ; ---------------------------------------------------------------------------
 Blastoid_Index:
-		dc.w loc_8794A-Blastoid_Index
-		dc.w loc_87952-Blastoid_Index
-		dc.w loc_87976-Blastoid_Index
+		dc.w Blastoid_Init-Blastoid_Index
+		dc.w Blastoid_DetectPlayer-Blastoid_Index
+		dc.w Blastoid_Attack-Blastoid_Index
 ; ---------------------------------------------------------------------------
 
-loc_8794A:
+Blastoid_Init: ; loc_8794A
 		lea	ObjDat_Blastoid(pc),a1
 		jmp	SetUp_ObjAttributes(pc)
 ; ---------------------------------------------------------------------------
 
-loc_87952:
+Blastoid_DetectPlayer: ; loc_87952
 		jsr	Find_SonicTails(pc)
 		cmpi.w	#$80,d2
-		blo.s	loc_8795E
+		blo.s	Blastoid_StartAttack
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8795E:
+Blastoid_StartAttack: ; loc_8795E
 		move.b	#4,routine(a0)
 		move.l	#AniRaw_BlastoidAttack,$30(a0)
-		move.l	#loc_879A0,$34(a0)
+		move.l	#Blastoid_EndAttack,$34(a0)
 
-locret_87974:
+Blastoid_Return: ; locret_87974
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87976:
+Blastoid_Attack: ; loc_87976
 		jsr	Animate_RawMultiDelay(pc)
 		tst.w	d2
-		beq.s	locret_87974
-		bmi.s	locret_87974
+		beq.s	Blastoid_Return
+		bmi.s	Blastoid_Return
 		cmpi.b	#1,mapping_frame(a0)
-		bne.s	locret_87974
+		bne.s	Blastoid_Return
 		tst.b	render_flags(a0)
-		bpl.w	locret_87974
+		bpl.w	Blastoid_Return
 		moveq	#signextendB(sfx_Projectile),d0
 		jsr	(Play_SFX).l
 		lea	ChildObjDat_BlastoidProjectile(pc),a2
 		jmp	CreateChild5_ComplexAdjusted(pc)
 ; ---------------------------------------------------------------------------
 
-loc_879A0:
+Blastoid_EndAttack: ; loc_879A0
 		move.b	#2,routine(a0)
 		rts
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_879A8:
+Blastoid_CheckPlayerTouch: ; sub_879A8
 		jsr	Check_PlayerCollision(pc)
-		beq.w	locret_87974
+		beq.w	Blastoid_Return
 		jsr	Check_PlayerAttack(pc)
-		bne.s	loc_879C4
+		bne.s	Blastoid_Defeated
 		tst.b	invulnerability_timer(a1)
-		bne.w	locret_87974
+		bne.w	Blastoid_Return
 		jmp	(HurtCharacter_Directly).l
 ; ---------------------------------------------------------------------------
 
-loc_879C4:
+Blastoid_Defeated: ; loc_879C4
 		addq.w	#4,sp
 		move.b	subtype(a0),d0
 		andi.w	#$F,d0
@@ -183644,7 +183644,7 @@ loc_879C4:
 		st	(a3,d0.w)
 		jsr	EnemyDefeated(pc)
 		jmp	(Draw_Sprite).l
-; End of function sub_879A8
+; End of function Blastoid_CheckPlayerTouch
 
 ; ---------------------------------------------------------------------------
 ObjDat_Blastoid:
@@ -184544,7 +184544,7 @@ Poindexter_Index:
 		dc.w Poindexter_Main-Poindexter_Index
 ; ---------------------------------------------------------------------------
 
-Poindexter_Init:
+Poindexter_Init: ; loc_88298
 		lea	ObjDat_Poindexter(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.l	#AniRaw_Poindexter,$30(a0)
@@ -184566,7 +184566,7 @@ Poindexter_Init:
 		rts
 ; ---------------------------------------------------------------------------
 
-Poindexter_Main:
+Poindexter_Main: ; loc_882E6
 		jsr	Swing_UpAndDown(pc)
 		jsr	(MoveSprite2).l
 		jsr	Animate_RawMultiDelay(pc)
@@ -184576,11 +184576,11 @@ Poindexter_Main:
 		bne.s	Poindexter_MainReturn
 		move.b	#$86,collision_flags(a0)
 
-Poindexter_MainReturn:
+Poindexter_MainReturn: ; locret_8830C
 		rts
 ; ---------------------------------------------------------------------------
 
-Poindexter_TurnAround:
+Poindexter_TurnAround: ; loc_8830E
 		neg.w	x_vel(a0)
 		bchg	#0,render_flags(a0)
 		move.w	$3A(a0),$2E(a0)
