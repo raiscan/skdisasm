@@ -184718,96 +184718,96 @@ Obj_Tunnelbot:
 		move.b	routine(a0),d0
 		move.w	Tunnelbot_Index(pc,d0.w),d1
 		jsr	Tunnelbot_Index(pc,d1.w)
-		bsr.w	sub_88A62
+		bsr.w	TunnelbotMiniboss_CheckHitOrDefeat
 		jmp	Sprite_CheckDeleteTouch(pc)
 ; ---------------------------------------------------------------------------
 Tunnelbot_Index:
-		dc.w loc_88480-Tunnelbot_Index
-		dc.w loc_884A2-Tunnelbot_Index
-		dc.w loc_884D2-Tunnelbot_Index
-		dc.w loc_884FA-Tunnelbot_Index
-		dc.w loc_8852E-Tunnelbot_Index
+		dc.w Tunnelbot_Init-Tunnelbot_Index
+		dc.w Tunnelbot_WaitForPlayer-Tunnelbot_Index
+		dc.w TunnelbotMiniboss_SpinUp-Tunnelbot_Index
+		dc.w TunnelbotMiniboss_CeilingRise-Tunnelbot_Index
+		dc.w TunnelbotMiniboss_RumbleWait-Tunnelbot_Index
 ; ---------------------------------------------------------------------------
 
-loc_88480:
+Tunnelbot_Init:
 		lea	ObjDat_Tunnelbot(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.b	#-2,collision_property(a0)
 		move.b	#$28,y_radius(a0)
 		jsr	(Swing_Setup1).l
-		lea	ChildObjDat_88B2C(pc),a2
+		lea	TunnelbotMiniboss_HitboxChildren(pc),a2
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
-loc_884A2:
+Tunnelbot_WaitForPlayer:
 		jsr	(Swing_UpAndDown).l
 		jsr	(MoveSprite2).l
 		jsr	Find_SonicTails(pc)
 		cmpi.w	#$60,d2
-		bhs.w	locret_884D0
+		bhs.w	TunnelbotMiniboss_Return
 		move.b	#4,routine(a0)
-		move.l	#byte_88B73,$30(a0)
-		move.l	#loc_884E2,$34(a0)
+		move.l	#TunnelbotMiniboss_SpinUpAnim,$30(a0)
+		move.l	#Tunnelbot_StartCeilingRise,$34(a0)
 
-locret_884D0:
+TunnelbotMiniboss_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_884D2:
+TunnelbotMiniboss_SpinUp:
 		jsr	(Swing_UpAndDown).l
 		jsr	(MoveSprite2).l
 		jmp	Animate_RawGetFaster(pc)
 ; ---------------------------------------------------------------------------
 
-loc_884E2:
+Tunnelbot_StartCeilingRise:
 		move.b	#6,routine(a0)
-		move.l	#byte_88B79,$30(a0)
-		move.l	#loc_88514,$34(a0)
+		move.l	#TunnelbotMiniboss_CeilingRiseAnim,$30(a0)
+		move.l	#Tunnelbot_StartRumbleWait,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_884FA:
+TunnelbotMiniboss_CeilingRise:
 		jsr	Animate_Raw(pc)
 		subq.w	#1,y_pos(a0)
 		jsr	(ObjCheckCeilingDist).l
 		tst.w	d1
-		bpl.s	locret_88512
+		bpl.s	TunnelbotMiniboss_CeilingRiseReturn
 		movea.l	$34(a0),a1
 		jsr	(a1)
 
-locret_88512:
+TunnelbotMiniboss_CeilingRiseReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88514:
+Tunnelbot_StartRumbleWait:
 		move.b	#8,routine(a0)
 		st	(Screen_shake_flag).w
 		move.w	#$BF,$2E(a0)
-		move.l	#loc_8855A,$34(a0)
+		move.l	#Tunnelbot_SetTriggerAndDelete,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8852E:
+TunnelbotMiniboss_RumbleWait:
 		jsr	Animate_Raw(pc)
 		moveq	#-2,d0
 		move.b	(V_int_run_count+3).w,d1
 		btst	#0,d1
-		beq.s	loc_88540
+		beq.s	TunnelbotMiniboss_RumbleApplyYStep
 		moveq	#1,d0
 
-loc_88540:
+TunnelbotMiniboss_RumbleApplyYStep:
 		add.w	d0,y_pos(a0)
 		andi.b	#7,d1
-		bne.s	loc_88556
+		bne.s	TunnelbotMiniboss_RumbleWaitTail
 		moveq	#signextendB(sfx_Rumble2),d0
 		jsr	(Play_SFX).l
-		bsr.w	sub_88A32
+		bsr.w	TunnelbotMiniboss_SpawnDebris
 
-loc_88556:
+TunnelbotMiniboss_RumbleWaitTail:
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_8855A:
+Tunnelbot_SetTriggerAndDelete:
 		clr.w	(Screen_shake_flag).w
 		st	(Level_trigger_array+8).w
 		jmp	(Go_Delete_Sprite).l
@@ -184820,15 +184820,15 @@ Obj_MGZMiniboss:
 		move.b	routine(a0),d0
 		move.w	MGZMiniboss_Index(pc,d0.w),d1
 		jsr	MGZMiniboss_Index(pc,d1.w)
-		bsr.w	sub_88A62
+		bsr.w	TunnelbotMiniboss_CheckHitOrDefeat
 		jmp	Draw_And_Touch_Sprite(pc)
 ; ---------------------------------------------------------------------------
 MGZMiniboss_Index:
 		dc.w loc_885A4-MGZMiniboss_Index
 		dc.w loc_88604-MGZMiniboss_Index
-		dc.w loc_884D2-MGZMiniboss_Index
-		dc.w loc_884FA-MGZMiniboss_Index
-		dc.w loc_8852E-MGZMiniboss_Index
+		dc.w TunnelbotMiniboss_SpinUp-MGZMiniboss_Index
+		dc.w TunnelbotMiniboss_CeilingRise-MGZMiniboss_Index
+		dc.w TunnelbotMiniboss_RumbleWait-MGZMiniboss_Index
 		dc.w loc_8867A-MGZMiniboss_Index
 		dc.w loc_886EA-MGZMiniboss_Index
 		dc.w loc_88748-MGZMiniboss_Index
@@ -184857,7 +184857,7 @@ loc_885A4:
 		move.b	#mus_Miniboss,subtype(a1)
 
 loc_885FC:
-		lea	ChildObjDat_88B2C(pc),a2
+		lea	TunnelbotMiniboss_HitboxChildren(pc),a2
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
@@ -184869,14 +184869,14 @@ loc_88604:
 
 loc_88616:
 		move.b	#4,routine(a0)
-		move.l	#byte_88B73,$30(a0)
+		move.l	#TunnelbotMiniboss_SpinUpAnim,$30(a0)
 		move.l	#loc_8862E,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
 loc_8862E:
 		move.b	#6,routine(a0)
-		move.l	#byte_88B79,$30(a0)
+		move.l	#TunnelbotMiniboss_CeilingRiseAnim,$30(a0)
 		move.l	#loc_88646,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
@@ -184943,7 +184943,7 @@ loc_886FC:
 		bne.s	loc_88712
 		moveq	#signextendB(sfx_Rumble2),d0
 		jsr	(Play_SFX).l
-		bsr.w	sub_88A32
+		bsr.w	TunnelbotMiniboss_SpawnDebris
 
 loc_88712:
 		jmp	Obj_Wait(pc)
@@ -185023,30 +185023,30 @@ loc_887DA:
 		move.w	d0,(Camera_X_pos).w
 		move.w	d0,(Camera_min_X_pos).w
 		cmpi.w	#$2E00,d0
-		blo.w	locret_884D0
+		blo.w	TunnelbotMiniboss_Return
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_887F6:
-		move.l	#loc_88804,(a0)
+TunnelbotMiniboss_HitboxChild_Init:
+		move.l	#TunnelbotMiniboss_HitboxChild_Main,(a0)
 		move.b	#$9E,collision_flags(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88804:
+TunnelbotMiniboss_HitboxChild_Main:
 		movea.w	parent3(a0),a1
 		btst	#7,status(a1)
-		bne.s	loc_8881A
+		bne.s	TunnelbotMiniboss_HitboxChild_Delete
 		jsr	Refresh_ChildPositionAdjusted(pc)
 		jmp	(Add_SpriteToCollisionResponseList).l
 ; ---------------------------------------------------------------------------
 
-loc_8881A:
+TunnelbotMiniboss_HitboxChild_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_88820:
-		lea	ObjDat3_88B02(pc),a1
+TunnelbotMiniboss_Debris_Init:
+		lea	TunnelbotMiniboss_DebrisObjData(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		bset	#3,shield_reaction(a0)
 		jsr	(Random_Number).l
@@ -185054,13 +185054,13 @@ loc_88820:
 		move.b	d0,mapping_frame(a0)
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
-		beq.s	loc_88854
+		beq.s	TunnelbotMiniboss_Debris_StartTimedMove
 		tst.b	d0
-		bne.s	loc_88854
-		lea	ObjDat3_88B0E(pc),a1
+		bne.s	TunnelbotMiniboss_Debris_StartTimedMove
+		lea	TunnelbotMiniboss_SpireObjData(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 
-loc_88854:
+TunnelbotMiniboss_Debris_StartTimedMove:
 		move.l	#MoveDraw_SpriteTimed2,(a0)
 		move.w	#$5F,$2E(a0)
 		jmp	Draw_And_Touch_Sprite(pc)
@@ -185179,7 +185179,7 @@ off_88984:
 loc_8898E:
 		subq.w	#4,y_pos(a0)
 		subq.w	#1,$2E(a0)
-		bpl.w	locret_884D0
+		bpl.w	TunnelbotMiniboss_Return
 		move.b	#2,routine(a0)
 		move.w	#$3F,$2E(a0)
 		rts
@@ -185187,7 +185187,7 @@ loc_8898E:
 
 loc_889A8:
 		subq.w	#1,$2E(a0)
-		bpl.w	locret_884D0
+		bpl.w	TunnelbotMiniboss_Return
 		move.b	#4,routine(a0)
 		move.w	#$100,d0
 		btst	#0,render_flags(a0)
@@ -185209,7 +185209,7 @@ loc_889E8:
 		jsr	Swing_UpAndDown(pc)
 		jsr	(MoveSprite2).l
 		subq.w	#1,$2E(a0)
-		bpl.w	locret_884D0
+		bpl.w	TunnelbotMiniboss_Return
 		move.b	#6,routine(a0)
 		move.w	#$3F,$2E(a0)
 		rts
@@ -185217,7 +185217,7 @@ loc_889E8:
 
 loc_88A08:
 		subq.w	#1,$2E(a0)
-		bpl.w	locret_884D0
+		bpl.w	TunnelbotMiniboss_Return
 		move.b	#8,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
@@ -185227,17 +185227,17 @@ loc_88A18:
 		addq.w	#2,d0
 		move.w	d0,y_pos(a0)
 		cmp.w	$3A(a0),d0
-		blo.w	locret_884D0
+		blo.w	TunnelbotMiniboss_Return
 		bset	#4,$38(a0)
 		rts
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_88A32:
-		lea	ChildObjDat_88B3A(pc),a2
+TunnelbotMiniboss_SpawnDebris:
+		lea	TunnelbotMiniboss_DebrisChild(pc),a2
 		jsr	CreateChild1_Normal(pc)
-		bne.s	locret_88A60
+		bne.s	TunnelbotMiniboss_SpawnDebrisReturn
 		jsr	(Random_Number).l
 		andi.w	#$1FF,d0
 		move.w	(Camera_X_pos).w,d1
@@ -185248,63 +185248,63 @@ sub_88A32:
 		subi.w	#$20,d0
 		move.w	d0,y_pos(a1)
 
-locret_88A60:
+TunnelbotMiniboss_SpawnDebrisReturn:
 		rts
-; End of function sub_88A32
+; End of function TunnelbotMiniboss_SpawnDebris
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_88A62:
+TunnelbotMiniboss_CheckHitOrDefeat:
 		tst.b	collision_flags(a0)
-		bne.s	locret_88AB2
+		bne.s	TunnelbotMiniboss_HitCheckReturn
 		tst.b	collision_property(a0)
-		beq.s	loc_88AB4
+		beq.s	TunnelbotMiniboss_StartDefeat
 		tst.b	$20(a0)
-		bne.s	loc_88A88
+		bne.s	TunnelbotMiniboss_UpdateHitFlash
 		move.b	#$20,$20(a0)
 		moveq	#signextendB(sfx_BossHit),d0
 		jsr	(Play_SFX).l
 		bset	#6,status(a0)
 
-loc_88A88:
+TunnelbotMiniboss_UpdateHitFlash:
 		moveq	#0,d0
 		btst	#0,$20(a0)
-		bne.s	loc_88A94
+		bne.s	TunnelbotMiniboss_CopyHitFlashPalette
 		addq.w	#2*3,d0
 
-loc_88A94:
-		lea	word_88AE4(pc),a1
-		lea	word_88AEA(pc,d0.w),a2
+TunnelbotMiniboss_CopyHitFlashPalette:
+		lea	TunnelbotMiniboss_HitFlashPaletteTargets(pc),a1
+		lea	TunnelbotMiniboss_HitFlashPaletteValues(pc,d0.w),a2
 		jsr	CopyWordData_3(pc)
 		subq.b	#1,$20(a0)
-		bne.s	locret_88AB2
+		bne.s	TunnelbotMiniboss_HitCheckReturn
 		bclr	#6,status(a0)
 		move.b	$25(a0),collision_flags(a0)
 
-locret_88AB2:
+TunnelbotMiniboss_HitCheckReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88AB4:
+TunnelbotMiniboss_StartDefeat:
 		move.l	#Wait_FadeToLevelMusic,(a0)
 		clr.w	(Screen_shake_flag).w
 		move.l	#loc_887CA,$34(a0)
 		jsr	(AllocateObject).l
-		bne.s	loc_88AD4
+		bne.s	TunnelbotMiniboss_CreateExplosion
 		move.l	#loc_887DA,(a1)
 
-loc_88AD4:
+TunnelbotMiniboss_CreateExplosion:
 		lea	(Child6_CreateBossExplosion).l,a2
 		jsr	(CreateChild1_Normal).l
 		jmp	BossDefeated_StopTimer(pc)
-; End of function sub_88A62
+; End of function TunnelbotMiniboss_CheckHitOrDefeat
 
 ; ---------------------------------------------------------------------------
-word_88AE4:
+TunnelbotMiniboss_HitFlashPaletteTargets:
 		dc.w Normal_palette_line_2+$18, Normal_palette_line_2+$1A, Normal_palette_line_2+$1C
-word_88AEA:
+TunnelbotMiniboss_HitFlashPaletteValues:
 		dc.w   $CAA,  $866,  $644
 		dc.w   $EEE,  $EEE,  $EEE
 ObjDat_Tunnelbot:
@@ -185312,12 +185312,12 @@ ObjDat_Tunnelbot:
 		dc.w make_art_tile(ArtTile_MGZMiniboss,1,0)
 		dc.w   $280
 		dc.b  $28,  $C,   0, $10
-ObjDat3_88B02:
+TunnelbotMiniboss_DebrisObjData:
 		dc.l Map_MGZEndBossDebris
 		dc.w make_art_tile(ArtTile_MGZMiniBossDebris,2,0)
 		dc.w   $200
 		dc.b  $20, $20,   0,   0
-ObjDat3_88B0E:
+TunnelbotMiniboss_SpireObjData:
 		dc.l Map_MGZMinibossSpires
 		dc.w make_art_tile(ArtTile_MGZSpire,2,0)
 		dc.w   $200
@@ -185330,15 +185330,15 @@ ObjDat3_88B20:
 		dc.w make_art_tile($001,2,0)
 		dc.w   $280
 		dc.b  $18, $30,   0,   0
-ChildObjDat_88B2C:
+TunnelbotMiniboss_HitboxChildren:
 		dc.w 2-1
-		dc.l loc_887F6
+		dc.l TunnelbotMiniboss_HitboxChild_Init
 		dc.b -$1C,-$16
-		dc.l loc_887F6
+		dc.l TunnelbotMiniboss_HitboxChild_Init
 		dc.b  $1C,-$16
-ChildObjDat_88B3A:
+TunnelbotMiniboss_DebrisChild:
 		dc.w 1-1
-		dc.l loc_88820
+		dc.l TunnelbotMiniboss_Debris_Init
 		dc.b    0,   0
 ChildObjDat_88B42:
 		dc.w 5-1
@@ -185361,9 +185361,9 @@ ChildObjDat_88B62:
 		dc.b    2,   5
 		dc.b    3,   5
 		dc.b  $FC
-byte_88B73:
+TunnelbotMiniboss_SpinUpAnim:
 		dc.b    5,   4,   0,   1,   2, $FC
-byte_88B79:
+TunnelbotMiniboss_CeilingRiseAnim:
 		dc.b    0,   0,   1,   2, $FC
 		even
 Map_MGZMinibossSpires:
