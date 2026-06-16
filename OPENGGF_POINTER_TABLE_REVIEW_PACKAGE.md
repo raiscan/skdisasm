@@ -1,5 +1,13 @@
 # Pointer Table Annotation Review Package
 
+## Current Status: Held Locally
+
+This package is local review material only. It must not be used to open an upstream PR, draft PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact now.
+
+Any upstream-contact trigger must be an externally decided OpenGGF release-readiness decision by the project. That trigger is expected to be a while off and is outside this skdisasm fork work; local completion, byte-perfect verification, and agent review do not authorize upstream contact.
+
+Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch, including `OPENGGF_*.md` and `OPENGGF_*.csv`. If those files remain, the branch is still local fork material and must not be used for upstream review.
+
 ## Future Submission Title
 
 Document Sonic & Knuckles object pointer table indexes

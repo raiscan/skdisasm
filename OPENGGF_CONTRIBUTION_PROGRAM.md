@@ -1,5 +1,13 @@
 # skdisasm Contribution Program Design
 
+## Current Status: Local Preparation Only
+
+This document and the surrounding `OPENGGF_*` audit files describe fork-side preparation work. They are not an upstream submission plan that agents may execute now.
+
+Do not open an upstream PR, draft PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact from this work at this time. The only allowed trigger for any upstream contact is an externally decided OpenGGF release-readiness decision by the project. That trigger is expected to be a while off, and it must come from outside this skdisasm contribution loop.
+
+Before any future upstream PR branch exists, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch. Files such as `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts only. A branch that still contains them is not an upstream PR branch.
+
 ## Purpose
 
 OpenGGF has accumulated verified Sonic 3 & Knuckles object, data, and behavior knowledge while implementing ROM-backed engine parity. Some of that knowledge can support incremental `skdisasm` annotations in areas we have independently verified. The goal is to contribute back in a form that makes selected parts of the disassembly clearer and more useful, closer to the practical information level of `s1disasm` and `s2disasm`.
@@ -24,6 +32,8 @@ Before any future upstream PR is created:
 - verify the cleanup before submission with `git status`, `git diff --name-only upstream/master..HEAD`, and a scan for OpenGGF-specific documentation files on the PR branch
 
 If a future branch still contains `OPENGGF_*.md`, `OPENGGF_*.csv`, local roadmap text, or OpenGGF-branded process documentation, it is not an upstream PR branch yet and must not be pushed to upstream review.
+
+This cleanup requirement applies before creating a PR or draft PR, not as a post-PR cleanup item.
 
 ## High-Level Goal
 

@@ -2,6 +2,10 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
+**Current status:** Local fork preparation only. This plan must not create, draft, request, or discuss an upstream PR/issue with maintainers now. The upstream-contact trigger is an externally decided OpenGGF release-readiness decision by the project, expected to be a while off and outside this skdisasm contribution loop.
+
+**Pre-submission sanitation gate:** Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch. `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts. A branch that still contains them is not an upstream PR branch and must not be used for upstream review.
+
 **Goal:** Advance the OpenGGF skdisasm contribution roadmap beyond the object pointer pilot with a local pointer-table review package and a first AIZ object identity/data ownership pass.
 
 **Architecture:** Keep future upstream submission material and exploratory annotation work separate inside the fork. No upstream PRs, draft upstream PRs, issues, maintainer pings, maintainer-facing submissions, or style-confirmation contacts are opened now. The trigger for any upstream contact is external: wait until OpenGGF is considered ready for release by the project, which is expected to be a while off and will be decided outside this skdisasm fork work. Local completion, byte-perfect verification, agent review, or a ready-looking patch stack does not authorize upstream contact. When that future trigger happens, extract narrowly scoped branches from this fork-side roadmap branch and remove OpenGGF-specific Markdown documentation, CSV audit packages, and process notes before creating any PR or draft PR branch.
