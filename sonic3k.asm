@@ -48915,7 +48915,7 @@ locret_23F48:
 Map_2PRetractingSpring:
 		include "General/Sprites/Level Misc/Map - 2P Retracting Spring.asm"
 ; ---------------------------------------------------------------------------
-byte_23F74:
+Spikes_Dimensions:	; byte_23F74
 		dc.b  $10, $10
 		dc.b  $20, $10
 		dc.b  $30, $10
@@ -48935,7 +48935,7 @@ Obj_Spikes:
 		lsr.w	#3,d0
 		tst.w	(Competition_mode).w
 		bne.w	loc_24034
-		lea	byte_23F74(pc,d0.w),a1
+		lea	Spikes_Dimensions(pc,d0.w),a1
 		move.b	(a1)+,width_pixels(a0)
 		move.b	(a1)+,height_pixels(a0)
 		move.l	#loc_24090,(a0)
