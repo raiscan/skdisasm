@@ -65313,13 +65313,13 @@ HCZWaterWall_Vertical_FallMove:
 
 Obj_HCZCGZFan:
 		tst.w	(Competition_mode).w
-		bne.w	loc_309CC
+		bne.w	HCZCGZFan_CompetitionInit
 		movea.l	a0,a1
 		tst.b	subtype(a0)
-		bpl.s	loc_30602
+		bpl.s	HCZCGZFan_InitFan
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.w	locret_3064C
-		move.l	#loc_30850,(a0)
+		bne.w	HCZCGZFan_Return
+		move.l	#HCZCGZFan_Platform,(a0)
 		move.w	x_pos(a0),x_pos(a1)
 		move.w	x_pos(a0),$40(a0)
 		move.w	y_pos(a0),y_pos(a1)
@@ -65339,7 +65339,7 @@ Obj_HCZCGZFan:
 		bclr	#5,subtype(a1)
 		bset	#4,subtype(a1)
 
-loc_30602:
+HCZCGZFan_InitFan:
 		move.l	#Map_HCZFan,mappings(a1)
 		move.w	#make_art_tile(ArtTile_HCZMisc+$41,1,0),art_tile(a1)
 		ori.b	#4,render_flags(a1)
@@ -65354,82 +65354,82 @@ loc_30602:
 		move.w	d0,$36(a1)
 		addi.w	#$30,d0
 		move.w	d0,$38(a1)
-		move.l	#loc_3064E,(a1)
+		move.l	#HCZCGZFan_Main,(a1)
 
-locret_3064C:
+HCZCGZFan_Return:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3064E:
+HCZCGZFan_Main:
 		move.b	subtype(a0),d0
 		btst	#5,d0
-		beq.s	loc_3066C
+		beq.s	HCZCGZFan_CheckSpin
 		tst.b	(Level_trigger_array).w
-		beq.w	loc_30774
+		beq.w	HCZCGZFan_Display
 		bclr	#5,subtype(a0)
 		bset	#4,subtype(a0)
 
-loc_3066C:
+HCZCGZFan_CheckSpin:
 		tst.b	$42(a0)
-		bne.s	loc_306A2
+		bne.s	HCZCGZFan_SpinUp
 		btst	#4,subtype(a0)
-		bne.s	loc_306C2
+		bne.s	HCZCGZFan_ApplyLift
 		subq.w	#1,$30(a0)
-		bpl.s	loc_3069A
+		bpl.s	HCZCGZFan_CheckPulseState
 		move.w	#0,$34(a0)
 		move.w	#2*60,$30(a0)
 		bchg	#0,$32(a0)
-		beq.s	loc_3069A
+		beq.s	HCZCGZFan_CheckPulseState
 		move.w	#3*60,$30(a0)
 
-loc_3069A:
+HCZCGZFan_CheckPulseState:
 		tst.b	$32(a0)
-		beq.w	loc_306C2
+		beq.w	HCZCGZFan_ApplyLift
 
-loc_306A2:
+HCZCGZFan_SpinUp:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.w	loc_30774
+		bpl.w	HCZCGZFan_Display
 		cmpi.w	#$400,$34(a0)
-		bhs.w	loc_30774
+		bhs.w	HCZCGZFan_Display
 		addi.w	#$2A,$34(a0)
 		move.b	$34(a0),anim_frame_timer(a0)
-		bra.s	loc_306E0
+		bra.s	HCZCGZFan_AdvanceFrame
 ; ---------------------------------------------------------------------------
 
-loc_306C2:
+HCZCGZFan_ApplyLift:
 		lea	(Player_1).w,a1
-		bsr.w	loc_3077E
+		bsr.w	HCZCGZFan_CheckPlayer
 		lea	(Player_2).w,a1
-		bsr.w	loc_3077E
+		bsr.w	HCZCGZFan_CheckPlayer
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.w	loc_306F2
+		bpl.w	HCZCGZFan_CheckFanSfx
 		move.b	#0,anim_frame_timer(a0)
 
-loc_306E0:
+HCZCGZFan_AdvanceFrame:
 		addq.b	#1,mapping_frame(a0)
 		cmpi.b	#5,mapping_frame(a0)
-		blo.s	loc_306F2
+		blo.s	HCZCGZFan_CheckFanSfx
 		move.b	#0,mapping_frame(a0)
 
-loc_306F2:
+HCZCGZFan_CheckFanSfx:
 		tst.b	render_flags(a0)
-		bpl.s	loc_3070C
+		bpl.s	HCZCGZFan_SpawnBubbles
 		move.b	(Level_frame_counter+1).w,d0
 		addq.b	#1,d0
 		andi.b	#$F,d0
-		bne.s	loc_3070C
+		bne.s	HCZCGZFan_SpawnBubbles
 		moveq	#signextendB(sfx_FanSmall),d0
 		jsr	(Play_SFX).l
 
-loc_3070C:
+HCZCGZFan_SpawnBubbles:
 		btst	#6,subtype(a0)
-		beq.s	loc_30774
+		beq.s	HCZCGZFan_Display
 		move.b	(Level_frame_counter+1).w,d0
 		andi.b	#3,d0
-		bne.s	loc_30774
+		bne.s	HCZCGZFan_Display
 		jsr	(AllocateObject).l
-		bne.s	loc_30774
-		move.l	#loc_30834,(a1)
+		bne.s	HCZCGZFan_Display
+		move.l	#HCZCGZFan_Bubble,(a1)
 		move.l	#Map_Bubbler,mappings(a1)
 		move.w	#make_art_tile(ArtTile_Bubbles,0,0),art_tile(a1)
 		move.b	#$84,render_flags(a1)
@@ -65450,35 +65450,35 @@ loc_3070C:
 		move.w	y_pos(a0),y_pos(a1)
 		move.w	#-$800,y_vel(a1)
 
-loc_30774:
+HCZCGZFan_Display:
 		move.w	$40(a0),d0
 		jmp	(Sprite_OnScreen_Test2).l
 ; ---------------------------------------------------------------------------
 
-loc_3077E:
+HCZCGZFan_CheckPlayer:
 		cmpi.b	#4,routine(a1)
-		bhs.w	locret_3081C
+		bhs.w	HCZCGZFan_PlayerReturn
 		move.w	x_pos(a1),d0
 		sub.w	x_pos(a0),d0
 		addi.w	#$18,d0
 		cmpi.w	#$30,d0
-		bhs.w	locret_3081C
+		bhs.w	HCZCGZFan_PlayerReturn
 		moveq	#0,d1
 		move.b	(Oscillating_table+$16).w,d1
 		add.w	y_pos(a1),d1
 		add.w	$36(a0),d1
 		sub.w	y_pos(a0),d1
-		bcs.s	locret_3081C
+		bcs.s	HCZCGZFan_PlayerReturn
 		cmp.w	$38(a0),d1
-		bhs.s	locret_3081C
+		bhs.s	HCZCGZFan_PlayerReturn
 		tst.b	object_control(a1)
-		bne.s	loc_3081E
+		bne.s	HCZCGZFan_PlayerControlled
 		sub.w	$36(a0),d1
-		bcs.s	loc_307C6
+		bcs.s	HCZCGZFan_AdjustPlayerY
 		not.w	d1
 		add.w	d1,d1
 
-loc_307C6:
+HCZCGZFan_AdjustPlayerY:
 		add.w	$36(a0),d1
 		neg.w	d1
 		asr.w	#6,d1
@@ -65489,86 +65489,86 @@ loc_307C6:
 		move.b	#0,double_jump_flag(a1)
 		move.b	#0,jumping(a1)
 		btst	#6,subtype(a0)
-		bne.s	loc_30826
+		bne.s	HCZCGZFan_SetWaterAnim
 		move.w	#1,ground_vel(a1)
 		tst.b	flip_angle(a1)
-		bne.s	locret_3081C
+		bne.s	HCZCGZFan_PlayerReturn
 		move.b	#1,flip_angle(a1)
 		move.b	#0,anim(a1)
 		move.b	#$7F,flips_remaining(a1)
 		move.b	#8,flip_speed(a1)
 
-locret_3081C:
+HCZCGZFan_PlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3081E:
+HCZCGZFan_PlayerControlled:
 		move.w	#1,ground_vel(a1)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_30826:
+HCZCGZFan_SetWaterAnim:
 		move.w	#1,ground_vel(a1)
 		move.b	#$F,anim(a1)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_30834:
+HCZCGZFan_Bubble:
 		move.w	(Water_level).w,d0
 		cmp.w	y_pos(a0),d0
-		bhs.s	loc_3084A
+		bhs.s	HCZCGZFan_DeleteBubble
 		jsr	(MoveSprite2).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_3084A:
+HCZCGZFan_DeleteBubble:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_30850:
+HCZCGZFan_Platform:
 		movea.w	$3C(a0),a1
 		move.w	(Player_1+y_pos).w,d0
 		sub.w	y_pos(a0),d0
-		bcs.s	loc_3088E
+		bcs.s	HCZCGZFan_Platform_PlayerAbove
 		cmpi.w	#$20,d0
-		blt.s	loc_308B8
+		blt.s	HCZCGZFan_Platform_UpdatePosition
 		tst.b	$42(a1)
-		bne.s	loc_3087E
+		bne.s	HCZCGZFan_Platform_Extend
 		move.b	#1,$42(a1)
 		move.w	#0,$34(a1)
 		moveq	#signextendB(sfx_FanLatch),d0
 		jsr	(Play_SFX).l
 
-loc_3087E:
+HCZCGZFan_Platform_Extend:
 		move.w	$3A(a0),d1
 		cmp.w	$30(a0),d1
-		beq.s	loc_308B8
+		beq.s	HCZCGZFan_Platform_UpdatePosition
 		addq.w	#8,$30(a0)
-		bra.s	loc_308B8
+		bra.s	HCZCGZFan_Platform_UpdatePosition
 ; ---------------------------------------------------------------------------
 
-loc_3088E:
+HCZCGZFan_Platform_PlayerAbove:
 		cmpi.w	#-$30,d0
-		bge.s	loc_308B8
+		bge.s	HCZCGZFan_Platform_UpdatePosition
 		tst.b	$42(a1)
-		beq.s	loc_308AE
+		beq.s	HCZCGZFan_Platform_Retract
 		move.b	#0,$42(a1)
 		move.b	#0,anim_frame_timer(a1)
 		moveq	#signextendB(sfx_FanLatch),d0
 		jsr	(Play_SFX).l
 
-loc_308AE:
+HCZCGZFan_Platform_Retract:
 		tst.w	$30(a0)
-		beq.s	loc_308B8
+		beq.s	HCZCGZFan_Platform_UpdatePosition
 		subq.w	#8,$30(a0)
 
-loc_308B8:
+HCZCGZFan_Platform_UpdatePosition:
 		move.w	$30(a0),d0
 		btst	#0,status(a0)
-		beq.s	loc_308C6
+		beq.s	HCZCGZFan_Platform_ApplyOffset
 		neg.w	d0
 
-loc_308C6:
+HCZCGZFan_Platform_ApplyOffset:
 		add.w	$40(a0),d0
 		move.w	d0,x_pos(a0)
 		move.w	d0,x_pos(a1)
@@ -65589,31 +65589,31 @@ Obj_HCZLargeFan:
 		move.w	(Player_1+x_pos).w,d0
 		subi.w	#$20,d0
 		cmp.w	x_pos(a0),d0
-		blo.s	loc_3091A
+		blo.s	HCZLargeFan_DeleteIfNotInRange
 		move.w	(Player_1+y_pos).w,d0
 		subi.w	#$20,d0
 		sub.w	y_pos(a0),d0
 		cmpi.w	#$40,d0
-		blo.s	loc_30926
+		blo.s	HCZLargeFan_QueueArt
 
-loc_3091A:
+HCZLargeFan_DeleteIfNotInRange:
 		move.b	#3,(_unkF7C7).w
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_30926:
+HCZLargeFan_QueueArt:
 		lea	(ArtKosM_HCZLargeFan).l,a1
 		move.w	#tiles_to_bytes(ArtTile_HCZLargeFan),d2
 		jsr	(Queue_Kos_Module).l
-		move.l	#loc_3093C,(a0)
+		move.l	#HCZLargeFan_WaitArt,(a0)
 
-loc_3093C:
+HCZLargeFan_WaitArt:
 		tst.b	(Kos_modules_left).w
-		beq.s	loc_30944
+		beq.s	HCZLargeFan_Init
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_30944:
+HCZLargeFan_Init:
 		ori.b	#4,render_flags(a0)
 		move.w	#$200,priority(a0)
 		move.l	#Map_HCZLargeFan,mappings(a0)
@@ -65623,37 +65623,37 @@ loc_30944:
 		move.w	#8,$30(a0)
 		moveq	#signextendB(sfx_FanLatch),d0
 		jsr	(Play_SFX).l
-		move.l	#loc_3097E,(a0)
+		move.l	#HCZLargeFan_Main,(a0)
 
-loc_3097E:
+HCZLargeFan_Main:
 		tst.w	$30(a0)
-		beq.s	loc_30994
+		beq.s	HCZLargeFan_PlayLoopSfx
 		addq.w	#8,y_pos(a0)
 		subq.w	#1,$30(a0)
-		bne.s	loc_30994
+		bne.s	HCZLargeFan_PlayLoopSfx
 		move.b	#0,(_unkF7C7).w
 
-loc_30994:
+HCZLargeFan_PlayLoopSfx:
 		move.b	(Level_frame_counter+1).w,d0
 		andi.b	#$F,d0
-		bne.s	loc_309A6
+		bne.s	HCZLargeFan_Animate
 		moveq	#signextendB(sfx_FanBig),d0
 		jsr	(Play_SFX).l
 
-loc_309A6:
+HCZLargeFan_Animate:
 		subq.b	#1,anim_frame_timer(a0)
-		bpl.w	loc_309C6
+		bpl.w	HCZLargeFan_Display
 		move.b	#0,anim_frame_timer(a0)
 		addq.b	#1,mapping_frame(a0)
 		cmpi.b	#5,mapping_frame(a0)
-		blo.s	loc_309C6
+		blo.s	HCZLargeFan_Display
 		move.b	#0,mapping_frame(a0)
 
-loc_309C6:
+HCZLargeFan_Display:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_309CC:
+HCZCGZFan_CompetitionInit:
 		move.l	#Map_CGZFan,mappings(a0)
 		move.w	#make_art_tile(ArtTile_CGZMisc,3,0),art_tile(a0)
 		ori.b	#4,render_flags(a0)
@@ -65667,48 +65667,48 @@ loc_309CC:
 		move.w	d0,$36(a0)
 		addi.w	#$30,d0
 		move.w	d0,$38(a0)
-		move.l	#loc_30A10,(a0)
+		move.l	#HCZCGZFan_CompetitionMain,(a0)
 
-loc_30A10:
+HCZCGZFan_CompetitionMain:
 		lea	(Player_1).w,a1
-		bsr.w	sub_30A38
+		bsr.w	HCZCGZFan_CompetitionCheckPlayer
 		lea	(Player_2).w,a1
-		bsr.w	sub_30A38
+		bsr.w	HCZCGZFan_CompetitionCheckPlayer
 		addq.b	#1,mapping_frame(a0)
 		cmpi.b	#3,mapping_frame(a0)
-		blo.s	loc_30A32
+		blo.s	HCZCGZFan_CompetitionDraw
 		move.b	#0,mapping_frame(a0)
 
-loc_30A32:
+HCZCGZFan_CompetitionDraw:
 		jmp	(Draw_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_30A38:
+HCZCGZFan_CompetitionCheckPlayer:
 		cmpi.b	#4,routine(a1)
-		bhs.w	locret_30ACE
+		bhs.w	HCZCGZFan_CompetitionPlayerReturn
 		tst.b	object_control(a1)
-		bne.w	locret_30ACE
+		bne.w	HCZCGZFan_CompetitionPlayerReturn
 		move.w	x_pos(a1),d0
 		sub.w	x_pos(a0),d0
 		addi.w	#$14,d0
 		cmpi.w	#$28,d0
-		bhs.s	locret_30ACE
+		bhs.s	HCZCGZFan_CompetitionPlayerReturn
 		moveq	#0,d1
 		move.b	(Oscillating_table+$16).w,d1
 		add.w	y_pos(a1),d1
 		add.w	$36(a0),d1
 		sub.w	y_pos(a0),d1
-		bcs.s	locret_30ACE
+		bcs.s	HCZCGZFan_CompetitionPlayerReturn
 		cmp.w	$38(a0),d1
-		bhs.s	locret_30ACE
+		bhs.s	HCZCGZFan_CompetitionPlayerReturn
 		sub.w	$36(a0),d1
-		bcs.s	loc_30A80
+		bcs.s	HCZCGZFan_CompetitionAdjustPlayerY
 		not.w	d1
 		add.w	d1,d1
 
-loc_30A80:
+HCZCGZFan_CompetitionAdjustPlayerY:
 		add.w	$36(a0),d1
 		neg.w	d1
 		asr.w	#6,d1
@@ -65720,15 +65720,15 @@ loc_30A80:
 		move.b	#0,jumping(a1)
 		move.w	#1,ground_vel(a1)
 		tst.b	flip_angle(a1)
-		bne.s	locret_30ACE
+		bne.s	HCZCGZFan_CompetitionPlayerReturn
 		move.b	#1,flip_angle(a1)
 		move.b	#0,anim(a1)
 		move.b	#$7F,flips_remaining(a1)
 		move.b	#8,flip_speed(a1)
 
-locret_30ACE:
+HCZCGZFan_CompetitionPlayerReturn:
 		rts
-; End of function sub_30A38
+; End of function HCZCGZFan_CompetitionCheckPlayer
 
 ; ---------------------------------------------------------------------------
 
