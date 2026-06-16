@@ -234,6 +234,8 @@ Each proposed upstream change should have primary evidence. OpenGGF evidence is 
 
 Current contribution scope is narrower than "anything discoverable from the disassembly." Prefer data that has been specifically implemented and validated in engine code, focused tests, or trace work. If a label is only obvious from `skdisasm` structure but has not been exercised by implementation, leave it for a later pass unless it is required to document an implemented data set.
 
+Treat incomplete zones, especially later S&K-side zones, as object-local evidence only. A focused object implementation can validate that object's mappings, animation scripts, and directly referenced data, but it does not validate the surrounding zone or adjacent unimplemented data. Do not infer zone completeness from a successful object test.
+
 Primary evidence:
 
 - current `skdisasm` pointer tables and code references
