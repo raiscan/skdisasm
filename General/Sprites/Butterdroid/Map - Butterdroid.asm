@@ -1,17 +1,17 @@
 ; Butterdroid mappings
 Map_Butterdroid_:
-		dc.w word_8E138-Map_Butterdroid_
-		dc.w word_8E140-Map_Butterdroid_
-		dc.w word_8E148-Map_Butterdroid_
-		dc.w word_8E150-Map_Butterdroid_
-		dc.w word_8E158-Map_Butterdroid_
-word_8E138:	dc.w 1
+		dc.w Map_Butterdroid_Frame0-Map_Butterdroid_
+		dc.w Map_Butterdroid_Frame1-Map_Butterdroid_
+		dc.w Map_Butterdroid_Frame2-Map_Butterdroid_
+		dc.w Map_Butterdroid_Frame3-Map_Butterdroid_
+		dc.w Map_Butterdroid_Frame4-Map_Butterdroid_
+Map_Butterdroid_Frame0:	dc.w 1		; word_8E138
 		dc.b  $F4,  $A,   0,   0, $FF, $F4
-word_8E140:	dc.w 1
+Map_Butterdroid_Frame1:	dc.w 1		; word_8E140
 		dc.b  $F4,  $A,   0,   0, $FF, $F4
-word_8E148:	dc.w 1
+Map_Butterdroid_Frame2:	dc.w 1		; word_8E148
 		dc.b  $FC,  $D,   0,   0, $FF, $EF
-word_8E150:	dc.w 1
+Map_Butterdroid_Frame3:	dc.w 1		; word_8E150
 		dc.b    0,  $D,   0,   0, $FF, $EC
-word_8E158:	dc.w 1
+Map_Butterdroid_Frame4:	dc.w 1		; word_8E158
 		dc.b    0,  $A,   0,   0, $FF, $F4
