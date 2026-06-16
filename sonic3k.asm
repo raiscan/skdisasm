@@ -182259,13 +182259,13 @@ Map_FBZExitHall:
 		include "Levels/FBZ/Misc Object Data/Map - Exit Hall.asm"
 ; ---------------------------------------------------------------------------
 
-S3KBadnikProjectile_Init:
+S3KBadnikProjectile_Init:	; loc_86D4A
 		movea.l	$3E(a0),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.l	#S3KBadnikProjectile_Main,(a0)
 		bset	#3,shield_reaction(a0)
 
-S3KBadnikProjectile_Main:
+S3KBadnikProjectile_Main:	; loc_86D5E
 		movea.l	$34(a0),a1
 		jsr	(a1)
 		jmp	(Sprite_CheckDeleteTouchXY).l
@@ -182342,12 +182342,12 @@ ObjDat_Bloominator:
 		dc.w make_art_tile(ArtTile_Bloominator,1,0)
 		dc.w   $200
 		dc.b   $C, $18,   0, $23
-ObjDat_BloominatorProjectile:
+ObjDat_BloominatorProjectile:	; ObjDat3_86E1E
 		dc.l Map_Bloominator
 		dc.w make_art_tile(ArtTile_Bloominator,1,0)
 		dc.w   $280
 		dc.b    8,   8,   4, $98
-ChildObjDat_BloominatorProjectile:
+ChildObjDat_BloominatorProjectile:	; ChildObjDat_86E2A
 		dc.w 1-1
 		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat_BloominatorProjectile
@@ -182355,7 +182355,7 @@ ChildObjDat_BloominatorProjectile:
 		dc.l MoveSprite
 		dc.b    0,-$10
 		dc.w   $100, -$500
-AniRaw_BloominatorAttack:
+AniRaw_BloominatorAttack:	; byte_86E42
 		dc.b    0,   7
 		dc.b    1,   9
 		dc.b    2,   4
@@ -182668,28 +182668,28 @@ ObjSlot_Rhinobot:
 		dc.l Map_Rhinobot
 		dc.w   $280
 		dc.b  $14, $10,   0,  $B
-ObjSlot_RhinobotEffect:
+ObjSlot_RhinobotEffect:	; ObjSlot_87110
 		dc.w 2-1
 		dc.w make_art_tile(ArtTile_Rhinobot-$B6,0,0)
 		dc.w      6,     2
 		dc.l Map_Rhinobot
 		dc.w   $200
 		dc.b   $C,   8,   4,   0
-ChildObjDat_RhinobotBrakeEffect:
+ChildObjDat_RhinobotBrakeEffect:	; ChildObjDat_87122
 		dc.w 1-1
 		dc.l RhinobotEffect
 		dc.b   $C,   8
-ChildObjDat_RhinobotChargeEffect:
+ChildObjDat_RhinobotChargeEffect:	; ChildObjDat_8712A
 		dc.w 1-1
 		dc.l RhinobotEffect
 		dc.b  $10,   8
 DPLCPtr_AIZRhinobot:
 		dc.l ArtUnc_AIZRhinobot
 		dc.l DPLC_Rhinobot
-AniRaw_RhinobotBrakeEffect:
+AniRaw_RhinobotBrakeEffect:	; byte_8713A
 		dc.b    2,   4,   4,   5,   6,   7,   4,   5,   6,   7,   4,   5,   6,   7, $F4
 		even
-AniRaw_RhinobotChargeEffect:
+AniRaw_RhinobotChargeEffect:	; byte_8714A
 		dc.b    2,   4,   4,   5,   6,   7,   4,   5,   6,   7, $F4
 		even
 ; ---------------------------------------------------------------------------
@@ -183273,19 +183273,19 @@ ObjDat_MonkeyDude:
 ObjDat3_MonkeyDudeArmSegment:
 		dc.w   $300
 		dc.b    4,   4,   3,   0
-ObjDat_MonkeyDudeHeldCoconut:
+ObjDat_MonkeyDudeHeldCoconut:	; word_8766C
 		dc.w make_art_tile(ArtTile_MonkeyDude,1,1)
 		dc.w   $280
 		dc.b  $20, $20,   6,  $B
-ObjDat_MonkeyDudeCoconut:
+ObjDat_MonkeyDudeCoconut:	; ObjDat3_87674
 		dc.l Map_MonkeyDude
 		dc.w make_art_tile(ArtTile_MonkeyDude,0,0)
 		dc.w   $280
 		dc.b  $20, $20,   6, $98
-ChildObjDat_MonkeyDudeChildChain:
+ChildObjDat_MonkeyDudeChildChain:	; ChildObjDat_87680
 		dc.w 5-1
 		dc.l MonkeyDudeArm_Init
-ChildObjDat_MonkeyDudeFlippedChildChain:
+ChildObjDat_MonkeyDudeFlippedChildChain:	; ChildObjDat_87686
 		dc.w 5-1
 		dc.l MonkeyDudeArm_InitFlipped
 		dc.w 1-1
@@ -183294,7 +183294,7 @@ ChildObjDat_MonkeyDudeFlippedChildChain:
 		dc.w 1-1
 		dc.l MonkeyDudeCoconut_Init
 		dc.b    0,   0
-ChildObjDat_MonkeyDudeCoconut:
+ChildObjDat_MonkeyDudeCoconut:	; ChildObjDat_8769C
 		dc.w 1-1
 		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat_MonkeyDudeCoconut
@@ -183302,13 +183302,13 @@ ChildObjDat_MonkeyDudeCoconut:
 		dc.l MoveSprite_LightGravity
 		dc.b    0,   0
 		dc.w  -$200, -$400
-AniRaw_MonkeyDudeWait:
+AniRaw_MonkeyDudeWait:	; byte_876B4
 		dc.b    7,   0,   1, $FC
-AniRaw_MonkeyDudeActive:
+AniRaw_MonkeyDudeActive:	; byte_876B8
 		dc.b    0,   7
 		dc.b    2,   7
 		dc.b  $FC
-AniRaw_MonkeyDudeCoconut:
+AniRaw_MonkeyDudeCoconut:	; byte_876BD
 		dc.b    8,  $F
 		dc.b    8,  $F
 		dc.b    9,  $F
