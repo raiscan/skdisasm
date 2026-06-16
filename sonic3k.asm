@@ -185878,7 +185878,7 @@ Clamer_Index:
 loc_88FDC:
 		lea	ObjSlot_Clamer(pc),a1
 		jsr	SetUp_ObjAttributesSlotted(pc)
-		lea	ChildObjDat_89148(pc),a2
+		lea	ChildObjDat_ClamerSpring(pc),a2
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
@@ -185941,7 +185941,7 @@ loc_89064:
 		bne.w	locret_8904C
 		tst.b	render_flags(a0)
 		bpl.w	locret_8904C
-		lea	ChildObjDat_89150(pc),a2
+		lea	ChildObjDat_ClamerAutoCloseProjectile(pc),a2
 		jmp	CreateChild5_ComplexAdjusted(pc)
 ; ---------------------------------------------------------------------------
 
@@ -186018,11 +186018,11 @@ ObjDat3_8913C:
 		dc.w make_art_tile(ArtTile_Clamer+$70,1,1)
 		dc.w   $200
 		dc.b    8,   8,   9, $98
-ChildObjDat_89148:
+ChildObjDat_ClamerSpring:		; ChildObjDat_89148
 		dc.w 1-1
 		dc.l loc_8908C
 		dc.b    0,  -8
-ChildObjDat_89150:
+ChildObjDat_ClamerAutoCloseProjectile:	; ChildObjDat_89150
 		dc.w 1-1
 		dc.l S3KBadnikProjectile_Init
 		dc.l ObjDat3_8913C
@@ -186102,7 +186102,7 @@ loc_891F2:
 		move.b	#6,routine(a0)
 		move.w	#4,$2E(a0)
 		move.l	#loc_89212,$34(a0)
-		lea	ChildObjDat_89352(pc),a2
+		lea	ChildObjDat_SparkleLightningWarning(pc),a2
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
@@ -186125,7 +186125,7 @@ loc_89224:
 		jsr	(Play_SFX).l
 		tst.b	render_flags(a0)
 		bpl.w	locret_891EC
-		lea	ChildObjDat_8935A(pc),a2
+		lea	ChildObjDat_SparkleProjectiles(pc),a2
 		jmp	CreateChild3_NormalRepeated(pc)
 ; ---------------------------------------------------------------------------
 
@@ -186249,11 +186249,11 @@ word_89346:
 word_8934C:
 		dc.w   $280
 		dc.b    8,   8,   6, $98
-ChildObjDat_89352:
+ChildObjDat_SparkleLightningWarning:	; ChildObjDat_89352
 		dc.w 1-1
 		dc.l loc_89256
 		dc.b    0,   0
-ChildObjDat_8935A:
+ChildObjDat_SparkleProjectiles:		; ChildObjDat_8935A
 		dc.w 2-1
 		dc.l loc_892A0
 		dc.b    0,   0
@@ -186285,7 +186285,7 @@ Batbot_Index:
 loc_89394:
 		lea	ObjDat_Batbot(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
-		lea	ChildObjDat_8946C(pc),a2
+		lea	ChildObjDat_BatbotVisualChildren(pc),a2
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
@@ -186389,7 +186389,7 @@ word_89460:
 word_89466:
 		dc.w   $200
 		dc.b    4,   4,   5,   0
-ChildObjDat_8946C:
+ChildObjDat_BatbotVisualChildren:	; ChildObjDat_8946C
 		dc.w 2-1
 		dc.l loc_893E8
 		dc.b    0, $10
