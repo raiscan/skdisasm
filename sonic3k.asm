@@ -76387,138 +76387,138 @@ Map_ICZTensionBridge:
 Map_TensionBridge:
 		include "Levels/Misc/Map - Tension Bridge.asm"
 ; ---------------------------------------------------------------------------
-byte_39006:
+HCZTwistingLoop_PathStates_Short:
 		dc.b    2,   4,   4,   4,   4,   4,  $C,   0
 		even
-byte_3900E:
+HCZTwistingLoop_PathStates_Long:
 		dc.b    2,   4,   6,   6,   6,   6,   8,   8,   8,   8,  $A,  $A,   0
 		even
-byte_3901C:
+HCZTwistingLoop_PathStates_Mid:
 		dc.b    2,   4,   6,   6,   6,   6,   8,   8,   8,   8,  $A,   0
 		even
-byte_39028:
+HCZTwistingLoop_PathStates_Extended:
 		dc.b    2,   4,   6,   6,   6,   6,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,   8,  $E,   0
 		even
 ; ---------------------------------------------------------------------------
-word_3903C:
+HCZTwistingLoop_PathData:
 		dc.w $840
 		dc.w $120
-		dc.l byte_39006
+		dc.l HCZTwistingLoop_PathStates_Short
 		dc.w $1540
 		dc.w $620
-		dc.l byte_3900E
+		dc.l HCZTwistingLoop_PathStates_Long
 		dc.w $1740
 		dc.w $3A0
-		dc.l byte_3900E
+		dc.l HCZTwistingLoop_PathStates_Long
 		dc.w $1CC0
 		dc.w $620
-		dc.l byte_39006
+		dc.l HCZTwistingLoop_PathStates_Short
 		dc.w $1FC0
 		dc.w $2A0
-		dc.l byte_3901C
+		dc.l HCZTwistingLoop_PathStates_Mid
 		dc.w $24C0
 		dc.w $220
-		dc.l byte_39028
+		dc.l HCZTwistingLoop_PathStates_Extended
 		dc.w $26C0
 		dc.w $120
-		dc.l byte_39006
+		dc.l HCZTwistingLoop_PathStates_Short
 		dc.w $3040
 		dc.w $620
-		dc.l byte_3900E
+		dc.l HCZTwistingLoop_PathStates_Long
 ; ---------------------------------------------------------------------------
 
 Obj_HCZTwistingLoop:
 		move.b	subtype(a0),d0
 		andi.w	#$7F,d0
 		lsl.w	#3,d0
-		lea	word_3903C(pc,d0.w),a1
+		lea	HCZTwistingLoop_PathData(pc,d0.w),a1
 		move.w	(a1)+,$30(a0)
 		move.w	(a1)+,$32(a0)
 		move.l	(a1)+,$40(a0)
-		move.l	#loc_3909C,(a0)
+		move.l	#HCZTwistingLoop_Main,(a0)
 
-loc_3909C:
+HCZTwistingLoop_Main:
 		lea	(Player_1).w,a1
 		lea	$34(a0),a4
-		bsr.s	sub_390C2
+		bsr.s	HCZTwistingLoop_ProcessPlayer
 		lea	(Player_2).w,a1
 		lea	$3A(a0),a4
-		bsr.s	sub_390C2
+		bsr.s	HCZTwistingLoop_ProcessPlayer
 		move.b	$34(a0),d0
 		add.b	$3A(a0),d0
-		beq.s	loc_390BC
+		beq.s	HCZTwistingLoop_DeleteIfIdle
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_390BC:
+HCZTwistingLoop_DeleteIfIdle:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_390C2:
+HCZTwistingLoop_ProcessPlayer:
 		moveq	#0,d0
 		move.b	(a4),d0
-		move.w	off_390F2(pc,d0.w),d0
-		jsr	off_390F2(pc,d0.w)
+		move.w	HCZTwistingLoop_StateIndex(pc,d0.w),d0
+		jsr	HCZTwistingLoop_StateIndex(pc,d0.w)
 		tst.b	(a4)
-		beq.s	locret_390F0
-		bsr.w	sub_39208
+		beq.s	HCZTwistingLoop_ProcessPlayerReturn
+		bsr.w	HCZTwistingLoop_UpdatePlayerVelocity
 		moveq	#0,d0
 		move.w	2(a4),d0
 		divu.w	#$60,d0
 		movea.l	$40(a0),a2
 		move.b	(a2,d0.w),(a4)
-		bne.s	locret_390F0
+		bne.s	HCZTwistingLoop_ProcessPlayerReturn
 		move.b	#0,object_control(a1)
 
-locret_390F0:
+HCZTwistingLoop_ProcessPlayerReturn:
 		rts
-; End of function sub_390C2
+; End of function HCZTwistingLoop_ProcessPlayer
 
 ; ---------------------------------------------------------------------------
-off_390F2:
-		dc.w loc_39102-off_390F2
-		dc.w loc_3925C-off_390F2
-		dc.w loc_392B6-off_390F2
-		dc.w loc_392EE-off_390F2
-		dc.w loc_3931E-off_390F2
-		dc.w loc_3935E-off_390F2
-		dc.w loc_3938E-off_390F2
-		dc.w loc_393BE-off_390F2
+HCZTwistingLoop_StateIndex:
+		dc.w HCZTwistingLoop_CheckEntry-HCZTwistingLoop_StateIndex
+		dc.w HCZTwistingLoop_PathState02-HCZTwistingLoop_StateIndex
+		dc.w HCZTwistingLoop_PathState04-HCZTwistingLoop_StateIndex
+		dc.w HCZTwistingLoop_PathState06-HCZTwistingLoop_StateIndex
+		dc.w HCZTwistingLoop_PathState08-HCZTwistingLoop_StateIndex
+		dc.w HCZTwistingLoop_PathState0A-HCZTwistingLoop_StateIndex
+		dc.w HCZTwistingLoop_PathState0C-HCZTwistingLoop_StateIndex
+		dc.w HCZTwistingLoop_PathState0E-HCZTwistingLoop_StateIndex
 ; ---------------------------------------------------------------------------
 
-loc_39102:
+HCZTwistingLoop_CheckEntry:
 		tst.w	(Debug_placement_mode).w
-		bne.w	locret_39196
+		bne.w	HCZTwistingLoop_CheckEntryReturn
 		tst.b	subtype(a0)
-		bmi.w	loc_39198
+		bmi.w	HCZTwistingLoop_CheckReverseEntry
 		move.w	x_pos(a1),d0
 		sub.w	x_pos(a0),d0
 		addi.w	#8,d0
 		cmpi.w	#$10,d0
-		bhs.s	locret_39196
+		bhs.s	HCZTwistingLoop_CheckEntryReturn
 		move.w	y_pos(a1),d1
 		sub.w	y_pos(a0),d1
 		cmpi.w	#$30,d1
-		bhs.s	locret_39196
+		bhs.s	HCZTwistingLoop_CheckEntryReturn
 		tst.b	object_control(a1)
-		bne.s	locret_39196
+		bne.s	HCZTwistingLoop_CheckEntryReturn
 		btst	#0,status(a0)
-		beq.s	loc_39152
+		beq.s	HCZTwistingLoop_CheckForwardEntry
 		tst.w	ground_vel(a1)
-		bpl.s	locret_39196
+		bpl.s	HCZTwistingLoop_CheckEntryReturn
 		tst.w	x_vel(a1)
-		bpl.s	locret_39196
+		bpl.s	HCZTwistingLoop_CheckEntryReturn
 		neg.w	ground_vel(a1)
-		bra.s	loc_39158
+		bra.s	HCZTwistingLoop_CapturePlayer
 ; ---------------------------------------------------------------------------
 
-loc_39152:
+HCZTwistingLoop_CheckForwardEntry:
 		tst.w	ground_vel(a1)
-		bmi.s	locret_39196
+		bmi.s	HCZTwistingLoop_CheckEntryReturn
 
-loc_39158:
+HCZTwistingLoop_CapturePlayer:
 		addq.b	#2,(a4)
 		move.b	#1,object_control(a1)
 		move.b	#2,anim(a1)
@@ -76532,25 +76532,25 @@ loc_39158:
 		sub.w	$32(a0),d1
 		move.w	d1,2(a4)
 
-locret_39196:
+HCZTwistingLoop_CheckEntryReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_39198:
+HCZTwistingLoop_CheckReverseEntry:
 		move.w	x_pos(a1),d0
 		sub.w	x_pos(a0),d0
 		addi.w	#$10,d0
 		cmpi.w	#$20,d0
-		bhs.s	locret_39196
+		bhs.s	HCZTwistingLoop_CheckEntryReturn
 		move.w	y_pos(a1),d1
 		sub.w	y_pos(a0),d1
 		addi.w	#$10,d1
 		cmpi.w	#$10,d1
-		bhs.s	locret_39196
+		bhs.s	HCZTwistingLoop_CheckEntryReturn
 		tst.b	object_control(a1)
-		bne.s	locret_39196
+		bne.s	HCZTwistingLoop_CheckEntryReturn
 		tst.w	ground_vel(a1)
-		bpl.s	locret_39196
+		bpl.s	HCZTwistingLoop_CheckEntryReturn
 		addq.b	#2,(a4)
 		move.b	#1,object_control(a1)
 		move.b	#2,anim(a1)
@@ -76568,7 +76568,7 @@ loc_39198:
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_39208:
+HCZTwistingLoop_UpdatePlayerVelocity:
 		move.b	angle(a1),d0
 		jsr	(GetSineCosine).l
 		muls.w	ground_vel(a1),d1
@@ -76582,48 +76582,48 @@ sub_39208:
 		muls.w	#$50,d0
 		asr.l	#8,d0
 		tst.w	ground_vel(a1)
-		bmi.s	loc_39250
+		bmi.s	HCZTwistingLoop_UpdateNegativeVelocity
 		tst.w	d0
-		bpl.s	loc_39242
+		bpl.s	HCZTwistingLoop_AddVelocityDelta
 		asr.l	#2,d0
 
-loc_39242:
+HCZTwistingLoop_AddVelocityDelta:
 		cmpi.w	#$1800,ground_vel(a1)
-		bge.s	locret_3925A
+		bge.s	HCZTwistingLoop_UpdateVelocityReturn
 		add.w	d0,ground_vel(a1)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_39250:
+HCZTwistingLoop_UpdateNegativeVelocity:
 		tst.w	d0
-		bmi.s	loc_39256
+		bmi.s	HCZTwistingLoop_AddNegativeVelocityDelta
 		asr.l	#2,d0
 
-loc_39256:
+HCZTwistingLoop_AddNegativeVelocityDelta:
 		add.w	d0,ground_vel(a1)
 
-locret_3925A:
+HCZTwistingLoop_UpdateVelocityReturn:
 		rts
-; End of function sub_39208
+; End of function HCZTwistingLoop_UpdatePlayerVelocity
 
 ; ---------------------------------------------------------------------------
 
-loc_3925C:
+HCZTwistingLoop_PathState02:
 		move.w	2(a4),d0
 		subi.w	#$16,d0
-		bcc.s	loc_39282
+		bcc.s	HCZTwistingLoop_State02MovePlayer
 		tst.w	ground_vel(a1)
-		bpl.s	loc_39280
+		bpl.s	HCZTwistingLoop_State02ClampProgress
 		move.b	#0,(a4)
 		move.b	#0,object_control(a1)
 		move.b	#$70,angle(a1)
-		bra.w	sub_39208
+		bra.w	HCZTwistingLoop_UpdatePlayerVelocity
 ; ---------------------------------------------------------------------------
 
-loc_39280:
+HCZTwistingLoop_State02ClampProgress:
 		moveq	#0,d0
 
-loc_39282:
+HCZTwistingLoop_State02MovePlayer:
 		mulu.w	#$DD,d0
 		lsr.w	#8,d0
 		jsr	(GetSineCosine).l
@@ -76641,7 +76641,7 @@ loc_39282:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_392B6:
+HCZTwistingLoop_PathState04:
 		move.w	2(a4),d0
 		mulu.w	#$AA,d0
 		asr.w	#8,d0
@@ -76660,7 +76660,7 @@ loc_392B6:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_392EE:
+HCZTwistingLoop_PathState06:
 		move.w	2(a4),d0
 		subi.w	#$C0,d0
 		muls.w	#$AA,d0
@@ -76677,7 +76677,7 @@ loc_392EE:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3931E:
+HCZTwistingLoop_PathState08:
 		move.w	2(a4),d0
 		subi.w	#$180,d0
 		mulu.w	#$AA,d0
@@ -76698,7 +76698,7 @@ loc_3931E:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3935E:
+HCZTwistingLoop_PathState0A:
 		move.w	2(a4),d0
 		subi.w	#$240,d0
 		muls.w	#$AA,d0
@@ -76715,7 +76715,7 @@ loc_3935E:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3938E:
+HCZTwistingLoop_PathState0C:
 		move.w	2(a4),d0
 		subi.w	#$240,d0
 		muls.w	#$AA,d0
@@ -76732,7 +76732,7 @@ loc_3938E:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_393BE:
+HCZTwistingLoop_PathState0E:
 		move.w	2(a4),d0
 		subi.w	#$540,d0
 		muls.w	#$AA,d0
