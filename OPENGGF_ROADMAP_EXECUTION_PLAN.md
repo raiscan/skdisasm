@@ -4,13 +4,15 @@
 
 **Current status:** Local fork preparation only. This plan must not create, draft, request, or discuss an upstream PR/issue with maintainers at this moment in time. The upstream-contact trigger is an externally decided OpenGGF release-readiness decision by the project, expected to be a while off and outside this skdisasm contribution loop.
 
-**Pre-submission sanitation gate:** Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch. `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts. A branch that still contains them is not an upstream PR branch and must not be used for upstream review, even if its assembly-source changes are otherwise ready.
+**No upstream PR gate:** Do not raise, open, draft, queue, or prepare an upstream PR or draft PR from this branch at this moment in time. This remains true even after checklist completion, byte-perfect verification, subagent review, or a clean local patch stack. The plan is to wait until OpenGGF is ready for release, which is expected to be a while off and must be an externally decided project trigger.
+
+**Pre-submission sanitation gate:** Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, review packages, and process notes from that branch. This includes all OpenGGF-specific Markdown docs, not only files matching a narrow glob. `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts. A branch that still contains them is not an upstream PR branch and must not be used for upstream review, even if its assembly-source changes are otherwise ready.
 
 **Goal:** Advance the OpenGGF skdisasm contribution roadmap beyond the object pointer pilot with a local pointer-table review package and a first AIZ object identity/data ownership pass.
 
 **Architecture:** Keep future upstream submission material and exploratory annotation work separate inside the fork. No upstream PR, draft upstream PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact may be opened at this moment in time. The trigger for any upstream contact is external: wait until OpenGGF is considered ready for release by the project, which is expected to be a while off and will be decided outside this skdisasm fork work. Local completion, byte-perfect verification, agent review, or a ready-looking patch stack does not authorize upstream contact. When that future trigger happens, extract narrowly scoped branches from this fork-side roadmap branch and remove OpenGGF-specific Markdown documentation, CSV audit packages, and process notes before creating any PR or draft PR branch.
 
-**Current Submission Freeze:** This plan is a local preparation loop only. It must not end by opening an upstream PR or draft PR. A future PR branch may be created only after the external OpenGGF release-readiness trigger, and it must exclude local roadmap/audit artifacts such as `OPENGGF_*.md` and `OPENGGF_*.csv`; only narrow `skdisasm` source changes and upstream-facing submission prose grounded in ROM/disassembly evidence should remain. A branch that still contains OpenGGF-specific Markdown docs, CSV audits, or process notes is fork-side working material, not an upstream submission branch.
+**Current Submission Freeze:** This plan is a local preparation loop only. It must not end by opening an upstream PR or draft PR. A future PR branch may be created only after the external OpenGGF release-readiness trigger, and it must exclude local roadmap/audit artifacts such as `OPENGGF_*.md` and `OPENGGF_*.csv`, any OpenGGF-specific Markdown documentation, review packages, and process notes; only narrow `skdisasm` source changes and upstream-facing submission prose grounded in ROM/disassembly evidence should remain. A branch that still contains OpenGGF-specific Markdown docs, CSV audits, or process notes is fork-side working material, not an upstream submission branch.
 
 **Tech Stack:** `skdisasm` assembly sources, Git branches rooted at `upstream/master`, `chkbitperfect.lua`, manual CSV/Markdown audit artifacts, OpenGGF Java object registry only as corroborating evidence.
 
@@ -118,7 +120,7 @@ Commit the package on the roadmap branch:
 ```powershell
 git add -- OPENGGF_POINTER_TABLE_REVIEW_PACKAGE.md OPENGGF_ROADMAP_EXECUTION_PLAN.md
 git commit -m "docs: package pointer table review evidence"
-git push
+git push origin HEAD
 ```
 
 ### Task 2: Prepare AIZ Object Identity Audit
@@ -225,7 +227,7 @@ Run:
 ```powershell
 git add -- sonic3k.asm OPENGGF_AIZ_OBJECT_IDENTITY_AUDIT.csv
 git commit -m "docs: start AIZ object identity pass"
-git push
+git push origin HEAD
 ```
 
 ## Self-Review
