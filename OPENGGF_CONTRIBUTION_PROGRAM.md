@@ -8,16 +8,17 @@ This is not an effort to import OpenGGF's internal model into `skdisasm`. Upstre
 
 ## Submission Freeze
 
-No upstream pull request, upstream issue, or maintainer-facing submission should be opened at this time.
+No upstream pull request, upstream issue, maintainer ping, maintainer-facing submission, or style-confirmation contact may be opened at this time.
 
-The current work is local preparation only. The upstream trigger is external to this branch: wait until OpenGGF is considered ready for release by the project, which is expected to be a while off. Until that external release-readiness decision happens, all changes stay in the fork as reviewable checkpoint commits and local audit packages.
+The current work is local preparation only. The upstream trigger is external to this branch and external to this planning document: wait until OpenGGF is considered ready for release by the project. That release-readiness decision is expected to be a while off and will be made outside this skdisasm fork work. Until that external trigger happens, all changes stay in the fork as reviewable checkpoint commits and local audit packages.
 
 Before any future upstream PR is created:
 
 - extract a narrow upstream-facing branch from the local fork work
-- remove OpenGGF-specific Markdown documentation, CSV audit packages, and any OpenGGF-branded process notes from the PR branch unless upstream maintainers explicitly ask for them
+- remove OpenGGF-specific Markdown documentation, CSV audit packages, and any OpenGGF-branded process notes from the PR branch; this includes local files such as `OPENGGF_*.md` and `OPENGGF_*.csv`
 - rewrite PR text and commit scope around `skdisasm` evidence, ROM/disassembly verification, and byte-perfect annotation value
 - keep OpenGGF references out of source comments and labels; OpenGGF may only be mentioned in external PR prose if that is still useful and appropriate at submission time
+- verify the cleanup before submission with `git status`, `git diff --name-only upstream/master..HEAD`, and a scan for OpenGGF-specific documentation files on the PR branch
 
 ## High-Level Goal
 
@@ -54,7 +55,7 @@ Non-goals for upstream patches:
 - no speculative comments presented as fact
 - no large mixed PRs that combine unrelated zones or systems
 
-OpenGGF can be cited in PR descriptions as the source of verification work, but the patch content should stand as disassembly improvement rather than project synchronization.
+After the external release-readiness trigger, OpenGGF may be cited in PR prose only if it is useful and appropriate for submission review. The patch content itself should stand as disassembly improvement rather than project synchronization.
 
 This is future guidance only. During the current submission freeze, do not cite OpenGGF in any upstream venue because no upstream venue should be opened.
 
@@ -204,7 +205,7 @@ The pilot should produce a manual audit table before patching. Minimum columns:
 - confidence
 - upstream patch decision
 
-The audit table is a working artifact. It should guide the patch and PR description, but it does not need to be committed upstream unless maintainers want it.
+The audit table is a local working artifact. It may guide future patch scope and PR prose after the external release-readiness trigger, but OpenGGF-specific audit files must be removed from any upstream PR branch. If maintainers later ask for supporting evidence, summarize the relevant `skdisasm`/ROM evidence in upstream-facing prose rather than committing `OPENGGF_*.csv` or `OPENGGF_*.md` files.
 
 ## Verification Sources
 
@@ -297,7 +298,7 @@ Near-term success:
 - the pilot preserves assembled output
 - the pilot has a primary-evidence audit table
 - future PR language is drafted locally as disassembly clarity, not OpenGGF synchronization
-- no upstream PR or issue has been opened before OpenGGF release readiness
+- no upstream PR, issue, maintainer ping, or style-confirmation contact has been opened before OpenGGF release readiness
 
 Long-term success:
 
