@@ -49,8 +49,8 @@ Sonic & Knuckles ROM is bit-perfect.
 
 ## Submission Hold
 
-No upstream PR, issue, maintainer ping, or style-confirmation contact has been opened, and none may be opened during this work.
+No upstream PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact has been opened, and none may be opened during this work.
 
-This review package is held locally until the externally decided OpenGGF release-readiness trigger occurs and the maintainer-facing scope is explicitly approved for submission. That trigger is expected to be a while off and will be decided outside this skdisasm fork work; local checkpoint commits and fork-side audit packages are the intended state until then.
+This review package is held locally until the externally decided OpenGGF release-readiness trigger occurs and the maintainer-facing scope is explicitly approved for submission. That trigger is expected to be a while off and will be decided outside this skdisasm fork work; local checkpoint commits and fork-side audit packages are the intended state until then. Local completion, byte-perfect verification, or agent review does not change this hold.
 
-Before any future PR is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, and process notes from the PR branch, including local `OPENGGF_*.md` and `OPENGGF_*.csv` artifacts. Future upstream branches should contain only narrow `skdisasm` source changes and submission prose grounded in `skdisasm`/ROM evidence.
+Before any future PR is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, and process notes from the PR branch, including local `OPENGGF_*.md` and `OPENGGF_*.csv` artifacts. Future upstream branches should contain only narrow `skdisasm` source changes and submission prose grounded in `skdisasm`/ROM evidence. If the branch still includes these OpenGGF-specific files or process notes, it remains a local fork branch and must not be used for an upstream PR.
