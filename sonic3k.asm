@@ -184236,59 +184236,59 @@ Obj_MegaChopper:
 		move.w	MegaChopper_Index(pc,d0.w),d1
 		jsr	MegaChopper_Index(pc,d1.w)
 		btst	#7,status(a0)
-		bne.s	loc_87F76
+		bne.s	MegaChopper_Defeated
 		jmp	Sprite_CheckDeleteTouch(pc)
 ; ---------------------------------------------------------------------------
 
-loc_87F76:
+MegaChopper_Defeated: ; loc_87F76
 		jsr	EnemyDefeated(pc)
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 MegaChopper_Index:
-		dc.w loc_87F88-MegaChopper_Index
-		dc.w loc_87FAC-MegaChopper_Index
-		dc.w loc_88024-MegaChopper_Index
-		dc.w loc_88062-MegaChopper_Index
+		dc.w MegaChopper_Init-MegaChopper_Index
+		dc.w MegaChopper_Swim-MegaChopper_Index
+		dc.w MegaChopper_Leap-MegaChopper_Index
+		dc.w MegaChopper_Carry-MegaChopper_Index
 ; ---------------------------------------------------------------------------
 
-loc_87F88:
+MegaChopper_Init: ; loc_87F88
 		lea	ObjDat_MegaChopper(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.l	#AniRaw_MegaChopper,$30(a0)
 		clr.w	child_dx(a0)	; and child_dy
 		bclr	#1,render_flags(a0)
-		beq.s	locret_87FAA
+		beq.s	MegaChopper_Return
 		bset	#7,art_tile(a0)
 
-locret_87FAA:
+MegaChopper_Return: ; locret_87FAA
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_87FAC:
-		bsr.w	loc_8813A
+MegaChopper_Swim: ; loc_87FAC
+		bsr.w	MegaChopper_CheckCapture
 		jsr	Animate_Raw(pc)
 		jsr	Find_SonicTails(pc)
 		move.b	(V_int_run_count+3).w,d4
 		andi.b	#7,d4
-		bne.s	loc_87FCE
+		bne.s	MegaChopper_CheckLeap
 		moveq	#1,d4
 		tst.w	d1
-		bne.s	loc_87FCA
+		bne.s	MegaChopper_ApplyVerticalBob
 		neg.w	d4
 
-loc_87FCA:
+MegaChopper_ApplyVerticalBob: ; loc_87FCA
 		add.w	d4,y_pos(a0)
 
-loc_87FCE:
+MegaChopper_CheckLeap: ; loc_87FCE
 		move.w	y_pos(a0),d4
 		move.w	(Water_level).w,d5
 		addq.w	#8,d5
 		cmp.w	d5,d4
-		bhi.s	loc_87FE4
+		bhi.s	MegaChopper_ChaseHorizontally
 		btst	#Status_Underwater,status(a1)
-		beq.s	loc_87FFC
+		beq.s	MegaChopper_StartLeap
 
-loc_87FE4:
+MegaChopper_ChaseHorizontally: ; loc_87FE4
 		move.w	#$200,d0
 		move.w	#8,d1
 		jsr	(Chase_ObjectXOnly).l
@@ -184296,70 +184296,70 @@ loc_87FE4:
 		jmp	(MoveSprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_87FFC:
+MegaChopper_StartLeap: ; loc_87FFC
 		move.b	#4,routine(a0)
 		move.w	#$200,d4
 		bset	#0,render_flags(a0)
 		tst.w	d0
-		bne.s	loc_88018
+		bne.s	MegaChopper_SetLeapVelocity
 		neg.w	d4
 		bclr	#0,render_flags(a0)
 
-loc_88018:
+MegaChopper_SetLeapVelocity: ; loc_88018
 		move.w	d4,x_vel(a0)
 		move.w	#-$400,y_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88024:
-		bsr.w	loc_8813A
+MegaChopper_Leap: ; loc_88024
+		bsr.w	MegaChopper_CheckCapture
 		jsr	Animate_Raw(pc)
 		tst.w	y_vel(a0)
-		bmi.s	loc_88052
+		bmi.s	MegaChopper_LeapWithLightGravity
 		move.w	y_pos(a0),d0
 		cmp.w	(Water_level).w,d0
-		blo.s	loc_88052
+		blo.s	MegaChopper_LeapWithLightGravity
 		move.w	y_vel(a0),d0
 		addi.w	#-$20,d0
 		move.w	d0,y_vel(a0)
-		beq.s	loc_88056
-		bmi.s	loc_88056
+		beq.s	MegaChopper_ReturnToSwim
+		bmi.s	MegaChopper_ReturnToSwim
 		jmp	(MoveSprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_88052:
+MegaChopper_LeapWithLightGravity: ; loc_88052
 		jmp	MoveSprite_LightGravity(pc)
 ; ---------------------------------------------------------------------------
 
-loc_88056:
+MegaChopper_ReturnToSwim: ; loc_88056
 		move.b	#2,routine(a0)
 		clr.w	y_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_88062:
+MegaChopper_Carry: ; loc_88062
 		move.b	#0,mapping_frame(a0)
 		btst	#2,(V_int_run_count+3).w
-		beq.s	loc_88076
+		beq.s	MegaChopper_CarryFollowPlayer
 		move.b	#2,mapping_frame(a0)
 
-loc_88076:
+MegaChopper_CarryFollowPlayer: ; loc_88076
 		movea.w	$44(a0),a1
 		cmpi.b	#4,routine(a1)
-		beq.w	loc_88108
+		beq.w	MegaChopper_ReleasePlayer
 		cmpi.b	#2,anim(a1)
-		beq.s	loc_88108
+		beq.s	MegaChopper_ReleasePlayer
 		cmpi.b	#9,anim(a1)
-		beq.s	loc_88108
+		beq.s	MegaChopper_ReleasePlayer
 		jsr	Check_LRControllerShake(pc)
-		bne.s	loc_88108
+		bne.s	MegaChopper_ReleasePlayer
 		btst	#2,$38(a0)
-		beq.s	loc_880AE
+		beq.s	MegaChopper_CarrySyncPosition
 		move.w	(Ctrl_1).w,d0
 		andi.w	#($8C<<8)|$8C,d0
 		move.w	d0,(Ctrl_1_logical).w
 
-loc_880AE:
+MegaChopper_CarrySyncPosition: ; loc_880AE
 		move.w	x_pos(a1),d0
 		move.b	child_dx(a0),d1
 		ext.w	d1
@@ -184368,73 +184368,73 @@ loc_880AE:
 		move.b	render_flags(a1),d3
 		andi.b	#1,d3
 		eor.b	d2,d3
-		beq.s	loc_880DC
+		beq.s	MegaChopper_CarrySetX
 		bchg	#0,render_flags(a0)
 		bchg	#0,$38(a0)
 		neg.b	child_dx(a0)
 
-loc_880DC:
+MegaChopper_CarrySetX: ; loc_880DC
 		add.w	d1,d0
 		move.w	d0,x_pos(a0)
 		move.w	y_pos(a1),d0
 		move.b	child_dy(a0),d1
 		ext.w	d1
-		bpl.s	loc_880FA
+		bpl.s	MegaChopper_CarrySetY
 		cmpi.b	#8,anim(a1)
-		bne.s	loc_880FA
+		bne.s	MegaChopper_CarrySetY
 		addi.w	#$10,d1
 
-loc_880FA:
+MegaChopper_CarrySetY: ; loc_880FA
 		add.w	d1,d0
 		move.w	d0,y_pos(a0)
 		bsr.w	sub_881FE
-		beq.w	locret_87FAA
+		beq.w	MegaChopper_Return
 
-loc_88108:
+MegaChopper_ReleasePlayer: ; loc_88108
 		bclr	#2,$38(a0)
-		beq.s	loc_88114
+		beq.s	MegaChopper_StartReleasedFlight
 		clr.b	(Ctrl_1_locked).w
 
-loc_88114:
+MegaChopper_StartReleasedFlight: ; loc_88114
 		move.l	#MoveChkDel,(a0)
 		move.b	#2,mapping_frame(a0)
 		move.w	#$200,d0
 		btst	#0,render_flags(a0)
-		beq.s	loc_8812E
+		beq.s	MegaChopper_SetReleaseVelocity
 		neg.w	d0
 
-loc_8812E:
+MegaChopper_SetReleaseVelocity: ; loc_8812E
 		move.w	d0,x_vel(a0)
 		move.w	#-$200,y_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8813A:
+MegaChopper_CheckCapture: ; loc_8813A
 		move.b	collision_property(a0),d0
-		beq.w	locret_87FAA
+		beq.w	MegaChopper_Return
 		clr.b	collision_property(a0)
 		andi.w	#3,d0
 		move.w	d0,d2
 		lsl.w	#2,d0
-		lea	word_881EA-4(pc),a2
+		lea	MegaChopper_PlayerCtrlTable-4(pc),a2
 		lea	(a2,d0.w),a2
 		movea.w	(a2)+,a1
 		move.w	a1,$44(a0)
 		move.w	y_pos(a0),d1
 		sub.w	y_pos(a1),d1
 		cmpi.w	#-$10,d1
-		blt.w	locret_87FAA
+		blt.w	MegaChopper_Return
 		cmpi.w	#$10,d1
-		bge.w	locret_87FAA
+		bge.w	MegaChopper_Return
 		jsr	Check_PlayerAttack(pc)
-		bne.w	loc_881F6
+		bne.w	MegaChopper_DefeatFromAttack
 		cmpi.w	#1,d2
-		bne.s	loc_88190
+		bne.s	MegaChopper_CapturePlayer
 		clr.w	(Ctrl_1_logical).w
 		st	(Ctrl_1_locked).w
 		bset	#2,$38(a0)
 
-loc_88190:
+MegaChopper_CapturePlayer: ; loc_88190
 		movea.w	(a2)+,a3
 		move.w	a3,$3E(a0)
 		move.w	(a3),parent3(a0)
@@ -184446,28 +184446,28 @@ loc_88190:
 		move.b	d0,child_dx(a0)
 		bclr	#0,render_flags(a0)
 		tst.w	d0
-		bpl.s	loc_881C8
+		bpl.s	MegaChopper_CaptureSetChildDy
 		bset	#0,render_flags(a0)
 
-loc_881C8:
+MegaChopper_CaptureSetChildDy: ; loc_881C8
 		move.w	y_pos(a0),d0
 		sub.w	y_pos(a1),d0
 		move.b	d0,child_dy(a0)
 		bclr	#0,$38(a0)
 		btst	#0,render_flags(a1)
-		beq.s	locret_881E8
+		beq.s	MegaChopper_CaptureReturn
 		bset	#0,$38(a0)
 
-locret_881E8:
+MegaChopper_CaptureReturn: ; locret_881E8
 		rts
 ; ---------------------------------------------------------------------------
-word_881EA:
+MegaChopper_PlayerCtrlTable: ; word_881EA
 		dc.w Player_1, Ctrl_1
 		dc.w Player_2, Ctrl_2
 		dc.w Player_1, Ctrl_1
 ; ---------------------------------------------------------------------------
 
-loc_881F6:
+MegaChopper_DefeatFromAttack: ; loc_881F6
 		bset	#7,status(a0)
 		rts
 
