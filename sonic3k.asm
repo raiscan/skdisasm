@@ -33739,12 +33739,12 @@ locret_187D6:
 Obj_S2Shield_Destroy:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
-off_187DE:
-		dc.l byte_189ED
+InvincibilityStars_ChildSpecTable: ; off_187DE
+		dc.l InvincibilityStars_ChildFrameSeq0
 		dc.b    0,  $B
-		dc.l byte_18A02
+		dc.l InvincibilityStars_ChildFrameSeq1
 		dc.b  $16,  $D
-		dc.l byte_18A1B
+		dc.l InvincibilityStars_ChildFrameSeq2
 		dc.b  $2C,  $D
 ; ---------------------------------------------------------------------------
 
@@ -33754,7 +33754,7 @@ Obj_Invincibility:
 		move.w	#$200,d3
 		jsr	(Add_To_DMA_Queue).l
 		moveq	#0,d2
-		lea	off_187DE-6(pc),a2
+		lea	InvincibilityStars_ChildSpecTable-6(pc),a2
 		lea	(a0),a1
 		moveq	#4-1,d1
 
@@ -33790,7 +33790,7 @@ loc_18868:
 		move.w	y_pos(a1),d1
 		move.w	d1,y_pos(a0)
 		lea	sub2_x_pos(a0),a2
-		lea	byte_189E0(pc),a3
+		lea	InvincibilityStars_ParentFrameSeq(pc),a3
 		moveq	#0,d5
 
 loc_188A0:
@@ -33803,7 +33803,7 @@ loc_188A0:
 
 loc_188B0:
 		addq.w	#1,$38(a0)
-		lea	byte_189A0(pc),a6
+		lea	InvincibilityStars_OffsetPairs(pc),a6
 		move.b	$34(a0),d6
 		jsr	sub_1898A(pc)
 		move.w	d2,(a2)+
@@ -33862,7 +33862,7 @@ loc_18946:
 		add.b	$35(a0),d2
 		move.b	(a3,d2.w),d5
 		addq.w	#1,$38(a0)
-		lea	byte_189A0(pc),a6
+		lea	InvincibilityStars_OffsetPairs(pc),a6
 		move.b	$34(a0),d6
 		jsr	sub_1898A(pc)
 		move.w	d2,(a2)+
@@ -33898,7 +33898,7 @@ sub_1898A:
 ; End of function sub_1898A
 
 ; ---------------------------------------------------------------------------
-byte_189A0:
+InvincibilityStars_OffsetPairs: ; byte_189A0
 		dc.b   $F,   0
 		dc.b   $F,   3
 		dc.b   $E,   6
@@ -33931,15 +33931,15 @@ byte_189A0:
 		dc.b   $D,  -9
 		dc.b   $E,  -7
 		dc.b   $F,  -4
-byte_189E0:
+InvincibilityStars_ParentFrameSeq: ; byte_189E0
 		dc.b    8,   5,   7,   6,   6,   7,   5,   8,   6,   7,   7,   6, $FF
-byte_189ED:
+InvincibilityStars_ChildFrameSeq0: ; byte_189ED
 		dc.b    8,   7,   6,   5,   4,   3,   4,   5,   6,   7, $FF,   3,   4,   5,   6,   7,   8,   7,   6,   5
 		dc.b    4
-byte_18A02:
+InvincibilityStars_ChildFrameSeq1: ; byte_18A02
 		dc.b    8,   7,   6,   5,   4,   3,   2,   3,   4,   5,   6,   7, $FF,   2,   3,   4,   5,   6,   7,   8
 		dc.b    7,   6,   5,   4,   3
-byte_18A1B:
+InvincibilityStars_ChildFrameSeq2: ; byte_18A1B
 		dc.b    7,   6,   5,   4,   3,   2,   1,   2,   3,   4,   5,   6, $FF,   1,   2,   3,   4,   5,   6,   7
 		dc.b    6,   5,   4,   3,   2
 		even
@@ -35352,11 +35352,11 @@ Map_SuperTails_Birds:
 		include "General/Sprites/Tails/Map - Super Tails birds.asm"
 ; ---------------------------------------------------------------------------
 		; unused
-		dc.l byte_189ED
+		dc.l InvincibilityStars_ChildFrameSeq0
 		dc.b    0,  $B
-		dc.l byte_18A02
+		dc.l InvincibilityStars_ChildFrameSeq1
 		dc.b  $16,  $D
-		dc.l byte_18A1B
+		dc.l InvincibilityStars_ChildFrameSeq2
 		dc.b  $2C,  $D
 ; ---------------------------------------------------------------------------
 
