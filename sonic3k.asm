@@ -183335,14 +183335,14 @@ CaterKillerJr_Index:
 		dc.w CaterKillerJr_FinishSwing-CaterKillerJr_Index
 ; ---------------------------------------------------------------------------
 
-CaterKillerJr_Init:
+CaterKillerJr_Init:	; loc_876EC
 		lea	ObjDat_CaterKillerJr(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		move.w	#-$100,x_vel(a0)
 		lea	ChildObjDat_CaterKillerJrBodySegments(pc),a2
 		jsr	CreateChild3_NormalRepeated(pc)
 
-CaterKillerJr_StartSlowSwing:
+CaterKillerJr_StartSlowSwing:	; loc_87702
 		move.b	#4,routine(a0)
 		move.b	#3,$39(a0)
 		move.w	#$80,d0
@@ -183353,14 +183353,14 @@ CaterKillerJr_StartSlowSwing:
 		rts
 ; ---------------------------------------------------------------------------
 
-CaterKillerJr_SlowSwing:
+CaterKillerJr_SlowSwing:	; loc_87728
 		jsr	Swing_UpAndDown_Count(pc)
 		bne.s	CaterKillerJr_StartFastSwing
 		jsr	(MoveSprite2).l
 		bra.w	CaterKillerJr_RunBodyWait
 ; ---------------------------------------------------------------------------
 
-CaterKillerJr_StartFastSwing:
+CaterKillerJr_StartFastSwing:	; loc_87738
 		move.b	#6,routine(a0)
 		move.w	#$100,d0
 		move.w	d0,$3E(a0)
@@ -183370,7 +183370,7 @@ CaterKillerJr_StartFastSwing:
 		rts
 ; ---------------------------------------------------------------------------
 
-CaterKillerJr_FastSwing:
+CaterKillerJr_FastSwing:	; loc_87758
 		jsr	Swing_UpAndDown(pc)
 		tst.w	d3
 		beq.s	CaterKillerJr_MoveAndAnimate
@@ -183378,12 +183378,12 @@ CaterKillerJr_FastSwing:
 		neg.w	x_vel(a0)
 		bchg	#0,render_flags(a0)
 
-CaterKillerJr_MoveAndAnimate:
+CaterKillerJr_MoveAndAnimate:	; loc_87770
 		jsr	(MoveSprite2).l
 		bra.w	CaterKillerJr_RunBodyWait
 ; ---------------------------------------------------------------------------
 
-CaterKillerJr_FinishSwing:
+CaterKillerJr_FinishSwing:	; loc_8777A
 		jsr	Swing_UpAndDown(pc)
 		tst.w	d3
 		bne.s	CaterKillerJr_StartSlowSwing
@@ -183391,7 +183391,7 @@ CaterKillerJr_FinishSwing:
 		bra.w	CaterKillerJr_RunBodyWait
 ; ---------------------------------------------------------------------------
 
-CaterKillerJrBody:
+CaterKillerJrBody:	; loc_8778C
 		moveq	#0,d0
 		move.b	routine(a0),d0
 		move.w	CaterKillerJrBody_Index(pc,d0.w),d1
@@ -183399,7 +183399,7 @@ CaterKillerJrBody:
 		moveq	#0,d0
 		jmp	(Child_DrawTouch_Sprite_FlickerMove).l
 ; ---------------------------------------------------------------------------
-CaterKillerJrBody_Index:
+CaterKillerJrBody_Index:	; off_877A2
 		dc.w CaterKillerJrBody_Init-CaterKillerJrBody_Index
 		dc.w CaterKillerJrBody_Wait-CaterKillerJrBody_Index
 		dc.w CaterKillerJr_SlowSwing-CaterKillerJrBody_Index
@@ -183407,7 +183407,7 @@ CaterKillerJrBody_Index:
 		dc.w CaterKillerJr_FinishSwing-CaterKillerJrBody_Index
 ; ---------------------------------------------------------------------------
 
-CaterKillerJrBody_Init:
+CaterKillerJrBody_Init:	; loc_877AC
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		move.w	CaterKillerJrBody_ObjDatIndex(pc,d0.w),d1
@@ -183416,25 +183416,25 @@ CaterKillerJrBody_Init:
 		move.b	CaterKillerJrBody_WaitDelays(pc,d0.w),$2F(a0)
 		jmp	SetUp_ObjAttributes(pc)
 ; ---------------------------------------------------------------------------
-CaterKillerJrBody_ObjDatIndex:
+CaterKillerJrBody_ObjDatIndex:	; off_877C6
 		dc.w ObjDat_CaterKillerJrTallBody-CaterKillerJrBody_ObjDatIndex
 		dc.w ObjDat_CaterKillerJrTallBody-CaterKillerJrBody_ObjDatIndex
 		dc.w ObjDat_CaterKillerJrTallBody-CaterKillerJrBody_ObjDatIndex
 		dc.w ObjDat_CaterKillerJrThinBody-CaterKillerJrBody_ObjDatIndex
 		dc.w ObjDat_CaterKillerJrCoconutBody-CaterKillerJrBody_ObjDatIndex
 		dc.w ObjDat_CaterKillerJrCoconutBody-CaterKillerJrBody_ObjDatIndex
-CaterKillerJrBody_WaitDelays:
+CaterKillerJrBody_WaitDelays:	; byte_877D2
 		dc.b   $B, $17, $23, $2F, $37, $3F
 		even
 ; ---------------------------------------------------------------------------
 
-CaterKillerJrBody_Wait:
+CaterKillerJrBody_Wait:	; loc_877D8
 		subq.w	#1,$2E(a0)
 		bmi.s	CaterKillerJrBody_StartMoving
 		rts
 ; ---------------------------------------------------------------------------
 
-CaterKillerJrBody_StartMoving:
+CaterKillerJrBody_StartMoving:	; loc_877E0
 		move.b	#4,routine(a0)
 		moveq	#$40,d1
 		moveq	#0,d0
@@ -183448,7 +183448,7 @@ CaterKillerJrBody_StartMoving:
 		bra.w	CaterKillerJr_StartSlowSwing
 ; ---------------------------------------------------------------------------
 
-CaterKillerJrProjectile_Init:
+CaterKillerJrProjectile_Init:	; loc_8780A
 		lea	ObjDat3_CaterKillerJrProjectile(pc),a1
 		jsr	SetUp_ObjAttributes3(pc)
 		move.l	#CaterKillerJrProjectile_Main,(a0)
@@ -183457,25 +183457,25 @@ CaterKillerJrProjectile_Init:
 		jmp	(Child_Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-CaterKillerJrProjectile_Main:
+CaterKillerJrProjectile_Main:	; loc_8782C
 		jsr	Refresh_ChildPositionAdjusted(pc)
 		lea	AniRaw_CaterKillerJrProjectile(pc),a1
 		jsr	Animate_RawNoSSTMultiDelay(pc)
 		jmp	(Child_Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-CaterKillerJr_RunBodyWait:
+CaterKillerJr_RunBodyWait:	; loc_8783E
 		cmpi.l	#CaterKillerJrBody,(a0)
 		bne.s	CaterKillerJr_WaitReturn
 		cmpi.b	#6,subtype(a0)
 		bhs.s	CaterKillerJr_WaitReturn
 		jsr	Obj_Wait(pc)
 
-CaterKillerJr_WaitReturn:
+CaterKillerJr_WaitReturn:	; locret_87852
 		rts
 ; ---------------------------------------------------------------------------
 
-CaterKillerJrBody_SpawnProjectile:
+CaterKillerJrBody_SpawnProjectile:	; loc_87854
 		move.w	#$1A,$2E(a0)
 		lea	ChildObjDat_CaterKillerJrProjectile(pc),a2
 		jmp	CreateChild1_Normal(pc)
@@ -183485,33 +183485,33 @@ ObjDat_CaterKillerJr:
 		dc.w make_art_tile(ArtTile_CaterkillerJr,1,1)
 		dc.w   $280
 		dc.b    8,   8,   0, $17
-ObjDat_CaterKillerJrTallBody:
+ObjDat_CaterKillerJrTallBody:	; ObjDat3_8786E
 		dc.l Map_CaterKillerJr
 		dc.w make_art_tile(ArtTile_CaterkillerJr,1,1)
 		dc.w   $280
 		dc.b    8,  $C,   1, $97
-ObjDat_CaterKillerJrThinBody:
+ObjDat_CaterKillerJrThinBody:	; ObjDat3_8787A
 		dc.l Map_CaterKillerJr
 		dc.w make_art_tile(ArtTile_CaterkillerJr,1,1)
 		dc.w   $280
 		dc.b    8,   8,   2, $97
-ObjDat_CaterKillerJrCoconutBody:
+ObjDat_CaterKillerJrCoconutBody:	; ObjDat3_87886
 		dc.l Map_MonkeyDude
 		dc.w make_art_tile(ArtTile_MonkeyDude,1,1)
 		dc.w   $280
 		dc.b    4,   4,   3, $98
-ObjDat3_CaterKillerJrProjectile:
+ObjDat3_CaterKillerJrProjectile:	; word_87892
 		dc.w   $200
 		dc.b  $10, $10,   3,   0
-ChildObjDat_CaterKillerJrBodySegments:
+ChildObjDat_CaterKillerJrBodySegments:	; ChildObjDat_87898
 		dc.w 6-1
 		dc.l CaterKillerJrBody
 		dc.b    0,   0
-ChildObjDat_CaterKillerJrProjectile:
+ChildObjDat_CaterKillerJrProjectile:	; ChildObjDat_878A0
 		dc.w 1-1
 		dc.l CaterKillerJrProjectile_Init
 		dc.b    0,   0
-AniRaw_CaterKillerJrProjectile:
+AniRaw_CaterKillerJrProjectile:	; byte_878A8
 		dc.b    3,   2
 		dc.b    3,   2
 		dc.b    4,   3
