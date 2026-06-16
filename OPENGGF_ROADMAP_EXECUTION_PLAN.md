@@ -6,7 +6,11 @@
 
 **No upstream PR gate:** Do not raise, open, draft, queue, or prepare an upstream PR or draft PR from this branch at this moment in time. This remains true even after checklist completion, byte-perfect verification, subagent review, or a clean local patch stack. The plan is to wait until OpenGGF is ready for release, which is expected to be a while off and must be an externally decided project trigger.
 
+**Mandatory freeze behavior:** This plan is not allowed to graduate itself into upstream submission. Agents executing it must not interpret measurable progress, completed commits, successful checks, or review approval as the external OpenGGF release-readiness trigger. If that trigger has not been explicitly provided from outside this skdisasm work, keep committing only to the fork and do not create or prepare any upstream PR-related artifact.
+
 **Pre-submission sanitation gate:** Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, review packages, and process notes from that branch. This includes all OpenGGF-specific Markdown docs, not only files matching a narrow glob. `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts. A branch that still contains them is not an upstream PR branch and must not be used for upstream review, even if its assembly-source changes are otherwise ready.
+
+**Pre-PR cleanup means before PR creation:** The cleanup above must happen before opening a PR or draft PR. Do not open a PR with a plan to remove OpenGGF-specific Markdown, CSV, roadmap, review-package, or process-note artifacts later. Until those artifacts are absent from the upstream-facing branch, the branch remains fork-side working material.
 
 **Goal:** Advance the OpenGGF skdisasm contribution roadmap beyond the object pointer pilot with a local pointer-table review package and a first AIZ object identity/data ownership pass.
 

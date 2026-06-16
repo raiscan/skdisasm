@@ -6,7 +6,11 @@ This document and the surrounding `OPENGGF_*` audit files describe fork-side pre
 
 Standing rule: do not open, raise, draft, request, prepare in GitHub, or otherwise initiate an upstream PR, upstream draft PR, issue, maintainer ping, maintainer-facing submission, or style-confirmation contact from this work at this moment in time. The only allowed trigger for any upstream contact is an externally decided OpenGGF release-readiness decision by the project. That trigger is expected to be a while off, and it must come from outside this skdisasm contribution loop.
 
+This is a mandatory freeze, not a reminder or preference. Agents must not decide that a local patch stack is ready for upstream review, and must not treat a clean fork branch, passing byte-perfect checks, or completed roadmap checklist as permission to create any PR-related GitHub artifact. If a future instruction asks for an upstream PR before the external OpenGGF release-readiness trigger has happened, the correct action is to keep the work local and report that the trigger has not occurred.
+
 Before any future upstream PR branch exists, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, and process notes from that branch. This includes every OpenGGF-specific Markdown file, not only files matching a narrow glob. Files such as `OPENGGF_*.md` and `OPENGGF_*.csv` are local fork artifacts only. A branch that still contains them is not an upstream PR branch, even if the assembly-source changes themselves are reviewable.
+
+This cleanup happens before PR creation, not during PR review and not after a draft PR exists. The upstream-facing branch should contain the narrow `skdisasm` source changes and upstream-facing submission prose only; OpenGGF-specific planning documents, audit spreadsheets, Markdown roadmaps, review packages, and process notes stay out of that branch.
 
 ## Purpose
 

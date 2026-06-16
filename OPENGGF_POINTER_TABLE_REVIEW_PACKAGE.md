@@ -6,9 +6,13 @@ This package is local review material only. It must not be used to open an upstr
 
 Do not raise, open, draft, queue, or prepare an upstream PR or draft PR from this package now. The package can inform local checkpoint commits only. The plan is to wait until OpenGGF is ready for release, which is expected to be a while off and must be an externally decided project trigger.
 
+This package cannot authorize its own submission. Passing byte-perfect checks, completing review, or reaching a clean local patch stack does not satisfy the trigger. Until an external OpenGGF release-readiness decision explicitly permits upstream contact, this file remains fork-local review material only.
+
 Any upstream-contact trigger must be an externally decided OpenGGF release-readiness decision by the project. That trigger is expected to be a while off and is outside this skdisasm fork work; local completion, byte-perfect verification, and agent review do not authorize upstream contact.
 
 Before any future upstream PR branch is created, remove OpenGGF-specific Markdown documentation, CSV audit packages, roadmap text, review packages, and process notes from that branch, including `OPENGGF_*.md` and `OPENGGF_*.csv`. This includes all OpenGGF-specific Markdown docs, not only files matching a narrow glob. If those files remain, the branch is still local fork material and must not be used for upstream review, even if the assembly-source patch is otherwise ready.
+
+That removal is a pre-PR requirement. Do not open a PR or draft PR that still contains this package, any other OpenGGF-specific Markdown document, any `OPENGGF_*.csv` audit package, or renamed process notes that describe OpenGGF's internal roadmap.
 
 ## Future Submission Title
 
