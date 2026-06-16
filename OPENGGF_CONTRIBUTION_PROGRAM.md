@@ -236,6 +236,8 @@ Current contribution scope is narrower than "anything discoverable from the disa
 
 Treat incomplete zones, especially MHZ and other not-yet-completed S&K-side levels, as object-local evidence only. A focused object implementation can validate that object's mappings, animation scripts, and directly referenced data, but it does not validate the surrounding zone or adjacent unimplemented data. Do not infer zone completeness from a successful object test.
 
+Candidate selection should therefore prefer shared/general objects, AIZ, HCZ, CNZ, and other OpenGGF-backed areas with concrete implementation and focused tests. MHZ and other incomplete S&K-side zone changes should be deferred unless the exact data being annotated is directly owned by an implemented object or feature and the patch does not imply broader zone completeness.
+
 Primary evidence:
 
 - current `skdisasm` pointer tables and code references
