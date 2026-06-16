@@ -183597,7 +183597,7 @@ loc_87952:
 
 loc_8795E:
 		move.b	#4,routine(a0)
-		move.l	#byte_87A10,$30(a0)
+		move.l	#AniRaw_BlastoidAttack,$30(a0)
 		move.l	#loc_879A0,$34(a0)
 
 locret_87974:
@@ -183615,7 +183615,7 @@ loc_87976:
 		bpl.w	locret_87974
 		moveq	#signextendB(sfx_Projectile),d0
 		jsr	(Play_SFX).l
-		lea	ChildObjDat_879F8(pc),a2
+		lea	ChildObjDat_BlastoidProjectile(pc),a2
 		jmp	CreateChild5_ComplexAdjusted(pc)
 ; ---------------------------------------------------------------------------
 
@@ -183652,20 +183652,20 @@ ObjDat_Blastoid:
 		dc.w make_art_tile(ArtTile_Blastoid,1,1)
 		dc.w   $280
 		dc.b  $14,  $C,   0, $D7
-ObjDat3_879EC:
+ObjDat3_BlastoidProjectile:	; ObjDat3_879EC
 		dc.l Map_Blastoid
 		dc.w make_art_tile(ArtTile_Blastoid,1,1)
 		dc.w   $280
 		dc.b    4,   4,   2, $98
-ChildObjDat_879F8:
+ChildObjDat_BlastoidProjectile:	; ChildObjDat_879F8
 		dc.w 1-1
 		dc.l S3KBadnikProjectile_Init
-		dc.l ObjDat3_879EC
-		dc.l byte_87A1F
+		dc.l ObjDat3_BlastoidProjectile
+		dc.l AniRaw_BlastoidProjectile
 		dc.l Move_AnimateRaw
 		dc.b -$14,  -7
 		dc.w  -$200, -$100
-byte_87A10:
+AniRaw_BlastoidAttack:	; byte_87A10
 		dc.b    0, $7F
 		dc.b    1,   4
 		dc.b    0,   9
@@ -183674,7 +183674,7 @@ byte_87A10:
 		dc.b    1,   4
 		dc.b    0, $3F
 		dc.b  $F4
-byte_87A1F:
+AniRaw_BlastoidProjectile:	; byte_87A1F
 		dc.b    0,   2,   3, $FC
 		even
 ; ---------------------------------------------------------------------------
