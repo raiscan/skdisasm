@@ -65744,8 +65744,8 @@ Obj_HCZHandLauncher:
 		move.w	#$50,$30(a0)
 		bset	#7,status(a0)
 		jsr	(AllocateObjectAfterCurrent).l
-		bne.s	loc_30B52
-		move.l	#loc_30DEC,(a1)
+		bne.s	HCZHandLauncher_SetMain
+		move.l	#HCZHandLauncher_Arm,(a1)
 		move.l	#Map_HCZHandLauncher,mappings(a1)
 		move.w	#make_art_tile(ArtTile_HCZMisc+$1A,1,0),art_tile(a1)
 		move.b	render_flags(a0),render_flags(a1)
@@ -65762,66 +65762,66 @@ Obj_HCZHandLauncher:
 		move.w	y_pos(a0),y_pos(a1)
 		move.w	a0,$3C(a1)
 
-loc_30B52:
-		move.l	#loc_30B58,(a0)
+HCZHandLauncher_SetMain:
+		move.l	#HCZHandLauncher_Main,(a0)
 
-loc_30B58:
+HCZHandLauncher_Main:
 		move.w	x_pos(a0),d1
 		subi.w	#$20,d1
 		move.w	(Player_1+x_pos).w,d0
 		sub.w	d1,d0
 		cmpi.w	#$40,d0
-		blo.s	loc_30B78
+		blo.s	HCZHandLauncher_PlayerInRange
 		move.w	(Player_2+x_pos).w,d0
 		sub.w	d1,d0
 		cmpi.w	#$40,d0
-		bhs.s	loc_30BD6
+		bhs.s	HCZHandLauncher_RestoreOffset
 
-loc_30B78:
+HCZHandLauncher_PlayerInRange:
 		tst.b	$34(a0)
-		beq.s	loc_30BB0
+		beq.s	HCZHandLauncher_WaitForGrab
 		move.b	#7,mapping_frame(a0)
 		move.w	#$80,priority(a0)
 		tst.w	$36(a0)
-		beq.s	loc_30B96
+		beq.s	HCZHandLauncher_CheckLaunchOffset
 		subq.w	#1,$36(a0)
-		bra.s	loc_30BD0
+		bra.s	HCZHandLauncher_CheckHeldPlayers
 ; ---------------------------------------------------------------------------
 
-loc_30B96:
+HCZHandLauncher_CheckLaunchOffset:
 		tst.w	$30(a0)
-		beq.s	loc_30BA2
+		beq.s	HCZHandLauncher_StartLaunch
 		subq.w	#8,$30(a0)
-		bra.s	loc_30BD0
+		bra.s	HCZHandLauncher_CheckHeldPlayers
 ; ---------------------------------------------------------------------------
 
-loc_30BA2:
-		move.l	#loc_30C06,(a0)
+HCZHandLauncher_StartLaunch:
+		move.l	#HCZHandLauncher_LaunchReturn,(a0)
 		move.w	#60-1,$36(a0)
-		bra.s	loc_30BD0
+		bra.s	HCZHandLauncher_CheckHeldPlayers
 ; ---------------------------------------------------------------------------
 
-loc_30BB0:
+HCZHandLauncher_WaitForGrab:
 		move.w	#20-1,$36(a0)
 		move.b	#6,mapping_frame(a0)
 		move.w	#$200,priority(a0)
 		cmpi.w	#$18,$30(a0)
-		bls.s	loc_30BD0
+		bls.s	HCZHandLauncher_CheckHeldPlayers
 		subq.w	#8,$30(a0)
-		bra.s	loc_30BE2
+		bra.s	HCZHandLauncher_UpdateSolid
 ; ---------------------------------------------------------------------------
 
-loc_30BD0:
-		bsr.w	sub_30CE0
-		bra.s	loc_30BE2
+HCZHandLauncher_CheckHeldPlayers:
+		bsr.w	HCZHandLauncher_CheckPlayers
+		bra.s	HCZHandLauncher_UpdateSolid
 ; ---------------------------------------------------------------------------
 
-loc_30BD6:
+HCZHandLauncher_RestoreOffset:
 		cmpi.w	#$50,$30(a0)
-		beq.s	loc_30BE2
+		beq.s	HCZHandLauncher_UpdateSolid
 		addq.w	#8,$30(a0)
 
-loc_30BE2:
+HCZHandLauncher_UpdateSolid:
 		move.w	$30(a0),d0
 		add.w	$32(a0),d0
 		move.w	d0,y_pos(a0)
@@ -65832,75 +65832,75 @@ loc_30BE2:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 
-loc_30C06:
+HCZHandLauncher_LaunchReturn:
 		tst.w	$36(a0)
-		beq.s	loc_30C16
+		beq.s	HCZHandLauncher_CheckReset
 		subq.w	#1,$36(a0)
-		bsr.w	sub_30CE0
-		bra.s	loc_30C50
+		bsr.w	HCZHandLauncher_CheckPlayers
+		bra.s	HCZHandLauncher_UpdateAfterLaunch
 ; ---------------------------------------------------------------------------
 
-loc_30C16:
+HCZHandLauncher_CheckReset:
 		cmpi.w	#$50,$30(a0)
-		bne.s	loc_30C34
+		bne.s	HCZHandLauncher_ExtendAfterLaunch
 		move.b	#0,$34(a0)
-		move.l	#loc_30B58,(a0)
+		move.l	#HCZHandLauncher_Main,(a0)
 		moveq	#signextendB(sfx_Dash),d0
 		jsr	(Play_SFX).l
-		bra.s	loc_30C50
+		bra.s	HCZHandLauncher_UpdateAfterLaunch
 ; ---------------------------------------------------------------------------
 
-loc_30C34:
+HCZHandLauncher_ExtendAfterLaunch:
 		cmpi.w	#$18,$30(a0)
-		bne.s	loc_30C4C
-		bsr.w	sub_30C7C
+		bne.s	HCZHandLauncher_AddReturnOffset
+		bsr.w	HCZHandLauncher_ReleaseHeldPlayers
 		move.b	#6,mapping_frame(a0)
 		move.w	#$200,priority(a0)
 
-loc_30C4C:
+HCZHandLauncher_AddReturnOffset:
 		addq.w	#8,$30(a0)
 
-loc_30C50:
+HCZHandLauncher_UpdateAfterLaunch:
 		move.w	$30(a0),d0
 		add.w	$32(a0),d0
 		move.w	d0,y_pos(a0)
 		cmpi.w	#$18,$30(a0)
-		bhi.s	loc_30C76
+		bhi.s	HCZHandLauncher_DisplayAfterLaunch
 		move.w	#$20,d1
 		move.w	#$11,d3
 		move.w	x_pos(a0),d4
 		jsr	(SolidObjectTop).l
 
-loc_30C76:
+HCZHandLauncher_DisplayAfterLaunch:
 		jmp	(Sprite_OnScreen_Test).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_30C7C:
+HCZHandLauncher_ReleaseHeldPlayers:
 		lea	(Player_1).w,a1
 		moveq	#p1_standing_bit,d6
-		bsr.w	sub_30C8C
+		bsr.w	HCZHandLauncher_ReleaseHeldPlayer
 		lea	(Player_2).w,a1
 		moveq	#p2_standing_bit,d6
-; End of function sub_30C7C
+; End of function HCZHandLauncher_ReleaseHeldPlayers
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_30C8C:
+HCZHandLauncher_ReleaseHeldPlayer:
 		bclr	d6,$35(a0)
-		beq.s	loc_30CCC
+		beq.s	HCZHandLauncher_ClearStandingFlag
 		move.w	#$1000,ground_vel(a1)
 		move.w	#$1000,x_vel(a1)
 		move.w	#0,y_vel(a1)
 		btst	#0,status(a0)
-		beq.s	loc_30CB4
+		beq.s	HCZHandLauncher_ClearPlayerControl
 		neg.w	ground_vel(a1)
 		neg.w	x_vel(a1)
 
-loc_30CB4:
+HCZHandLauncher_ClearPlayerControl:
 		move.b	#0,anim(a1)
 		move.b	#0,object_control(a1)
 		bclr	#Status_OnObj,status(a1)
@@ -65908,77 +65908,77 @@ loc_30CB4:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_30CCC:
+HCZHandLauncher_ClearStandingFlag:
 		bclr	d6,status(a0)
-		beq.s	locret_30CDE
+		beq.s	HCZHandLauncher_ReleasePlayerReturn
 		bclr	#Status_OnObj,status(a1)
 		bset	#Status_InAir,status(a1)
 
-locret_30CDE:
+HCZHandLauncher_ReleasePlayerReturn:
 		rts
-; End of function sub_30C8C
+; End of function HCZHandLauncher_ReleaseHeldPlayer
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_30CE0:
+HCZHandLauncher_CheckPlayers:
 		lea	(Player_1).w,a1
 		moveq	#p1_standing_bit,d6
 		move.b	(Ctrl_1_pressed_logical).w,d0
-		bsr.w	sub_30CF8
+		bsr.w	HCZHandLauncher_CheckPlayer
 		lea	(Player_2).w,a1
 		moveq	#p2_standing_bit,d6
 		move.b	(Ctrl_2_pressed_logical).w,d0
-; End of function sub_30CE0
+; End of function HCZHandLauncher_CheckPlayers
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_30CF8:
+HCZHandLauncher_CheckPlayer:
 		btst	d6,$35(a0)
-		beq.s	loc_30D4E
+		beq.s	HCZHandLauncher_TryGrabPlayer
 		andi.b	#button_A_mask|button_B_mask|button_C_mask,d0
-		beq.s	locret_30D4C
+		beq.s	HCZHandLauncher_CheckPlayerReturn
 		bclr	d6,$35(a0)
 		bclr	d6,status(a0)
 		move.w	#$800,ground_vel(a1)
 		move.w	#$800,x_vel(a1)
 		move.w	#-$400,y_vel(a1)
 		btst	#0,status(a0)
-		beq.s	loc_30D2E
+		beq.s	HCZHandLauncher_JumpReleaseClear
 		neg.w	ground_vel(a1)
 		neg.w	x_vel(a1)
 
-loc_30D2E:
+HCZHandLauncher_JumpReleaseClear:
 		move.b	#0,object_control(a1)
 		bclr	#Status_OnObj,status(a1)
 		bset	#Status_InAir,status(a1)
 		tst.b	$35(a0)
-		bne.s	locret_30D4C
+		bne.s	HCZHandLauncher_CheckPlayerReturn
 		move.b	#0,$34(a0)
 
-locret_30D4C:
+HCZHandLauncher_CheckPlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_30D4E:
+HCZHandLauncher_TryGrabPlayer:
 		btst	d6,status(a0)
-		beq.w	locret_30DEA
+		beq.w	HCZHandLauncher_GrabReturn
 		tst.b	$34(a0)
-		bne.s	loc_30D6E
+		bne.s	HCZHandLauncher_AttachPlayer
 		move.w	x_pos(a1),d0
 		addi.w	#8,d0
 		sub.w	x_pos(a0),d0
 		cmpi.w	#2*8,d0
-		bhs.s	locret_30DEA
+		bhs.s	HCZHandLauncher_GrabReturn
 
-loc_30D6E:
+HCZHandLauncher_AttachPlayer:
 		tst.b	object_control(a1)
-		bne.s	locret_30DEA
+		bne.s	HCZHandLauncher_GrabReturn
 		tst.w	(Debug_placement_mode).w
-		bne.s	locret_30DEA
+		bne.s	HCZHandLauncher_GrabReturn
 		bset	d6,$35(a0)
 		moveq	#signextendB(sfx_Roll),d0
 		jsr	(Play_SFX).l
@@ -65987,10 +65987,10 @@ loc_30D6E:
 		move.b	#9,x_radius(a1)
 		bclr	#Status_Roll,status(a1)
 		cmpi.l	#Obj_Tails,(a1)
-		bne.s	loc_30DAC
+		bne.s	HCZHandLauncher_SetPlayerControl
 		move.b	#$F,y_radius(a1)
 
-loc_30DAC:
+HCZHandLauncher_SetPlayerControl:
 		move.b	#1,object_control(a1)
 		bclr	#Status_Push,status(a1)
 		move.w	x_pos(a0),x_pos(a1)
@@ -65998,35 +65998,35 @@ loc_30DAC:
 		move.w	#$1000,ground_vel(a1)
 		bclr	#Status_Facing,status(a1)
 		btst	#0,status(a0)
-		beq.s	loc_30DE4
+		beq.s	HCZHandLauncher_SetGrabActive
 		addq.w	#2*2,x_pos(a1)
 		neg.w	ground_vel(a1)
 		bset	#Status_Facing,status(a1)
 
-loc_30DE4:
+HCZHandLauncher_SetGrabActive:
 		move.b	#1,$34(a0)
 
-locret_30DEA:
+HCZHandLauncher_GrabReturn:
 		rts
-; End of function sub_30CF8
+; End of function HCZHandLauncher_CheckPlayer
 
 ; ---------------------------------------------------------------------------
 
-loc_30DEC:
+HCZHandLauncher_Arm:
 		movea.w	$3C(a0),a1
 		move.w	y_pos(a1),y_pos(a0)
 		cmpi.w	#$18,$30(a1)
-		bls.s	loc_30E00
+		bls.s	HCZHandLauncher_ArmAnimate
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_30E00:
+HCZHandLauncher_ArmAnimate:
 		addq.b	#1,mapping_frame(a0)
 		cmpi.b	#6,mapping_frame(a0)
-		blo.s	loc_30E12
+		blo.s	HCZHandLauncher_ArmDisplay
 		move.b	#0,mapping_frame(a0)
 
-loc_30E12:
+HCZHandLauncher_ArmDisplay:
 		jmp	(Sprite_OnScreen_Test).l
 ; ---------------------------------------------------------------------------
 byte_30E18:
@@ -66289,7 +66289,7 @@ locret_31106:
 Map_CNZDoorHorizontal:
 		include "Levels/CNZ/Misc Object Data/Map - Door Horizontal.asm"
 ; ---------------------------------------------------------------------------
-word_31124:
+HCZConveyor_BoundsData:
 		dc.w   $B28,  $CD8
 		dc.w   $BA8,  $CD8
 		dc.w   $BA8,  $CD8
@@ -66313,121 +66313,121 @@ Obj_HCZConveyorBelt:
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		tst.b	(a1,d0.w)
-		beq.s	loc_31186
+		beq.s	HCZConveyorBelt_Init
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_31180
+		beq.s	HCZConveyorBelt_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_31180:
+HCZConveyorBelt_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_31186:
+HCZConveyorBelt_Init:
 		move.b	#1,(a1,d0.w)
 		andi.w	#$F,d0
 		lsl.w	#2,d0
-		lea	word_31124(pc,d0.w),a1
+		lea	HCZConveyor_BoundsData(pc,d0.w),a1
 		move.w	(a1)+,d0
 		move.w	d0,$3C(a0)
 		btst	#0,status(a0)
-		bne.s	loc_311A6
+		bne.s	HCZConveyorBelt_StoreLeftBound
 		subq.w	#8,d0
 
-loc_311A6:
+HCZConveyorBelt_StoreLeftBound:
 		move.w	d0,$40(a0)
 		move.w	(a1)+,d0
 		move.w	d0,$3E(a0)
 		btst	#0,status(a0)
-		beq.s	loc_311BA
+		beq.s	HCZConveyorBelt_StoreRightBound
 		addq.w	#8,d0
 
-loc_311BA:
+HCZConveyorBelt_StoreRightBound:
 		move.w	d0,$42(a0)
-		move.l	#loc_311C4,(a0)
+		move.l	#HCZConveyorBelt_Main,(a0)
 
-loc_311C4:
+HCZConveyorBelt_Main:
 		lea	$32(a0),a2
 		lea	(Player_1).w,a1
 		move.w	(Ctrl_1_logical).w,d1
 		moveq	#0,d2
-		bsr.s	sub_31226
+		bsr.s	HCZConveyorBelt_ProcessPlayer
 		addq.w	#1,a2
 		lea	(Player_2).w,a1
 		move.w	(Ctrl_2_logical).w,d1
 		moveq	#1,d2
-		bsr.s	sub_31226
+		bsr.s	HCZConveyorBelt_ProcessPlayer
 		move.w	(Camera_X_pos_coarse_back).w,d1
 		move.w	$3C(a0),d0
 		andi.w	#$FF80,d0
 		subi.w	#$280,d0
 		cmp.w	d0,d1
-		blo.s	loc_31204
+		blo.s	HCZConveyorBelt_DeleteAndReleaseSlot
 		move.w	$3E(a0),d0
 		andi.w	#$FF80,d0
 		cmp.w	d0,d1
-		bhi.s	loc_31204
+		bhi.s	HCZConveyorBelt_DeleteAndReleaseSlot
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_31204:
+HCZConveyorBelt_DeleteAndReleaseSlot:
 		lea	(Conveyor_belt_load_array).w,a1
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		move.b	#0,(a1,d0.w)
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_31220
+		beq.s	HCZConveyorBelt_DeleteAfterRelease
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_31220:
+HCZConveyorBelt_DeleteAfterRelease:
 		jmp	(Delete_Current_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_31226:
+HCZConveyorBelt_ProcessPlayer:
 		tst.b	(a2)
-		beq.w	loc_31322
+		beq.w	HCZConveyorBelt_CheckCaptureCooldown
 		tst.w	(Debug_placement_mode).w
-		bne.w	loc_312D4
+		bne.w	HCZConveyorBelt_ReleasePlayer
 		cmpi.b	#4,routine(a1)
-		bhs.w	loc_312D4
+		bhs.w	HCZConveyorBelt_ReleasePlayer
 		btst	#button_left+8,d1
-		beq.s	loc_31260
+		beq.s	HCZConveyorBelt_CheckRightInput
 		subq.w	#1,x_pos(a1)
 		subq.b	#1,6(a2)
-		bpl.s	loc_31260
+		bpl.s	HCZConveyorBelt_CheckRightInput
 		move.b	#7,6(a2)
 		addi.b	#$10,8(a2)
 		andi.b	#$10,8(a2)
 
-loc_31260:
+HCZConveyorBelt_CheckRightInput:
 		btst	#button_right+8,d1
-		beq.s	loc_31282
+		beq.s	HCZConveyorBelt_ApplyMovement
 		addq.w	#1,x_pos(a1)
 		subq.b	#1,6(a2)
-		bpl.s	loc_31282
+		bpl.s	HCZConveyorBelt_ApplyMovement
 		move.b	#7,6(a2)
 		addi.b	#$10,8(a2)
 		andi.b	#$10,8(a2)
 
-loc_31282:
+HCZConveyorBelt_ApplyMovement:
 		andi.w	#button_A_mask|button_B_mask|button_C_mask,d1
-		bne.w	loc_312C0
+		bne.w	HCZConveyorBelt_PlayerJumpOff
 		moveq	#2,d0
 		btst	#0,status(a0)
-		beq.s	loc_31296
+		beq.s	HCZConveyorBelt_MovePlayer
 		neg.w	d0
 
-loc_31296:
+HCZConveyorBelt_MovePlayer:
 		add.w	d0,x_pos(a1)
 		move.w	x_pos(a1),d0
 		cmp.w	$40(a0),d0
-		blo.s	loc_312D4
+		blo.s	HCZConveyorBelt_ReleasePlayer
 		cmp.w	$42(a0),d0
-		bhs.s	loc_312D4
-		bsr.w	sub_3145A
+		bhs.s	HCZConveyorBelt_ReleasePlayer
+		bsr.w	HCZConveyorBelt_UpdatePlayerPose
 		moveq	#0,d0
 		move.b	mapping_frame(a1),d0
 		move.l	a2,-(sp)
@@ -66436,20 +66436,20 @@ loc_31296:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_312C0:
+HCZConveyorBelt_PlayerJumpOff:
 		move.w	#-$500,y_vel(a1)
 		btst	#Status_Underwater,status(a1)
-		beq.s	loc_312D4
+		beq.s	HCZConveyorBelt_ReleasePlayer
 		move.w	#-$200,y_vel(a1)
 
-loc_312D4:
+HCZConveyorBelt_ReleasePlayer:
 		clr.b	(a2)
 		move.b	#60,2(a2)
 		btst	#Status_Underwater,status(a1)
-		beq.s	loc_312EA
+		beq.s	HCZConveyorBelt_SetPlayerAirborne
 		move.b	#90,2(a2)
 
-loc_312EA:
+HCZConveyorBelt_SetPlayerAirborne:
 		andi.b	#$FC,object_control(a1)
 		bset	#Status_InAir,status(a1)
 		move.b	#1,jumping(a1)
@@ -66462,36 +66462,36 @@ loc_312EA:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_31322:
+HCZConveyorBelt_CheckCaptureCooldown:
 		tst.b	2(a2)
-		beq.s	loc_3132E
+		beq.s	HCZConveyorBelt_TryCaptureLower
 		subq.b	#1,2(a2)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_3132E:
+HCZConveyorBelt_TryCaptureLower:
 		move.w	x_pos(a1),d0
 		cmp.w	$40(a0),d0
-		blo.w	locret_313D4
+		blo.w	HCZConveyorBelt_ProcessPlayerReturn
 		cmp.w	$42(a0),d0
-		bhs.w	locret_313D4
+		bhs.w	HCZConveyorBelt_ProcessPlayerReturn
 		cmpi.w	#1,ground_vel(a1)
-		beq.w	loc_313D6
+		beq.w	HCZConveyorBelt_TryCaptureUpper
 		move.w	y_pos(a0),d0
 		addi.w	#$14,d0
 		cmp.w	y_pos(a1),d0
-		bhs.s	locret_313D4
+		bhs.s	HCZConveyorBelt_ProcessPlayerReturn
 		addi.w	#$10,d0
 		cmp.w	y_pos(a1),d0
-		blo.s	locret_313D4
+		blo.s	HCZConveyorBelt_ProcessPlayerReturn
 		tst.w	(Debug_placement_mode).w
-		bne.s	locret_313D4
+		bne.s	HCZConveyorBelt_ProcessPlayerReturn
 		cmpi.b	#4,routine(a1)
-		bhs.s	locret_313D4
+		bhs.s	HCZConveyorBelt_ProcessPlayerReturn
 		tst.b	object_control(a1)
-		bne.s	locret_313D4
+		bne.s	HCZConveyorBelt_ProcessPlayerReturn
 		tst.w	y_vel(a1)
-		bmi.s	locret_313D4
+		bmi.s	HCZConveyorBelt_ProcessPlayerReturn
 		clr.w	x_vel(a1)
 		clr.w	y_vel(a1)
 		clr.w	ground_vel(a1)
@@ -66512,24 +66512,24 @@ loc_3132E:
 		jsr	(Perform_Player_DPLC).l
 		movea.l	(sp)+,a2
 
-locret_313D4:
+HCZConveyorBelt_ProcessPlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_313D6:
+HCZConveyorBelt_TryCaptureUpper:
 		move.w	y_pos(a0),d0
 		subi.w	#$14,d0
 		cmp.w	y_pos(a1),d0
-		bhs.s	locret_313D4
+		bhs.s	HCZConveyorBelt_ProcessPlayerReturn
 		addi.w	#$10,d0
 		cmp.w	y_pos(a1),d0
-		blo.s	locret_313D4
+		blo.s	HCZConveyorBelt_ProcessPlayerReturn
 		tst.w	(Debug_placement_mode).w
-		bne.s	locret_313D4
+		bne.s	HCZConveyorBelt_ProcessPlayerReturn
 		cmpi.b	#4,routine(a1)
-		bhs.s	locret_313D4
+		bhs.s	HCZConveyorBelt_ProcessPlayerReturn
 		tst.b	object_control(a1)
-		bne.s	locret_313D4
+		bne.s	HCZConveyorBelt_ProcessPlayerReturn
 		clr.w	x_vel(a1)
 		clr.w	y_vel(a1)
 		clr.w	ground_vel(a1)
@@ -66550,81 +66550,81 @@ loc_313D6:
 		jsr	(Perform_Player_DPLC).l
 		movea.l	(sp)+,a2
 		rts
-; End of function sub_31226
+; End of function HCZConveyorBelt_ProcessPlayer
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_3145A:
+HCZConveyorBelt_UpdatePlayerPose:
 		tst.w	ground_vel(a1)
-		bne.s	loc_31480
+		bne.s	HCZConveyorBelt_UpdateGroundedPose
 		move.b	4(a2),d0
-		beq.s	loc_3147E
-		bpl.s	loc_31472
+		beq.s	HCZConveyorBelt_ApplyPoseFrame
+		bpl.s	HCZConveyorBelt_DecayPosePositive
 		addi.b	#6,d0
-		bcc.s	loc_31470
+		bcc.s	HCZConveyorBelt_SavePoseOffset
 		moveq	#0,d0
 
-loc_31470:
-		bra.s	loc_3147A
+HCZConveyorBelt_SavePoseOffset:
+		bra.s	HCZConveyorBelt_StorePoseOffset
 ; ---------------------------------------------------------------------------
 
-loc_31472:
+HCZConveyorBelt_DecayPosePositive:
 		subi.b	#6,d0
-		bcc.s	loc_3147A
+		bcc.s	HCZConveyorBelt_StorePoseOffset
 		moveq	#0,d0
 
-loc_3147A:
+HCZConveyorBelt_StorePoseOffset:
 		move.b	d0,4(a2)
 
-loc_3147E:
-		bra.s	loc_314AA
+HCZConveyorBelt_ApplyPoseFrame:
+		bra.s	HCZConveyorBelt_UpdateFrameAndY
 ; ---------------------------------------------------------------------------
 
-loc_31480:
+HCZConveyorBelt_UpdateGroundedPose:
 		clr.w	ground_vel(a1)
 		move.b	4(a2),d0
 		subi.b	#$80,d0
-		beq.s	loc_314AA
-		bpl.s	loc_3149A
+		beq.s	HCZConveyorBelt_UpdateFrameAndY
+		bpl.s	HCZConveyorBelt_DecayGroundedPosePositive
 		addi.b	#6,d0
-		bcc.s	loc_31498
+		bcc.s	HCZConveyorBelt_SaveGroundedPose
 		moveq	#0,d0
 
-loc_31498:
-		bra.s	loc_314A2
+HCZConveyorBelt_SaveGroundedPose:
+		bra.s	HCZConveyorBelt_StoreGroundedPose
 ; ---------------------------------------------------------------------------
 
-loc_3149A:
+HCZConveyorBelt_DecayGroundedPosePositive:
 		subi.b	#6,d0
-		bcc.s	loc_314A2
+		bcc.s	HCZConveyorBelt_StoreGroundedPose
 		moveq	#0,d0
 
-loc_314A2:
+HCZConveyorBelt_StoreGroundedPose:
 		addi.b	#$80,d0
 		move.b	d0,4(a2)
 
-loc_314AA:
+HCZConveyorBelt_UpdateFrameAndY:
 		moveq	#0,d0
 		move.b	4(a2),d0
 		lsr.b	#4,d0
 		add.b	8(a2),d0
-		move.b	byte_314D2(pc,d0.w),d1
+		move.b	HCZConveyorBelt_FrameData(pc,d0.w),d1
 		move.b	d1,mapping_frame(a1)
 		andi.w	#$F,d0
-		move.b	byte_314F2(pc,d0.w),d1
+		move.b	HCZConveyorBelt_YOffsetData(pc,d0.w),d1
 		ext.w	d1
 		add.w	y_pos(a0),d1
 		move.w	d1,y_pos(a1)
 		rts
-; End of function sub_3145A
+; End of function HCZConveyorBelt_UpdatePlayerPose
 
 ; ---------------------------------------------------------------------------
-byte_314D2:
+HCZConveyorBelt_FrameData:
 		dc.b  $94, $63, $64, $64, $65, $65, $65, $66, $66, $66, $66, $67, $67, $67, $68, $68, $95, $63, $64, $64
 		dc.b  $65, $65, $65, $66, $66, $66, $66, $67, $67, $67, $68, $68
-byte_314F2:
+HCZConveyorBelt_YOffsetData:
 		dc.b  $14, $14,  $B,  $B, -$F, -$F, -$F,-$14,-$14,-$14,-$14, -$C, -$C, -$C,  -2,  -2
 ; ---------------------------------------------------------------------------
 
@@ -66633,7 +66633,7 @@ Obj_HCZConveryorSpike:
 		move.b	subtype(a0),d0
 		andi.w	#$F,d0
 		lsl.w	#2,d0
-		lea	word_31124(pc),a1
+		lea	HCZConveyor_BoundsData(pc),a1
 		lea	(a1,d0.w),a1
 		move.w	(a1)+,$3C(a0)
 		move.w	(a1)+,$3E(a0)
@@ -66647,69 +66647,69 @@ Obj_HCZConveryorSpike:
 		move.w	x_pos(a0),$30(a0)
 		move.w	y_pos(a0),$32(a0)
 		btst	#0,status(a0)
-		beq.s	loc_3156E
+		beq.s	HCZConveyorSpike_StartMovingRight
 		addi.w	#$18,y_pos(a0)
-		move.l	#loc_315D2,(a0)
-		bra.w	loc_315D2
+		move.l	#HCZConveyorSpike_MoveLeft,(a0)
+		bra.w	HCZConveyorSpike_MoveLeft
 ; ---------------------------------------------------------------------------
 
-loc_3156E:
+HCZConveyorSpike_StartMovingRight:
 		subi.w	#$18,y_pos(a0)
 		move.w	#$40,angle(a0)
-		move.l	#loc_31580,(a0)
+		move.l	#HCZConveyorSpike_MoveRight,(a0)
 
-loc_31580:
+HCZConveyorSpike_MoveRight:
 		addq.w	#2,x_pos(a0)
 		move.w	x_pos(a0),d0
 		cmp.w	$3E(a0),d0
-		bne.s	loc_3159A
-		move.l	#loc_3159E,(a0)
+		bne.s	HCZConveyorSpike_Display
+		move.l	#HCZConveyorSpike_TurnAtRight,(a0)
 		move.w	x_pos(a0),$30(a0)
 
-loc_3159A:
-		bra.w	loc_31626
+HCZConveyorSpike_Display:
+		bra.w	HCZConveyorSpike_DisplayOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_3159E:
+HCZConveyorSpike_TurnAtRight:
 		subq.w	#2,angle(a0)
 		andi.w	#$7E,angle(a0)
 		move.w	angle(a0),d0
-		bne.s	loc_315B4
-		move.l	#loc_315D2,(a0)
+		bne.s	HCZConveyorSpike_ApplyRightTurnOffset
+		move.l	#HCZConveyorSpike_MoveLeft,(a0)
 
-loc_315B4:
-		lea	word_31664(pc),a1
+HCZConveyorSpike_ApplyRightTurnOffset:
+		lea	HCZConveyorSpike_TurnOffsetData(pc),a1
 		move.w	(a1,d0.w),d1
 		move.w	$20(a1,d0.w),d2
 		add.w	$30(a0),d1
 		add.w	$32(a0),d2
 		move.w	d1,x_pos(a0)
 		move.w	d2,y_pos(a0)
-		bra.s	loc_31626
+		bra.s	HCZConveyorSpike_DisplayOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_315D2:
+HCZConveyorSpike_MoveLeft:
 		subq.w	#2,x_pos(a0)
 		move.w	x_pos(a0),d0
 		cmp.w	$3C(a0),d0
-		bne.s	loc_315EC
-		move.l	#loc_315EE,(a0)
+		bne.s	HCZConveyorSpike_DisplayAfterMoveLeft
+		move.l	#HCZConveyorSpike_TurnAtLeft,(a0)
 		move.w	x_pos(a0),$30(a0)
 
-loc_315EC:
-		bra.s	loc_31626
+HCZConveyorSpike_DisplayAfterMoveLeft:
+		bra.s	HCZConveyorSpike_DisplayOrDelete
 ; ---------------------------------------------------------------------------
 
-loc_315EE:
+HCZConveyorSpike_TurnAtLeft:
 		subq.w	#2,angle(a0)
 		andi.w	#$7E,angle(a0)
 		move.w	angle(a0),d0
 		cmpi.w	#$40,angle(a0)
-		bne.s	loc_3160A
-		move.l	#loc_31580,(a0)
+		bne.s	HCZConveyorSpike_ApplyLeftTurnOffset
+		move.l	#HCZConveyorSpike_MoveRight,(a0)
 
-loc_3160A:
-		lea	word_31664(pc),a1
+HCZConveyorSpike_ApplyLeftTurnOffset:
+		lea	HCZConveyorSpike_TurnOffsetData(pc),a1
 		move.w	(a1,d0.w),d1
 		move.w	2*$10(a1,d0.w),d2
 		add.w	$30(a0),d1
@@ -66717,31 +66717,31 @@ loc_3160A:
 		move.w	d1,x_pos(a0)
 		move.w	d2,y_pos(a0)
 
-loc_31626:
+HCZConveyorSpike_DisplayOrDelete:
 		move.w	(Camera_X_pos_coarse_back).w,d1
 		move.w	$3C(a0),d0
 		andi.w	#$FF80,d0
 		subi.w	#$280,d0
 		cmp.w	d0,d1
-		blo.s	loc_31652
+		blo.s	HCZConveyorSpike_DeleteAndClearRespawn
 		move.w	$3E(a0),d0
 		andi.w	#$FF80,d0
 		cmp.w	d0,d1
-		bhi.s	loc_31652
+		bhi.s	HCZConveyorSpike_DeleteAndClearRespawn
 		jsr	(Add_SpriteToCollisionResponseList).l
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-loc_31652:
+HCZConveyorSpike_DeleteAndClearRespawn:
 		move.w	respawn_addr(a0),d0
-		beq.s	loc_3165E
+		beq.s	HCZConveyorSpike_Delete
 		movea.w	d0,a2
 		bclr	#7,(a2)
 
-loc_3165E:
+HCZConveyorSpike_Delete:
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
-word_31664:
+HCZConveyorSpike_TurnOffsetData:
 		dc.w      0,     2,     4,     6,     9,    $B,    $D,    $F,   $10,   $12,   $13,   $15,   $16,   $16,   $17,   $17
 		dc.w    $18,   $17,   $17,   $16,   $16,   $15,   $13,   $12,   $10,    $F,    $D,    $B,     9,     6,     4,     2
 		dc.w      0,    -3,    -5,    -7,   -$A,   -$C,   -$E,  -$10,  -$11,  -$13,  -$14,  -$16,  -$17,  -$17,  -$18,  -$18
