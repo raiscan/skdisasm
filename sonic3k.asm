@@ -42306,79 +42306,79 @@ Obj_AutoSpin:
 		move.w	#$280,priority(a0)
 		move.b	subtype(a0),d0
 		btst	#2,d0
-		beq.s	loc_1E85C
+		beq.s	AutoSpin_InitHorizontal
 		andi.w	#7,d0
 		move.b	d0,mapping_frame(a0)
 		andi.w	#3,d0
 		add.w	d0,d0
-		move.w	word_1E854(pc,d0.w),$32(a0)
+		move.w	AutoSpin_RangeData(pc,d0.w),$32(a0)
 		move.w	y_pos(a0),d1
 		lea	(Player_1).w,a1
 		cmp.w	y_pos(a1),d1
-		bhs.s	loc_1E83A
+		bhs.s	AutoSpin_VerticalInitP2Side
 		move.b	#1,$34(a0)
 
-loc_1E83A:
+AutoSpin_VerticalInitP2Side:
 		lea	(Player_2).w,a1
 		cmp.w	y_pos(a1),d1
-		bhs.s	loc_1E84A
+		bhs.s	AutoSpin_SetVerticalMain
 		move.b	#1,$35(a0)
 
-loc_1E84A:
-		move.l	#loc_1E9E6,(a0)
-		bra.w	loc_1E9E6
+AutoSpin_SetVerticalMain:
+		move.l	#AutoSpin_VerticalMain,(a0)
+		bra.w	AutoSpin_VerticalMain
 ; ---------------------------------------------------------------------------
-word_1E854:
+AutoSpin_RangeData:
 		dc.w    $20,   $40,   $80,  $100
 ; ---------------------------------------------------------------------------
 
-loc_1E85C:
+AutoSpin_InitHorizontal:
 		andi.w	#3,d0
 		move.b	d0,mapping_frame(a0)
 		add.w	d0,d0
-		move.w	word_1E854(pc,d0.w),$32(a0)
+		move.w	AutoSpin_RangeData(pc,d0.w),$32(a0)
 		move.w	x_pos(a0),d1
 		lea	(Player_1).w,a1
 		cmp.w	x_pos(a1),d1
-		bhs.s	loc_1E880
+		bhs.s	AutoSpin_HorizontalInitP2Side
 		move.b	#1,$34(a0)
 
-loc_1E880:
+AutoSpin_HorizontalInitP2Side:
 		lea	(Player_2).w,a1
 		cmp.w	x_pos(a1),d1
-		bhs.s	loc_1E890
+		bhs.s	AutoSpin_SetHorizontalMain
 		move.b	#1,$35(a0)
 
-loc_1E890:
-		move.l	#loc_1E896,(a0)
+AutoSpin_SetHorizontalMain:
+		move.l	#AutoSpin_HorizontalMain,(a0)
 
-loc_1E896:
+AutoSpin_HorizontalMain:
 		tst.w	(Debug_placement_mode).w
-		bne.s	loc_1E8C0
+		bne.s	AutoSpin_HorizontalDebugDraw
 		move.w	x_pos(a0),d1
 		lea	$34(a0),a2
 		lea	(Player_1).w,a1
-		bsr.s	sub_1E8C6
+		bsr.s	AutoSpin_CheckHorizontalPlayer
 		lea	(Player_2).w,a1
 		cmpi.w	#4,(Tails_CPU_routine).w
-		beq.w	loc_1E8BA
-		bsr.s	sub_1E8C6
+		beq.w	AutoSpin_HorizontalDelete
+		bsr.s	AutoSpin_CheckHorizontalPlayer
 
-loc_1E8BA:
+AutoSpin_HorizontalDelete:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_1E8C0:
+AutoSpin_HorizontalDebugDraw:
 		jmp	(Sprite_OnScreen_Test).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1E8C6:
+AutoSpin_CheckHorizontalPlayer:
 		tst.b	(a2)+
-		bne.s	loc_1E944
+		bne.s	AutoSpin_CheckHorizontalCrossBack
 		cmp.w	x_pos(a1),d1
-		bhi.w	locret_1E9B4
+		bhi.w	AutoSpin_HorizontalPlayerReturn
 		move.b	#1,-1(a2)
 		move.w	y_pos(a0),d2
 		move.w	d2,d3
@@ -42387,39 +42387,39 @@ sub_1E8C6:
 		add.w	d4,d3
 		move.w	y_pos(a1),d4
 		cmp.w	d2,d4
-		blo.w	locret_1E9B4
+		blo.w	AutoSpin_HorizontalPlayerReturn
 		cmp.w	d3,d4
-		bhs.w	locret_1E9B4
+		bhs.w	AutoSpin_HorizontalPlayerReturn
 		btst	#5,subtype(a0)
-		beq.s	loc_1E908
+		beq.s	AutoSpin_HorizontalForwardCross
 		btst	#Status_InAir,status(a1)
-		bne.w	locret_1E9B4
+		bne.w	AutoSpin_HorizontalPlayerReturn
 
-loc_1E908:
+AutoSpin_HorizontalForwardCross:
 		btst	#0,render_flags(a0)
-		bne.s	loc_1E934
+		bne.s	AutoSpin_HorizontalForwardClearSpinFlag
 		btst	#4,subtype(a0)
-		bne.s	loc_1E930
+		bne.s	AutoSpin_HorizontalForwardForceRoll
 		move.w	#$580,ground_vel(a1)
 		move.b	#1,spin_dash_flag(a1)
 		tst.b	subtype(a0)
-		bpl.s	loc_1E930
+		bpl.s	AutoSpin_HorizontalForwardForceRoll
 		move.b	#$81,spin_dash_flag(a1)
 
-loc_1E930:
-		bra.w	loc_1E9B6
+AutoSpin_HorizontalForwardForceRoll:
+		bra.w	AutoSpin_EnsureRoll
 ; ---------------------------------------------------------------------------
 
-loc_1E934:
+AutoSpin_HorizontalForwardClearSpinFlag:
 		btst	#4,subtype(a0)
-		bne.s	locret_1E9B4
+		bne.s	AutoSpin_HorizontalPlayerReturn
 		move.b	#0,spin_dash_flag(a1)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1E944:
+AutoSpin_CheckHorizontalCrossBack:
 		cmp.w	x_pos(a1),d1
-		bls.s	locret_1E9B4
+		bls.s	AutoSpin_HorizontalPlayerReturn
 		move.b	#0,-1(a2)
 		move.w	y_pos(a0),d2
 		move.w	d2,d3
@@ -42428,45 +42428,45 @@ loc_1E944:
 		add.w	d4,d3
 		move.w	y_pos(a1),d4
 		cmp.w	d2,d4
-		blo.s	locret_1E9B4
+		blo.s	AutoSpin_HorizontalPlayerReturn
 		cmp.w	d3,d4
-		bhs.s	locret_1E9B4
+		bhs.s	AutoSpin_HorizontalPlayerReturn
 		btst	#5,subtype(a0)
-		beq.s	loc_1E97C
+		beq.s	AutoSpin_HorizontalBackwardCross
 		btst	#Status_InAir,status(a1)
-		bne.w	locret_1E9B4
+		bne.w	AutoSpin_HorizontalPlayerReturn
 
-loc_1E97C:
+AutoSpin_HorizontalBackwardCross:
 		btst	#0,render_flags(a0)
-		beq.s	loc_1E9A6
+		beq.s	AutoSpin_HorizontalBackwardClearSpinFlag
 		btst	#4,subtype(a0)
-		bne.s	loc_1E9A4
+		bne.s	AutoSpin_HorizontalBackwardForceRoll
 		move.w	#-$580,ground_vel(a1)
 		move.b	#1,spin_dash_flag(a1)
 		tst.b	subtype(a0)
-		bpl.s	loc_1E9A4
+		bpl.s	AutoSpin_HorizontalBackwardForceRoll
 		move.b	#$81,spin_dash_flag(a1)
 
-loc_1E9A4:
-		bra.s	loc_1E9B6
+AutoSpin_HorizontalBackwardForceRoll:
+		bra.s	AutoSpin_EnsureRoll
 ; ---------------------------------------------------------------------------
 
-loc_1E9A6:
+AutoSpin_HorizontalBackwardClearSpinFlag:
 		btst	#4,subtype(a0)
-		bne.s	locret_1E9B4
+		bne.s	AutoSpin_HorizontalPlayerReturn
 		move.b	#0,spin_dash_flag(a1)
 
-locret_1E9B4:
+AutoSpin_HorizontalPlayerReturn:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1E9B6:
+AutoSpin_EnsureRoll:
 		btst	#Status_Roll,status(a1)
-		beq.s	loc_1E9C0
+		beq.s	AutoSpin_ForceRoll
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1E9C0:
+AutoSpin_ForceRoll:
 		bset	#Status_Roll,status(a1)
 		move.b	#$E,y_radius(a1)
 		move.b	#7,x_radius(a1)
@@ -42475,37 +42475,37 @@ loc_1E9C0:
 		moveq	#signextendB(sfx_Roll),d0
 		jsr	(Play_SFX).l
 		rts
-; End of function sub_1E8C6
+; End of function AutoSpin_CheckHorizontalPlayer
 
 ; ---------------------------------------------------------------------------
 
-loc_1E9E6:
+AutoSpin_VerticalMain:
 		tst.w	(Debug_placement_mode).w
-		bne.s	loc_1EA0E
+		bne.s	AutoSpin_VerticalDebugDraw
 		move.w	y_pos(a0),d1
 		lea	$34(a0),a2
 		lea	(Player_1).w,a1
-		bsr.s	sub_1EA14
+		bsr.s	AutoSpin_CheckVerticalPlayer
 		lea	(Player_2).w,a1
 		cmpi.w	#4,(Tails_CPU_routine).w
-		beq.s	loc_1EA08
-		bsr.s	sub_1EA14
+		beq.s	AutoSpin_VerticalDelete
+		bsr.s	AutoSpin_CheckVerticalPlayer
 
-loc_1EA08:
+AutoSpin_VerticalDelete:
 		jmp	(Delete_Sprite_If_Not_In_Range).l
 ; ---------------------------------------------------------------------------
 
-loc_1EA0E:
+AutoSpin_VerticalDebugDraw:
 		jmp	(Sprite_OnScreen_Test).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_1EA14:
+AutoSpin_CheckVerticalPlayer:
 		tst.b	(a2)+
-		bne.w	loc_1EAB0
+		bne.w	AutoSpin_CheckVerticalCrossBack
 		cmp.w	y_pos(a1),d1
-		bhi.w	locret_1EB30
+		bhi.w	AutoSpin_VerticalPlayerReturn
 		move.b	#1,-1(a2)
 		move.w	x_pos(a0),d2
 		move.w	d2,d3
@@ -42514,46 +42514,46 @@ sub_1EA14:
 		add.w	d4,d3
 		move.w	x_pos(a1),d4
 		cmp.w	d2,d4
-		blo.w	locret_1EB30
+		blo.w	AutoSpin_VerticalPlayerReturn
 		cmp.w	d3,d4
-		bhs.w	locret_1EB30
+		bhs.w	AutoSpin_VerticalPlayerReturn
 		btst	#5,subtype(a0)
-		beq.s	loc_1EA58
+		beq.s	AutoSpin_VerticalDownCross
 		btst	#1,status(a1)
-		bne.w	locret_1EB30
+		bne.w	AutoSpin_VerticalPlayerReturn
 
-loc_1EA58:
+AutoSpin_VerticalDownCross:
 		btst	#0,render_flags(a0)
-		bne.s	loc_1EA9E
+		bne.s	AutoSpin_VerticalDownClearSpinFlag
 		btst	#4,subtype(a0)
-		bne.s	loc_1EA9A
+		bne.s	AutoSpin_VerticalDownForceRoll
 		move.b	#1,spin_dash_flag(a1)
 		tst.b	subtype(a0)
-		bpl.s	loc_1EA7A
+		bpl.s	AutoSpin_VerticalDownCheckGroundMode
 		move.b	#$81,spin_dash_flag(a1)
 
-loc_1EA7A:
+AutoSpin_VerticalDownCheckGroundMode:
 		btst	#6,subtype(a0)
-		beq.s	loc_1EA9A
+		beq.s	AutoSpin_VerticalDownForceRoll
 		bclr	#Status_InAir,status(a1)
 		move.b	#$40,angle(a1)
 		move.w	y_vel(a1),ground_vel(a1)
 		move.w	#0,x_vel(a1)
 
-loc_1EA9A:
-		bra.w	loc_1E9B6
+AutoSpin_VerticalDownForceRoll:
+		bra.w	AutoSpin_EnsureRoll
 ; ---------------------------------------------------------------------------
 
-loc_1EA9E:
+AutoSpin_VerticalDownClearSpinFlag:
 		btst	#4,subtype(a0)
-		bne.w	locret_1EB30
+		bne.w	AutoSpin_VerticalPlayerReturn
 		move.b	#0,spin_dash_flag(a1)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_1EAB0:
+AutoSpin_CheckVerticalCrossBack:
 		cmp.w	y_pos(a1),d1
-		bls.s	locret_1EB30
+		bls.s	AutoSpin_VerticalPlayerReturn
 		move.b	#0,-1(a2)
 		move.w	x_pos(a0),d2
 		move.w	d2,d3
@@ -42562,42 +42562,42 @@ loc_1EAB0:
 		add.w	d4,d3
 		move.w	x_pos(a1),d4
 		cmp.w	d2,d4
-		blo.s	locret_1EB30
+		blo.s	AutoSpin_VerticalPlayerReturn
 		cmp.w	d3,d4
-		bhs.s	locret_1EB30
+		bhs.s	AutoSpin_VerticalPlayerReturn
 		btst	#5,subtype(a0)
-		beq.s	loc_1EAE8
+		beq.s	AutoSpin_VerticalUpCross
 		btst	#Status_InAir,status(a1)
-		bne.w	locret_1EB30
+		bne.w	AutoSpin_VerticalPlayerReturn
 
-loc_1EAE8:
+AutoSpin_VerticalUpCross:
 		btst	#0,render_flags(a0)
-		beq.s	loc_1EB22
+		beq.s	AutoSpin_VerticalUpClearSpinFlag
 		btst	#4,subtype(a0)
-		bne.s	loc_1EB1E
+		bne.s	AutoSpin_VerticalUpForceRoll
 		move.b	#1,spin_dash_flag(a1)
 		tst.b	subtype(a0)
-		bpl.s	loc_1EB0A
+		bpl.s	AutoSpin_VerticalUpCheckGroundMode
 		move.b	#$81,spin_dash_flag(a1)
 
-loc_1EB0A:
+AutoSpin_VerticalUpCheckGroundMode:
 		btst	#6,subtype(a0)
-		beq.s	loc_1EB1E
+		beq.s	AutoSpin_VerticalUpForceRoll
 		bclr	#Status_InAir,status(a1)
 		move.b	#$40,angle(a1)
 
-loc_1EB1E:
-		bra.w	loc_1E9B6
+AutoSpin_VerticalUpForceRoll:
+		bra.w	AutoSpin_EnsureRoll
 ; ---------------------------------------------------------------------------
 
-loc_1EB22:
+AutoSpin_VerticalUpClearSpinFlag:
 		btst	#4,subtype(a0)
-		bne.s	locret_1EB30
+		bne.s	AutoSpin_VerticalPlayerReturn
 		move.b	#0,spin_dash_flag(a1)
 
-locret_1EB30:
+AutoSpin_VerticalPlayerReturn:
 		rts
-; End of function sub_1EA14
+; End of function AutoSpin_CheckVerticalPlayer
 
 ; ---------------------------------------------------------------------------
 byte_1EB32:
