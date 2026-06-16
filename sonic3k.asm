@@ -190444,24 +190444,24 @@ Obj_Penguinator:
 		jmp	Sprite_CheckDeleteTouchSlotted(pc)
 ; ---------------------------------------------------------------------------
 Penguinator_Index:
-		dc.w loc_8BB0E-Penguinator_Index
-		dc.w loc_8BB6A-Penguinator_Index
-		dc.w loc_8BC04-Penguinator_Index
-		dc.w loc_8BC1E-Penguinator_Index
-		dc.w loc_8BC6C-Penguinator_Index
-		dc.w loc_8BCBA-Penguinator_Index
-		dc.w loc_8BCF4-Penguinator_Index
-		dc.w loc_8BD3C-Penguinator_Index
+		dc.w Penguinator_Init-Penguinator_Index
+		dc.w Penguinator_Patrol-Penguinator_Index
+		dc.w Penguinator_Hop-Penguinator_Index
+		dc.w Penguinator_Fall-Penguinator_Index
+		dc.w Penguinator_SlideWait-Penguinator_Index
+		dc.w Penguinator_SlideRecover-Penguinator_Index
+		dc.w Penguinator_Decelerate-Penguinator_Index
+		dc.w Penguinator_Wait-Penguinator_Index
 ; ---------------------------------------------------------------------------
 
-loc_8BB0E:
+Penguinator_Init: ; loc_8BB0E
 		lea	ObjSlot_Penguinator(pc),a1
 		jsr	SetUp_ObjAttributesSlotted(pc)
 		bclr	#1,render_flags(a0)
-		beq.s	loc_8BB24
+		beq.s	Penguinator_StartPatrol
 		bset	#7,art_tile(a0)
 
-loc_8BB24:
+Penguinator_StartPatrol: ; loc_8BB24
 		move.b	#2,routine(a0)
 		move.b	#$F,y_radius(a0)
 		move.b	#4,x_radius(a0)
@@ -190469,25 +190469,25 @@ loc_8BB24:
 		clr.b	anim_frame(a0)
 		clr.b	anim_frame_timer(a0)
 		clr.w	$2E(a0)
-		move.l	#byte_8BE0A,$30(a0)
-		move.l	#loc_8BBF4,$34(a0)
+		move.l	#AniRaw_PenguinatorPatrol,$30(a0)
+		move.l	#Penguinator_ReverseDirection,$34(a0)
 		moveq	#2,d0
 		btst	#0,render_flags(a0)
-		bne.s	loc_8BB64
+		bne.s	Penguinator_StorePatrolAcceleration
 		neg.w	d0
 
-loc_8BB64:
+Penguinator_StorePatrolAcceleration: ; loc_8BB64
 		move.w	d0,$40(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BB6A:
+Penguinator_Patrol: ; loc_8BB6A
 		jsr	Animate_RawGetFaster(pc)
-		beq.s	loc_8BB78
+		beq.s	Penguinator_PatrolMove
 		cmpi.b	#2,$2E(a0)
-		bls.s	loc_8BB90
+		bls.s	Penguinator_CheckHopStartSlope
 
-loc_8BB78:
+Penguinator_PatrolMove: ; loc_8BB78
 		move.w	$40(a0),d0
 		move.w	x_vel(a0),d1
 		add.w	d0,d1
@@ -190496,127 +190496,127 @@ loc_8BB78:
 		jmp	ObjHitFloor2_DoRoutine(pc)
 ; ---------------------------------------------------------------------------
 
-loc_8BB90:
+Penguinator_CheckHopStartSlope: ; loc_8BB90
 		jsr	(ObjCheckFloorDist).l
 		tst.b	d3
-		beq.s	loc_8BBAC
+		beq.s	Penguinator_StartHop
 		btst	#0,render_flags(a0)
-		beq.s	loc_8BBA6
+		beq.s	Penguinator_CheckSlopeFacing
 		bchg	#6,d3
 
-loc_8BBA6:
+Penguinator_CheckSlopeFacing: ; loc_8BBA6
 		btst	#6,d3
-		beq.s	loc_8BBE0
+		beq.s	Penguinator_WaitBeforeHop
 
-loc_8BBAC:
+Penguinator_StartHop: ; loc_8BBAC
 		move.b	#4,routine(a0)
 		move.w	#-$200,d0
 		move.w	#$40,d1
 		btst	#0,render_flags(a0)
-		beq.s	loc_8BBC6
+		beq.s	Penguinator_StoreHopVelocity
 		neg.w	d0
 		neg.w	d1
 
-loc_8BBC6:
+Penguinator_StoreHopVelocity: ; loc_8BBC6
 		move.w	d0,x_vel(a0)
 		move.w	d1,$40(a0)
-		move.l	#byte_8BE11,$30(a0)
-		move.l	#loc_8BC08,$34(a0)
+		move.l	#AniRaw_PenguinatorHop,$30(a0)
+		move.l	#Penguinator_StartFall,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BBE0:
+Penguinator_WaitBeforeHop: ; loc_8BBE0
 		move.b	#$E,routine(a0)
 		move.w	#$40,$2E(a0)
-		move.l	#loc_8BBAC,$34(a0)
+		move.l	#Penguinator_StartHop,$34(a0)
 
-loc_8BBF4:
+Penguinator_ReverseDirection: ; loc_8BBF4
 		neg.w	x_vel(a0)
 		neg.w	$40(a0)
 		bchg	#0,render_flags(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BC04:
+Penguinator_Hop: ; loc_8BC04
 		jmp	Move_AnimateRaw(pc)
 ; ---------------------------------------------------------------------------
 
-loc_8BC08:
+Penguinator_StartFall: ; loc_8BC08
 		move.b	#6,routine(a0)
 		move.b	#$B,y_radius(a0)
-		move.l	#loc_8BC26,$34(a0)
+		move.l	#Penguinator_LandFromHop,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BC1E:
+Penguinator_Fall: ; loc_8BC1E
 		jsr	MoveSprite_LightGravity(pc)
 		jmp	ObjHitFloor_DoRoutine(pc)
 ; ---------------------------------------------------------------------------
 
-loc_8BC26:
+Penguinator_LandFromHop: ; loc_8BC26
 		tst.b	d3
 		move.b	d3,d4
-		bpl.s	loc_8BC2E
+		bpl.s	Penguinator_CheckLandingSlope
 		neg.b	d4
 
-loc_8BC2E:
+Penguinator_CheckLandingSlope: ; loc_8BC2E
 		andi.b	#$F8,d4
-		beq.s	loc_8BC52
+		beq.s	Penguinator_StartSlideWait
 		tst.w	x_vel(a0)
-		bmi.s	loc_8BC3E
+		bmi.s	Penguinator_CheckLandingFacing
 		bchg	#6,d3
 
-loc_8BC3E:
+Penguinator_CheckLandingFacing: ; loc_8BC3E
 		btst	#6,d3
-		bne.s	loc_8BC52
+		bne.s	Penguinator_StartSlideWait
 		neg.w	x_vel(a0)
 		neg.w	$40(a0)
 		bchg	#0,render_flags(a0)
 
-loc_8BC52:
+Penguinator_StartSlideWait: ; loc_8BC52
 		move.b	#8,routine(a0)
 		move.w	#$20,$2E(a0)
-		move.l	#loc_8BC94,$34(a0)
+		move.l	#Penguinator_StartSlideRecover,$34(a0)
 		clr.w	y_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BC6C:
-		bsr.w	sub_8BD88
+Penguinator_SlideWait: ; loc_8BC6C
+		bsr.w	Penguinator_CheckPredictedFloor
 		cmpi.w	#-2,d1
-		blt.w	loc_8BBF4
+		blt.w	Penguinator_ReverseDirection
 		cmpi.w	#$C,d1
-		bge.s	loc_8BC08
+		bge.s	Penguinator_StartFall
 		add.w	d1,y_pos(a0)
-		bsr.w	sub_8BD9C
-		bsr.w	sub_8BDC2
+		bsr.w	Penguinator_UpdateSlideFrame
+		bsr.w	Penguinator_SpawnSlideSnowdust
 		jsr	(MoveSprite2).l
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
-loc_8BC94:
+Penguinator_StartSlideRecover: ; loc_8BC94
 		move.b	#$A,routine(a0)
 		moveq	#8,d0
 		sub.b	mapping_frame(a0),d0
 		move.b	d0,anim_frame(a0)
 		clr.b	anim_frame_timer(a0)
-		move.l	#byte_8BE16,$30(a0)
-		move.l	#loc_8BCDC,$34(a0)
+		move.l	#AniRaw_PenguinatorRecover,$30(a0)
+		move.l	#Penguinator_StartDecelerate,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BCBA:
-		bsr.w	sub_8BD88
+Penguinator_SlideRecover: ; loc_8BCBA
+		bsr.w	Penguinator_CheckPredictedFloor
 		cmpi.w	#-2,d1
-		blt.w	loc_8BBF4
+		blt.w	Penguinator_ReverseDirection
 		cmpi.w	#$C,d1
-		bge.w	loc_8BC08
+		bge.w	Penguinator_StartFall
 		add.w	d1,y_pos(a0)
 		jsr	(MoveSprite2).l
 		jmp	Animate_Raw(pc)
 ; ---------------------------------------------------------------------------
 
-loc_8BCDC:
+Penguinator_StartDecelerate: ; loc_8BCDC
 		move.b	#$C,routine(a0)
 		move.b	#0,mapping_frame(a0)
 		move.b	#$F,y_radius(a0)
@@ -190624,31 +190624,31 @@ loc_8BCDC:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BCF4:
+Penguinator_Decelerate: ; loc_8BCF4
 		move.w	x_vel(a0),d0
 		add.w	$40(a0),d0
 		move.w	d0,x_vel(a0)
-		beq.s	loc_8BD1C
-		bsr.w	sub_8BD88
+		beq.s	Penguinator_StartRestartWait
+		bsr.w	Penguinator_CheckPredictedFloor
 		cmpi.w	#-2,d1
-		blt.s	loc_8BD1C
+		blt.s	Penguinator_StartRestartWait
 		cmpi.w	#$C,d1
-		bge.s	loc_8BD1C
+		bge.s	Penguinator_StartRestartWait
 		add.w	d1,y_pos(a0)
 		jmp	(MoveSprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_8BD1C:
+Penguinator_StartRestartWait: ; loc_8BD1C
 		move.b	#$E,routine(a0)
 		moveq	#0,d0
 		move.b	subtype(a0),d0
 		move.w	d0,$2E(a0)
-		move.l	#loc_8BB24,$34(a0)
+		move.l	#Penguinator_StartPatrol,$34(a0)
 		bchg	#0,render_flags(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BD3C:
+Penguinator_Wait: ; loc_8BD3C
 		jmp	Obj_Wait(pc)
 ; ---------------------------------------------------------------------------
 
@@ -190658,72 +190658,72 @@ Obj_ICZSnowdust:
 		jsr	Refresh_ChildPositionAdjusted(pc)
 		moveq	#0,d0
 		move.b	subtype(a0),d0
-		beq.s	loc_8BD6C
+		beq.s	ICZSnowdust_StartAnimation
 		move.l	#Obj_Wait,(a0)
 		lsl.w	#2,d0
 		subq.w	#1,d0
 		move.w	d0,$2E(a0)
-		move.l	#loc_8BD6C,$34(a0)
+		move.l	#ICZSnowdust_StartAnimation,$34(a0)
 
-locret_8BD6A:
+Penguinator_Return: ; locret_8BD6A
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_8BD6C:
-		move.l	#loc_8BD7A,(a0)
+ICZSnowdust_StartAnimation: ; loc_8BD6C
+		move.l	#ICZSnowdust_Animate,(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 
-loc_8BD7A:
-		lea	byte_8BE1F(pc),a1
+ICZSnowdust_Animate: ; loc_8BD7A
+		lea	AniRaw_ICZSnowdust(pc),a1
 		jsr	Animate_RawNoSST(pc)
 		jmp	(Draw_Sprite).l
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_8BD88:
+Penguinator_CheckPredictedFloor: ; sub_8BD88
 		move.w	x_vel(a0),d3
 		ext.l	d3
 		lsl.l	#8,d3
 		add.l	x_pos(a0),d3
 		swap	d3
 		jmp	(ObjCheckFloorDist2).l
-; End of function sub_8BD88
+; End of function Penguinator_CheckPredictedFloor
 
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_8BD9C:
+Penguinator_UpdateSlideFrame: ; sub_8BD9C
 		moveq	#4,d0
 		tst.b	d3
-		beq.s	loc_8BDAC
+		beq.s	Penguinator_StoreSlideFrame
 		lsr.b	#3,d3
 		andi.w	#$F,d3
-		move.b	RawAni_8BDB2(pc,d3.w),d0
+		move.b	Penguinator_FloorAngleFrames(pc,d3.w),d0
 
-loc_8BDAC:
+Penguinator_StoreSlideFrame: ; loc_8BDAC
 		move.b	d0,mapping_frame(a0)
 		rts
-; End of function sub_8BD9C
+; End of function Penguinator_UpdateSlideFrame
 
 ; ---------------------------------------------------------------------------
-RawAni_8BDB2:
+Penguinator_FloorAngleFrames: ; RawAni_8BDB2
 		dc.b   4,  5,  6,  6,  7,  7,  8,  8,  8,  8,  7,  7,  6,  6,  5,  4
 		even
 
 ; =============== S U B R O U T I N E =======================================
 
 
-sub_8BDC2:
+Penguinator_SpawnSlideSnowdust: ; sub_8BDC2
 		move.w	$2E(a0),d0
 		andi.w	#3,d0
-		bne.s	locret_8BD6A
+		bne.s	Penguinator_Return
 		moveq	#signextendB(sfx_SlideSkidQuiet),d0
 		jsr	(Play_SFX).l
-		lea	ChildObjDat_8BDFA(pc),a2
+		lea	ChildObjDat_PenguinatorSnowdust(pc),a2
 		jmp	CreateChild1_Normal(pc)
-; End of function sub_8BDC2
+; End of function Penguinator_SpawnSlideSnowdust
 
 ; ---------------------------------------------------------------------------
 ObjSlot_Penguinator:
@@ -190738,23 +190738,23 @@ ObjDat_ICZSnowdust:
 		dc.w make_art_tile(ArtTile_ICZSnowdust,1,0)
 		dc.w      0
 		dc.b    4, $18,   0,   0
-ChildObjDat_8BDFA:
+ChildObjDat_PenguinatorSnowdust: ; ChildObjDat_8BDFA
 		dc.w 1-1
 		dc.l Obj_ICZSnowdust
 		dc.b    0,  $C
 DPLCPtr_Penguinator:
 		dc.l ArtUnc_Penguinator
 		dc.l DPLC_Penguinator
-byte_8BE0A:
+AniRaw_PenguinatorPatrol: ; byte_8BE0A
 		dc.b    7, $10
 		dc.b    0,   1
 		dc.b    0,   2
 		dc.b  $FC
-byte_8BE11:
+AniRaw_PenguinatorHop: ; byte_8BE11
 		dc.b    3,   3,   3,   4, $F4
-byte_8BE16:
+AniRaw_PenguinatorRecover: ; byte_8BE16
 		dc.b    3,   8,   8,   7,   6,   5,   4,   3, $F4
-byte_8BE1F:
+AniRaw_ICZSnowdust: ; byte_8BE1F
 		dc.b    0,   0,   0,   1,   2,   3,   4,   5,   4,   3,   2,   1,   0, $F4
 		even
 ; ---------------------------------------------------------------------------
