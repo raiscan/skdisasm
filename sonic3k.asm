@@ -184608,30 +184608,30 @@ Obj_BubblesBadnik:
 		jsr	BubblesBadnik_Index(pc,d1.w)
 		move.b	#$12,collision_flags(a0)
 		cmpi.b	#4,mapping_frame(a0)
-		bne.s	loc_8835E
+		bne.s	BubblesBadnik_PerformDPLC
 		move.b	#$86,collision_flags(a0)
 
-loc_8835E:
+BubblesBadnik_PerformDPLC:
 		lea	PLCPtr_BubblesBadnik(pc),a2
 		jsr	Perform_DPLC(pc)
 		jmp	Sprite_CheckDeleteTouchSlotted(pc)
 ; ---------------------------------------------------------------------------
 BubblesBadnik_Index:
-		dc.w loc_88370-BubblesBadnik_Index
-		dc.w loc_883AC-BubblesBadnik_Index
-		dc.w loc_883E6-BubblesBadnik_Index
+		dc.w BubblesBadnik_Init-BubblesBadnik_Index
+		dc.w BubblesBadnik_Swing-BubblesBadnik_Index
+		dc.w BubblesBadnik_AnimateChain-BubblesBadnik_Index
 ; ---------------------------------------------------------------------------
 
-loc_88370:
+BubblesBadnik_Init:
 		lea	ObjSlot_BubblesBadnik(pc),a1
 		jsr	SetUp_ObjAttributesSlotted(pc)
 		move.w	#-$80,x_vel(a0)
 		btst	#0,render_flags(a0)
-		beq.s	loc_8838A
+		beq.s	BubblesBadnik_InitMovement
 		neg.w	x_vel(a0)
 
-loc_8838A:
-		move.l	#byte_8844D,$30(a0)
+BubblesBadnik_InitMovement:
+		move.l	#BubblesBadnik_SwingAnim,$30(a0)
 		move.w	#$100,d0
 		move.w	d0,$3E(a0)
 		move.w	d0,y_vel(a0)
@@ -184640,46 +184640,46 @@ loc_8838A:
 		rts
 ; ---------------------------------------------------------------------------
 
-loc_883AC:
+BubblesBadnik_Swing:
 		jsr	Animate_RawMultiDelay(pc)
 		move.w	y_vel(a0),d4
 		jsr	Swing_UpAndDown(pc)
 		tst.w	y_vel(a0)
-		bne.s	loc_883E0
+		bne.s	BubblesBadnik_Move
 		tst.w	d4
-		bmi.s	loc_883E0
+		bmi.s	BubblesBadnik_Move
 		move.b	#4,routine(a0)
-		move.l	#byte_8843E,$30(a0)
-		move.l	#loc_88414,$34(a0)
+		move.l	#BubblesBadnik_ChainAnim,$30(a0)
+		move.l	#BubblesBadnik_ReturnToSwing,$34(a0)
 		clr.b	anim_frame(a0)
 		clr.b	anim_frame_timer(a0)
 
-loc_883E0:
+BubblesBadnik_Move:
 		jmp	(MoveSprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_883E6:
+BubblesBadnik_AnimateChain:
 		jsr	Animate_RawMultiDelay(pc)
-		beq.s	loc_883FC
+		beq.s	BubblesBadnik_CheckTurn
 		cmpi.b	#4,anim_frame(a0)
-		bne.s	loc_883FC
+		bne.s	BubblesBadnik_CheckTurn
 		moveq	#signextendB(sfx_ChainTick),d0
 		jsr	(Play_SFX).l
 
-loc_883FC:
+BubblesBadnik_CheckTurn:
 		jsr	Swing_UpAndDown(pc)
 		tst.w	d3
-		beq.s	loc_8840E
+		beq.s	BubblesBadnik_MoveAfterTurn
 		neg.w	x_vel(a0)
 		bchg	#0,render_flags(a0)
 
-loc_8840E:
+BubblesBadnik_MoveAfterTurn:
 		jmp	(MoveSprite2).l
 ; ---------------------------------------------------------------------------
 
-loc_88414:
+BubblesBadnik_ReturnToSwing:
 		move.b	#2,routine(a0)
-		move.l	#byte_8844D,$30(a0)
+		move.l	#BubblesBadnik_SwingAnim,$30(a0)
 		rts
 ; ---------------------------------------------------------------------------
 ObjSlot_BubblesBadnik:
@@ -184692,7 +184692,7 @@ ObjSlot_BubblesBadnik:
 PLCPtr_BubblesBadnik:
 		dc.l ArtUnc_BubblesBadnik
 		dc.l DPLC_BubblesBadnik
-byte_8843E:
+BubblesBadnik_ChainAnim:
 		dc.b    0,  $F
 		dc.b    0, $77
 		dc.b    1,   3
@@ -184701,7 +184701,7 @@ byte_8843E:
 		dc.b    1,   3
 		dc.b    0, $77
 		dc.b  $F4
-byte_8844D:
+BubblesBadnik_SwingAnim:
 		dc.b    0, $7F
 		dc.b    3,   3
 		dc.b    4, $6B
