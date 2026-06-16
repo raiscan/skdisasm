@@ -288,7 +288,7 @@ The tool or manual report should produce Markdown or CSV backlog notes. It shoul
 3. Run and record a baseline build or `chkbitperfect` result.
 4. Create a branch in the standalone `skdisasm` checkout for the SK object pointer pilot.
 5. Prepare the pointer-table audit table using upstream tables, placement data, linked assets, ROM behavior, and OpenGGF only as a cross-check.
-6. Continue local zone-by-zone object identity passes, beginning with AIZ and then adjacent high-confidence areas where primary evidence is strong.
+6. Continue local zone-by-zone object identity passes, beginning with AIZ and then adjacent high-confidence areas where primary evidence is strong; do not include Marble Garden Zone or other unfinished S&K-side zone sweeps until the engine has implemented and validated those zones.
 7. Follow with data ownership passes for implemented objects.
 8. Add behavior notes only where identity and routine structure are already clear.
 9. Maintain an internal backlog of candidate upstream contributions grouped by confidence and review risk.
@@ -311,6 +311,7 @@ Mitigations:
 - use upstream-native terms only
 - keep PRs narrow
 - include evidence in PR descriptions
+- defer Marble Garden Zone and other unfinished S&K-side zone work unless the exact object-local data is implemented, tested, and does not imply broader zone completeness
 - run build and byte-perfect checks in the fork before any future submission
 - prefer comments over renames when confidence is moderate
 - keep experimental work on fork-only branches until ready

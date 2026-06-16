@@ -183882,7 +183882,7 @@ TurboSpiker_Index:
 		dc.w TurboSpiker_HiddenReturnDelay-TurboSpiker_Index
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_Init:
+TurboSpiker_Init: ; loc_87BEC
 		lea	ObjDat_TurboSpiker(pc),a1
 		jsr	SetUp_ObjAttributes(pc)
 		bclr	#1,render_flags(a0)
@@ -183891,7 +183891,7 @@ TurboSpiker_Init:
 		lea	TurboSpiker_HiddenChild(pc),a2
 		jsr	CreateChild1_Normal(pc)
 
-TurboSpiker_InitVisible:
+TurboSpiker_InitVisible: ; loc_87C0A
 		move.b	#$10,x_radius(a0)
 		move.b	#$F,y_radius(a0)
 		move.l	#TurboSpiker_PatrolAnim,$30(a0)
@@ -183908,7 +183908,7 @@ TurboSpiker_InitVisible:
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_Patrol:
+TurboSpiker_Patrol: ; loc_87C48
 		jsr	Find_SonicTails(pc)
 		cmpi.w	#$60,d2
 		bhs.s	TurboSpiker_PatrolMove
@@ -183916,18 +183916,18 @@ TurboSpiker_Patrol:
 		beq.s	TurboSpiker_CheckPlayerSide
 		subq.w	#2,d0
 
-TurboSpiker_CheckPlayerSide:
+TurboSpiker_CheckPlayerSide: ; loc_87C5C
 		tst.w	d0
 		beq.s	TurboSpiker_StartCharge
 
-TurboSpiker_PatrolMove:
+TurboSpiker_PatrolMove: ; loc_87C60
 		jsr	Animate_Raw(pc)
 		jsr	(MoveSprite2).l
 		jsr	Obj_Wait(pc)
 		jmp	ObjHitFloor2_DoRoutine(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_StartTurnDelay:
+TurboSpiker_StartTurnDelay: ; loc_87C72
 		move.b	routine(a0),d0
 		cmpi.b	#4,d0
 		beq.s	TurboSpiker_Return
@@ -183935,11 +183935,11 @@ TurboSpiker_StartTurnDelay:
 		move.b	#4,routine(a0)
 		move.w	#$F,$2E(a0)
 
-TurboSpiker_Return:
+TurboSpiker_Return: ; locret_87C8C
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_StartCharge:
+TurboSpiker_StartCharge: ; loc_87C8E
 		move.b	#6,routine(a0)
 		move.w	#$F,$2E(a0)
 		move.w	#$200,d0
@@ -183947,18 +183947,18 @@ TurboSpiker_StartCharge:
 		beq.s	TurboSpiker_SetChargeVelocity
 		neg.w	d0
 
-TurboSpiker_SetChargeVelocity:
+TurboSpiker_SetChargeVelocity: ; loc_87CA8
 		move.w	d0,x_vel(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_TurnDelay:
+TurboSpiker_TurnDelay: ; loc_87CAE
 		subq.w	#1,$2E(a0)
 		bmi.s	TurboSpiker_EndTurnDelay
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_EndTurnDelay:
+TurboSpiker_EndTurnDelay: ; loc_87CB6
 		move.b	$3A(a0),routine(a0)
 		neg.w	x_vel(a0)
 		bchg	#0,render_flags(a0)
@@ -183966,33 +183966,33 @@ TurboSpiker_EndTurnDelay:
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_ChargeWindup:
+TurboSpiker_ChargeWindup: ; loc_87CCE
 		subq.w	#1,$2E(a0)
 		bmi.s	TurboSpiker_StartChargeMove
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_StartChargeMove:
+TurboSpiker_StartChargeMove: ; loc_87CD6
 		move.b	#8,routine(a0)
 		bset	#1,$38(a0)
 		move.l	#TurboSpiker_ChargeAnim,$30(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_ChargeMove:
+TurboSpiker_ChargeMove: ; loc_87CEC
 		jsr	Animate_Raw(pc)
 		jsr	(MoveSprite2).l
 		jmp	ObjHitFloor2_DoRoutine(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_HiddenWaitForPlayer:
+TurboSpiker_HiddenWaitForPlayer: ; loc_87CFA
 		jsr	Find_SonicTails(pc)
 		cmpi.w	#$60,d2
 		blo.s	TurboSpiker_StartHiddenReveal
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_StartHiddenReveal:
+TurboSpiker_StartHiddenReveal: ; loc_87D06
 		move.b	#$C,routine(a0)
 		bset	#0,$38(a0)
 		move.w	#3,$2E(a0)
@@ -184000,38 +184000,38 @@ TurboSpiker_StartHiddenReveal:
 		jmp	CreateChild1_Normal(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_HiddenRevealDelay:
+TurboSpiker_HiddenRevealDelay: ; loc_87D20
 		subq.w	#1,$2E(a0)
 		bmi.s	TurboSpiker_StartHiddenReturnDelay
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_StartHiddenReturnDelay:
+TurboSpiker_StartHiddenReturnDelay: ; loc_87D28
 		move.b	#$E,routine(a0)
 		move.w	#$180,priority(a0)
 		move.w	#$F,$2E(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_HiddenReturnDelay:
+TurboSpiker_HiddenReturnDelay: ; loc_87D3C
 		subq.w	#1,$2E(a0)
 		bmi.s	TurboSpiker_ReturnToPatrol
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_ReturnToPatrol:
+TurboSpiker_ReturnToPatrol: ; loc_87D44
 		move.b	#2,routine(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_SpikeChild_Init:
+TurboSpiker_SpikeChild_Init: ; loc_87D4C
 		lea	TurboSpiker_SpikeChildObjData(pc),a1
 		jsr	SetUp_ObjAttributes3(pc)
 		move.l	#TurboSpiker_SpikeChild_Attached,(a0)
 		jmp	Child_DrawTouch_Sprite(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_SpikeChild_Attached:
+TurboSpiker_SpikeChild_Attached: ; loc_87D5E
 		jsr	Refresh_ChildPositionAdjusted(pc)
 		movea.w	parent3(a0),a1
 		btst	#1,$38(a1)
@@ -184039,14 +184039,14 @@ TurboSpiker_SpikeChild_Attached:
 		jmp	Child_DrawTouch_Sprite(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_SpikeChild_Launch:
+TurboSpiker_SpikeChild_Launch: ; loc_87D72
 		move.l	#TurboSpiker_SpikeChild_Move,(a0)
 		move.w	#$100,d0
 		btst	#0,render_flags(a0)
 		beq.s	TurboSpiker_SpikeChild_SetVelocity
 		neg.w	d0
 
-TurboSpiker_SpikeChild_SetVelocity:
+TurboSpiker_SpikeChild_SetVelocity: ; loc_87D86
 		move.w	d0,x_vel(a0)
 		move.w	#-$400,y_vel(a0)
 		moveq	#signextendB(sfx_FloorLauncher),d0
@@ -184056,19 +184056,19 @@ TurboSpiker_SpikeChild_SetVelocity:
 		jmp	Sprite_CheckDeleteTouchXY(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_SpikeChild_Move:
+TurboSpiker_SpikeChild_Move: ; loc_87DA4
 		jsr	(MoveSprite2).l
 		jmp	Sprite_CheckDeleteTouchXY(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_LaunchTrail_Init:
+TurboSpiker_LaunchTrail_Init: ; loc_87DAE
 		lea	TurboSpiker_LaunchTrailObjData(pc),a1
 		jsr	SetUp_ObjAttributes3(pc)
 		move.l	#TurboSpiker_LaunchTrail_Main,(a0)
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_LaunchTrail_Main:
+TurboSpiker_LaunchTrail_Main: ; loc_87DC0
 		jsr	Refresh_ChildPositionAdjusted(pc)
 		movea.w	parent3(a0),a1
 		btst	#7,status(a1)
@@ -184079,13 +184079,13 @@ TurboSpiker_LaunchTrail_Main:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_LaunchTrail_Delete:
+TurboSpiker_LaunchTrail_Delete: ; loc_87DE4
 		jmp	Go_Delete_Sprite(pc)
 
 ; =============== S U B R O U T I N E =======================================
 
 
-TurboSpiker_SpawnLaunchParticle:
+TurboSpiker_SpawnLaunchParticle: ; sub_87DE8
 		move.b	(V_int_run_count+3).w,d0
 		andi.b	#3,d0
 		bne.s	TurboSpiker_SpawnLaunchParticleReturn
@@ -184101,13 +184101,13 @@ TurboSpiker_SpawnLaunchParticle:
 		subq.w	#3,d0
 		add.w	d0,y_pos(a1)
 
-TurboSpiker_SpawnLaunchParticleReturn:
+TurboSpiker_SpawnLaunchParticleReturn: ; locret_87E18
 		rts
 ; End of function TurboSpiker_SpawnLaunchParticle
 
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_LaunchParticle_Init:
+TurboSpiker_LaunchParticle_Init: ; loc_87E1A
 		lea	TurboSpiker_LaunchParticleObjData(pc),a1
 		jsr	SetUp_ObjAttributes3(pc)
 		move.l	#TurboSpiker_LaunchParticle_Animate,(a0)
@@ -184116,12 +184116,12 @@ TurboSpiker_LaunchParticle_Init:
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_LaunchParticle_Animate:
+TurboSpiker_LaunchParticle_Animate: ; loc_87E3E
 		jsr	Animate_Raw(pc)
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_Splash_Init:
+TurboSpiker_Splash_Init: ; loc_87E48
 		lea	TurboSpiker_SplashObjData(pc),a1
 		jsr	SetUp_ObjAttributes2(pc)
 		move.l	#TurboSpiker_Splash_Delay,(a0)
@@ -184131,38 +184131,38 @@ TurboSpiker_Splash_Init:
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_Splash_Delay:
+TurboSpiker_Splash_Delay: ; loc_87E66
 		subq.w	#1,$2E(a0)
 		bmi.s	TurboSpiker_Splash_StartAnim
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_Splash_StartAnim:
+TurboSpiker_Splash_StartAnim: ; loc_87E6E
 		move.l	#TurboSpiker_Splash_Animate,(a0)
 		move.l	#TurboSpiker_SplashAnim,$30(a0)
 		move.l	#Go_Delete_Sprite,$34(a0)
 		rts
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_Splash_Animate:
+TurboSpiker_Splash_Animate: ; loc_87E86
 		jsr	Animate_Raw(pc)
 		jmp	(Draw_Sprite).l
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_HiddenChild_Init:
+TurboSpiker_HiddenChild_Init: ; loc_87E90
 		move.l	#TurboSpiker_HiddenChild_Main,(a0)
 		lea	TurboSpiker_HiddenChildObjData(pc),a1
 		jmp	SetUp_ObjAttributes(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_HiddenChild_Main:
+TurboSpiker_HiddenChild_Main: ; loc_87E9E
 		movea.w	parent3(a0),a1
 		btst	#0,$38(a1)
 		bne.s	TurboSpiker_HiddenChild_Delete
 		jmp	Child_Draw_Sprite(pc)
 ; ---------------------------------------------------------------------------
 
-TurboSpiker_HiddenChild_Delete:
+TurboSpiker_HiddenChild_Delete: ; loc_87EAE
 		jmp	(Delete_Current_Sprite).l
 ; ---------------------------------------------------------------------------
 ObjDat_TurboSpiker:
@@ -184170,37 +184170,37 @@ ObjDat_TurboSpiker:
 		dc.w make_art_tile(ArtTile_TurboSpiker,1,0)
 		dc.w   $280
 		dc.b  $20, $20,   0, $1A
-TurboSpiker_SpikeChildObjData:
+TurboSpiker_SpikeChildObjData: ; word_87EC0
 		dc.w   $280
 		dc.b    8, $10,   3, $9E
-TurboSpiker_LaunchTrailObjData:
+TurboSpiker_LaunchTrailObjData: ; word_87EC6
 		dc.w   $200
 		dc.b    4,   8,   4,   0
-TurboSpiker_LaunchParticleObjData:
+TurboSpiker_LaunchParticleObjData: ; word_87ECC
 		dc.w   $280
 		dc.b    4,   4,   5,   0
-TurboSpiker_SplashObjData:
+TurboSpiker_SplashObjData: ; word_87ED2
 		dc.w make_art_tile(ArtTile_TurboSpiker,0,1)
 		dc.w   $200
 		dc.b    8,   8,   8,   0
-TurboSpiker_HiddenChildObjData:
+TurboSpiker_HiddenChildObjData: ; ObjDat3_87EDA
 		dc.l Map_TurboSpikerHidden
 		dc.w make_art_tile($001,2,1)
 		dc.w   $180
 		dc.b  $10, $10,   0,   0
-TurboSpiker_SpikeChild:
+TurboSpiker_SpikeChild: ; ChildObjDat_87EE6
 		dc.w 1-1
 		dc.l TurboSpiker_SpikeChild_Init
 		dc.b    4,   0
-TurboSpiker_LaunchTrailChild:
+TurboSpiker_LaunchTrailChild: ; ChildObjDat_87EEE
 		dc.w 1-1
 		dc.l TurboSpiker_LaunchTrail_Init
 		dc.b   -4, $14
-TurboSpiker_LaunchParticleChild:
+TurboSpiker_LaunchParticleChild: ; ChildObjDat_87EF6
 		dc.w 1-1
 		dc.l TurboSpiker_LaunchParticle_Init
 		dc.b    0,   4
-TurboSpiker_SplashChildren:
+TurboSpiker_SplashChildren: ; ChildObjDat_87EFE
 		dc.w 5-1
 		dc.l TurboSpiker_Splash_Init
 		dc.b    4,  -8
@@ -184212,17 +184212,17 @@ TurboSpiker_SplashChildren:
 		dc.b   -8,   0
 		dc.l TurboSpiker_Splash_Init
 		dc.b    8,   0
-TurboSpiker_HiddenChild:
+TurboSpiker_HiddenChild: ; ChildObjDat_87F1E
 		dc.w 1-1
 		dc.l TurboSpiker_HiddenChild_Init
 		dc.b    0,   0
-TurboSpiker_PatrolAnim:
+TurboSpiker_PatrolAnim: ; byte_87F26
 		dc.b    5,   0,   1,   2, $FC
-TurboSpiker_ChargeAnim:
+TurboSpiker_ChargeAnim: ; byte_87F2B
 		dc.b    1,   0,   1,   2, $FC
-TurboSpiker_LaunchParticleAnim:
+TurboSpiker_LaunchParticleAnim: ; byte_87F30
 		dc.b    0,   5,   5,   5,   6,   7, $F4
-TurboSpiker_SplashAnim:
+TurboSpiker_SplashAnim: ; byte_87F37
 		dc.b    1,   8,   9,  $A,  $B,  $C,  $D, $F4
 		even
 Map_TurboSpikerHidden:
